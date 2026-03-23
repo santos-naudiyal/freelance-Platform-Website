@@ -17,6 +17,7 @@ export default function CreateProjectPage() {
   const { user } = useAuthStore();
   const [step, setStep] = useState(1);
   const [outcome, setOutcome] = useState("Build a high-performance Flutter mobile app for a fintech startup");
+  const [aiData, setAiData] = useState<any>(null);
 
   return (
     <main className="min-h-screen bg-white dark:bg-slate-950">
@@ -140,7 +141,7 @@ export default function CreateProjectPage() {
                 </p>
               </div>
 
-              <AIProjectPlanner outcome={outcome} />
+              <AIProjectPlanner outcome={outcome} onPlanGenerated={(data) => setAiData(data)} />
               
               <div className="flex justify-end">
                 <button 
@@ -170,7 +171,7 @@ export default function CreateProjectPage() {
                 </p>
               </div>
 
-              <AIExpertMatching />
+              <AIExpertMatching outcome={outcome} />
 
               <div className="flex justify-end pt-8">
                 <button 
@@ -203,16 +204,30 @@ export default function CreateProjectPage() {
                 onClick={async () => {
                   if (!user) return;
                   try {
-                    const workspaceId = outcome.toLowerCase().replace(/\s+/g, '-').slice(0, 20);
-                    await setDoc(doc(db, 'workspaces', workspaceId), {
+                    const workspaceId = outcome.toLowerCase().replace(/\s+/g, '-').slice(0, 20) + '-' + Math.random().toString(36).substr(2, 5);
+                    
+                    // Extract budget and skills from aiData if available
+                    const budgetMatch = aiData?.analysis?.investment?.match(/\$(\d+,\d+|\d+)/g);
+                    const minBudget = budgetMatch ? parseInt(budgetMatch[0].replace(/[$,]/g, '')) : 5000;
+                    const maxBudget = budgetMatch && budgetMatch.length > 1 ? parseInt(budgetMatch[1].replace(/[$,]/g, '')) : minBudget + 5000;
+
+                    await setDoc(doc(db, 'Projects', workspaceId), {
+                      id: workspaceId,
                       title: outcome,
+                      description: aiData?.analysis?.description || "A high-performance project architected by AI.",
                       clientId: user.id,
-                      status: 'active',
+                      status: 'open',
+                      budget: {
+                        min: minBudget,
+                        max: maxBudget,
+                        type: 'fixed'
+                      },
+                      skillsRequired: aiData?.analysis?.skills || ['Software Development', 'AI Architecture'],
                       progress: 0,
                       createdAt: serverTimestamp(),
                     });
                     // Initialize some tasks
-                    const tasksRef = collection(db, 'workspaces', workspaceId, 'tasks');
+                    const tasksRef = collection(db, 'Projects', workspaceId, 'tasks');
                     await addDoc(tasksRef, { title: 'Project Initialization', status: 'done', priority: 'medium', createdAt: serverTimestamp() });
                     await addDoc(tasksRef, { title: 'Technical Architecture Review', status: 'in_progress', priority: 'high', createdAt: serverTimestamp() });
                     

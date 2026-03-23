@@ -1,6 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
+// Configure dotenv before any other imports that might use process.env
+dotenv.config();
+
 // Firebase and Routes
 import userRoutes from './routes/userRoutes';
 import freelancerRoutes from './routes/freelancerRoutes';
@@ -9,8 +13,6 @@ import proposalRoutes from './routes/proposalRoutes';
 import portfolioRoutes from './routes/portfolioRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import aiRoutes from './routes/aiRoutes';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

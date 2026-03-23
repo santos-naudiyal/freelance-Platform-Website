@@ -14,7 +14,7 @@ export function useMilestones(workspaceId: string) {
     if (!workspaceId || !isInitialized || !isAuthenticated) return;
 
     const q = query(
-      collection(db, 'workspaces', workspaceId, 'milestones'),
+      collection(db, 'Projects', workspaceId, 'milestones'),
       orderBy('order', 'asc') // Assuming an 'order' field exists
     );
 
@@ -31,7 +31,7 @@ export function useMilestones(workspaceId: string) {
     });
 
     return () => unsubscribe();
-  }, [workspaceId]);
+  }, [workspaceId, isInitialized, isAuthenticated]);
 
   return { milestones, loading };
 }

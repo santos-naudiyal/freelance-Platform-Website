@@ -17,7 +17,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         // Fetch additional user data from Firestore if needed
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        const userDoc = await getDoc(doc(db, 'Users', firebaseUser.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
           setUser({

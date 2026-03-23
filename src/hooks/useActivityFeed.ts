@@ -14,7 +14,7 @@ export function useActivityFeed(workspaceId: string) {
     if (!workspaceId || !isInitialized || !isAuthenticated) return;
 
     const q = query(
-      collection(db, 'workspaces', workspaceId, 'activity'),
+      collection(db, 'Projects', workspaceId, 'activity'),
       orderBy('createdAt', 'desc')
     );
 
@@ -31,7 +31,7 @@ export function useActivityFeed(workspaceId: string) {
     });
 
     return () => unsubscribe();
-  }, [workspaceId]);
+  }, [workspaceId, isInitialized, isAuthenticated]);
 
   return { activities, loading };
 }

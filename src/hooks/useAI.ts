@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { callBackendAI } from '@/lib/gemini';
+import { callBackendAI } from '@/lib/ai';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export function useAI() {

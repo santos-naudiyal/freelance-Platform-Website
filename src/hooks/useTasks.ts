@@ -24,7 +24,7 @@ export function useTasks(workspaceId: string) {
     if (!workspaceId || !isInitialized || !isAuthenticated) return;
 
     const q = query(
-      collection(db, 'workspaces', workspaceId, 'tasks')
+      collection(db, 'Projects', workspaceId, 'tasks')
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -41,11 +41,11 @@ export function useTasks(workspaceId: string) {
     });
 
     return () => unsubscribe();
-  }, [workspaceId]);
+  }, [workspaceId, isInitialized, isAuthenticated]);
 
   const updateTaskStatus = async (taskId: string, status: Task['status']) => {
     try {
-      const taskRef = doc(db, 'workspaces', workspaceId, 'tasks', taskId);
+      const taskRef = doc(db, 'Projects', workspaceId, 'tasks', taskId);
       await updateDoc(taskRef, { status });
     } catch (err) {
       console.error('Update task status error:', err);
@@ -55,7 +55,7 @@ export function useTasks(workspaceId: string) {
 
   const addTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
     try {
-      await addDoc(collection(db, 'workspaces', workspaceId, 'tasks'), {
+      await addDoc(collection(db, 'Projects', workspaceId, 'tasks'), {
         ...task,
         createdAt: serverTimestamp(),
       });

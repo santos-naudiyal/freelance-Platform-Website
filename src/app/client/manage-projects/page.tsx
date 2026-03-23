@@ -24,7 +24,7 @@ import { Project } from '../../../types';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
-  { name: 'Post a Project', href: '/client/post-project', icon: PlusSquare },
+  { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
   { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
@@ -69,7 +69,7 @@ export default function ManageProjectsPage() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-display font-bold">Your Project Listings</h2>
-            <Link href="/client/post-project">
+            <Link href="/create-project">
               <Button size="sm" className="gap-2">
                 <PlusSquare size={16} />
                 New Project
@@ -86,7 +86,7 @@ export default function ManageProjectsPage() {
                   <ClipboardList size={48} className="mx-auto text-slate-300 mb-4" />
                   <h3 className="text-lg font-semibold">No projects posted yet</h3>
                   <p className="text-slate-500 mb-6">Create your first project to start hiring global talent.</p>
-                  <Link href="/client/post-project">
+                  <Link href="/create-project">
                     <Button>Post My First Project</Button>
                   </Link>
                 </CardContent>

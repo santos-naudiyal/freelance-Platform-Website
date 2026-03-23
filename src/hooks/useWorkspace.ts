@@ -15,7 +15,7 @@ export function useWorkspace(workspaceId: string) {
   useEffect(() => {
     if (!workspaceId || !isInitialized || !isAuthenticated) return;
 
-    const docRef = doc(db, 'workspaces', workspaceId);
+    const docRef = doc(db, 'Projects', workspaceId);
 
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -31,7 +31,7 @@ export function useWorkspace(workspaceId: string) {
     });
 
     return () => unsubscribe();
-  }, [workspaceId]);
+  }, [workspaceId, isInitialized, isAuthenticated]);
 
   return { workspace, loading, error };
 }

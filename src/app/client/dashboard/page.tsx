@@ -27,7 +27,7 @@ import { cn } from '../../../components/ui/Button';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
-  { name: 'Post a Project', href: '/client/post-project', icon: PlusSquare },
+  { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
   { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
@@ -116,7 +116,7 @@ export default function ClientDashboard() {
                 {projects.length > 0 ? `You have ${projects.length} active projects running.` : "Post a project to start collaborating with top freelancers."}
               </p>
             </div>
-            <Link href="/client/post-project">
+            <Link href="/create-project">
               <Button className="h-12 px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-primary-500/20">
                 <PlusSquare size={18} />
                 Post a New Project
@@ -175,7 +175,7 @@ export default function ClientDashboard() {
                   ) : projects.length === 0 ? (
                     <div className="py-12 text-center space-y-4">
                        <p className="text-slate-500 font-medium">No active projects found.</p>
-                       <Link href="/client/post-project">
+                       <Link href="/create-project">
                           <Button variant="outline" className="rounded-xl">Post a Project</Button>
                        </Link>
                     </div>
