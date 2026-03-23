@@ -42,7 +42,6 @@ export default async function ExpertProfilePage({
     console.error('Fetch expert error:', err);
   }
 
-  // Fallback to mock data if not found in DB
   const expert: any = expertData || {
     id: 'sarah-chen',
     name: 'Sarah Chen',
@@ -51,9 +50,10 @@ export default async function ExpertProfilePage({
     location: 'Singapore (UTC+8)',
     website: 'chen.systems',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-    rating: 4.9,
-    reviews: 124,
-    match: 99,
+    successRate: '99.4%',
+    deliverySpeed: '1.2x Faster',
+    satisfactionScore: '4.9/5.0',
+    verifiedProjects: 14,
     skills: ['Flutter', 'Node.js', 'Firebase', 'AWS', 'Kubernetes']
   };
 
@@ -91,6 +91,24 @@ export default async function ExpertProfilePage({
                 <p className="text-xl font-medium text-slate-500 max-w-2xl">
                   {expert.bio || expert.role}
                 </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 mb-6">
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center">
+                    <div className="text-2xl font-black text-slate-900 dark:text-white">{expert.successRate}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Success Rate</div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center">
+                    <div className="text-2xl font-black text-slate-900 dark:text-white">{expert.deliverySpeed}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Delivery Speed</div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center">
+                    <div className="text-2xl font-black text-slate-900 dark:text-white">{expert.satisfactionScore}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Client Score</div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center">
+                    <div className="text-2xl font-black text-slate-900 dark:text-white">{expert.verifiedProjects}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Real Projects</div>
+                  </div>
+                </div>
                 <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-slate-400">
                   <div className="flex items-center gap-2">
                     <MapPin size={18} className="text-primary-500" />

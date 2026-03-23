@@ -19,11 +19,10 @@ import { cn } from '@/lib/utils';
 const sidebarItems = [
   { icon: LayoutDashboard, label: 'Overview', href: '/overview' },
   { icon: CheckSquare, label: 'Tasks', href: '/tasks' },
+  { icon: MessageSquare, label: 'Chat', href: '/chat' },
   { icon: Files, label: 'Files', href: '/files' },
-  { icon: MessageSquare, label: 'Messages', href: '/messages' },
-  { icon: Activity, label: 'Activity Feed', href: '/activity' },
-  { icon: Clock, label: 'Timeline', href: '/timeline' },
   { icon: CreditCard, label: 'Payments', href: '/payments' },
+  { icon: Clock, label: 'Timeline', href: '/timeline' },
 ];
 
 export function WorkspaceSidebar({ projectSlug }: { projectSlug: string }) {

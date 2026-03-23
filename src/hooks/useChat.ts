@@ -23,7 +23,7 @@ export function useChat(workspaceId: string) {
     if (!workspaceId || !isInitialized || !isAuthenticated) return;
 
     const q = query(
-      collection(db, 'workspaces', workspaceId, 'messages'),
+      collection(db, 'Projects', workspaceId, 'messages'),
       orderBy('createdAt', 'asc')
     );
 
@@ -41,11 +41,11 @@ export function useChat(workspaceId: string) {
     });
 
     return () => unsubscribe();
-  }, [workspaceId]);
+  }, [workspaceId, isInitialized, isAuthenticated]);
 
   const sendMessage = async (text: string, senderId: string, senderName: string, type: 'user' | 'ai' = 'user') => {
     try {
-      await addDoc(collection(db, 'workspaces', workspaceId, 'messages'), {
+      await addDoc(collection(db, 'Projects', workspaceId, 'messages'), {
         workspaceId,
         senderId,
         senderName,

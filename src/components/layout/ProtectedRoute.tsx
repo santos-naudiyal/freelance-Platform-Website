@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -9,6 +9,7 @@ import { Loader } from '../ui/Loader';
 
 export function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, setUser, setFreelancerDetails, setLoading, isLoading } = useAuthStore();
   const [authInitialized, setAuthInitialized] = useState(false);
 
@@ -77,7 +78,7 @@ export function ProtectedRoute({ children, allowedRoles }: { children: React.Rea
         else router.push('/');
       }
     }
-  }, [authInitialized, isLoading, user, router, allowedRoles]);
+  }, [authInitialized, isLoading, user, router, pathname, allowedRoles]);
 
   if (isLoading || !authInitialized) {
     return (

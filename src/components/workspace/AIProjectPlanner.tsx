@@ -27,7 +27,7 @@ type PlannedMilestone = {
   isExpanded?: boolean;
 };
 
-export function AIProjectPlanner({ outcome }: { outcome: string }) {
+export function AIProjectPlanner({ outcome, onPlanGenerated }: { outcome: string, onPlanGenerated?: (data: { plan: PlannedMilestone[], analysis: any }) => void }) {
   const { generatePlan, loading, error } = useAI();
   const [plan, setPlan] = useState<PlannedMilestone[]>([]);
   const [analysis, setAnalysis] = useState<any>(null);
@@ -38,10 +38,13 @@ export function AIProjectPlanner({ outcome }: { outcome: string }) {
         if (result) {
           setPlan(result.plan || []);
           setAnalysis(result.analysis || null);
+          if (onPlanGenerated) {
+            onPlanGenerated(result);
+          }
         }
       });
     }
-  }, [outcome]);
+  }, [outcome, onPlanGenerated]);
 
   const toggleMilestone = (id: string) => {
     setPlan(plan.map(m => m.id === id ? { ...m, isExpanded: !m.isExpanded } : m));

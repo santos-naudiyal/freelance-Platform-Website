@@ -39,7 +39,7 @@ export default function MessagesPage() {
 
   const clientSidebar = [
     { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
-    { name: 'Post a Project', href: '/client/post-project', icon: PlusSquare },
+    { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
     { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
     { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
     { name: 'Messages', href: '/messages', icon: MessageSquare },
@@ -55,8 +55,7 @@ export default function MessagesPage() {
 
     const q = query(
       collection(db, 'Chats'),
-      where('participants', 'array-contains', user.id),
-      orderBy('updatedAt', 'desc')
+      where('participants', 'array-contains', user.id)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -66,6 +65,14 @@ export default function MessagesPage() {
         // Map otherUser data for the sidebar
         otherUser: (doc.data().participantDetails || []).find((p: any) => p.id !== user.id) || { name: 'User' }
       }));
+
+      // Client-side sort by updatedAt descending
+      chats.sort((a: any, b: any) => {
+        const timeA = a.updatedAt?.seconds || 0;
+        const timeB = b.updatedAt?.seconds || 0;
+        return timeB - timeA;
+      });
+
       setConversations(chats);
     });
 

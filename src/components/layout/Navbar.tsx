@@ -22,6 +22,7 @@ export function Navbar() {
   };
 
   const dashboardHref = user?.role === 'client' ? '/client/dashboard' : '/freelancer/dashboard';
+  const profileHref = user?.role === 'client' ? '/client/settings' : '/freelancer/profile';
 
   return (
     <header className="sticky top-0 z-50 w-full premium-glass border-b border-white/10 shadow-lg dark:border-slate-800/50">
@@ -39,12 +40,11 @@ export function Navbar() {
             
             <nav className="hidden xl:flex items-center gap-10">
               {[
-                { name: 'Home', href: '/' },
-                { name: 'Explore Experts', href: '/explore' },
-                { name: 'Instant Teams', href: '/instant-team' },
-                { name: 'Workspaces', href: '/workspace/fintech-app' },
-                { name: 'Community', href: '/community' },
-                { name: 'Learn', href: '/learn' },
+                { name: 'Home', href: user ? dashboardHref : '/' },
+                { name: 'Projects', href: '/projects/browse' },
+                { name: 'Explore', href: '/freelancers/discover' },
+                { name: 'Messages', href: '/messages' },
+                { name: 'Profile', href: user ? profileHref : '/auth/login' },
               ].map((link) => (
                 <Link 
                   key={link.name} 
