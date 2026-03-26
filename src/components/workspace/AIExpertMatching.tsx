@@ -22,16 +22,18 @@ type RecommendedExpert = {
 export function AIExpertMatching({ outcome }: { outcome: string }) {
   const { matchExperts, loading, error } = useAI();
   const [experts, setExperts] = useState<RecommendedExpert[]>([]);
+  const lastGeneratedOutcome = React.useRef<string | null>(null);
 
   useEffect(() => {
-    if (outcome && !experts.length && !loading) {
+    if (outcome && lastGeneratedOutcome.current !== outcome && !loading) {
+      lastGeneratedOutcome.current = outcome;
       matchExperts(outcome).then((result) => {
         if (result && result.experts) {
           setExperts(result.experts);
         }
       });
     }
-  }, [outcome]);
+  }, [outcome, loading]);
 
   return (
     <div className="space-y-8">

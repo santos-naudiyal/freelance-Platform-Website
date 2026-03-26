@@ -60,8 +60,8 @@ export function AICostRiskEstimator({ project }: { project: any }) {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-            {risks.map((risk: any) => (
-              <div key={risk.title} className="space-y-3">
+            {Array.isArray(risks) && risks.map((risk: any, idx: number) => (
+              <div key={`${risk.title}-${idx}`} className="space-y-3">
                 <div className="flex justify-between items-end">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{risk.title}</span>
                   <span className={cn("text-xs font-black uppercase tracking-widest", risk.color)}>{risk.status}</span>

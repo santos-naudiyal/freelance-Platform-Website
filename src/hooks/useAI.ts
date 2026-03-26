@@ -1,7 +1,5 @@
-"use client";
-
 import { useState } from 'react';
-import { callBackendAI } from '@/lib/ai';
+import { callBackend } from '@/lib/api';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export function useAI() {
@@ -30,19 +28,23 @@ export function useAI() {
   };
 
   const generatePlan = async (outcome: string) => {
-    return executeAction(() => callBackendAI('plan', { outcome }));
+    return executeAction(() => callBackend('ai/generate-plan', 'POST', { outcome }));
   };
 
   const analyzeRisk = async (projectDetails: any) => {
-    return executeAction(() => callBackendAI('risk', projectDetails));
+    return executeAction(() => callBackend('ai/analyze-risk', 'POST', projectDetails));
   };
 
   const matchExperts = async (outcome: string) => {
-    return executeAction(() => callBackendAI('match', { outcome }));
+    return executeAction(() => callBackend('ai/match-experts', 'POST', { outcome }));
   };
 
   const askCopilot = async (message: string, context?: string) => {
-    return executeAction(() => callBackendAI('chat', { message, context }));
+    return executeAction(() => callBackend('ai/chat-copilot', 'POST', { message, context }));
+  };
+
+  const getInsights = async (projectId: string) => {
+    return executeAction(() => callBackend('ai/insights', 'POST', { projectId }));
   };
 
   return {
@@ -50,7 +52,9 @@ export function useAI() {
     analyzeRisk,
     matchExperts,
     askCopilot,
+    getInsights,
     loading,
     error
   };
 }
+

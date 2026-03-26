@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../../components/ui/Card';
 import { 
   LayoutDashboard, 
@@ -21,6 +22,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { auth } from '../../../lib/firebase';
 import Link from 'next/link';
 import { Project } from '../../../types';
+import { callBackend } from '../../../lib/api';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
@@ -33,26 +35,18 @@ const sidebarItems = [
 ];
 
 export default function ManageProjectsPage() {
+  const { user } = useAuthStore();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProjects = async () => {
+      if (!user) return;
+      
       try {
-        const firebaseUser = auth.currentUser;
-        if (!firebaseUser) return;
-        
-        const token = await firebaseUser.getIdToken();
-        const resp = await fetch('http://localhost:5000/api/projects', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (resp.ok) {
-          const data = await resp.json();
-          // In this simplified API, we filter by client ID on frontend for demonstration
-          // In a real production app, the backend should handle this filtering
-          setProjects(data.filter((p: any) => p.clientId === firebaseUser.uid));
-        }
+        const data = await callBackend('projects/my');
+        // The backend /my endpoint already returns the user's projects
+        setProjects(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -60,8 +54,10 @@ export default function ManageProjectsPage() {
       }
     };
 
-    fetchProjects();
-  }, []);
+    if (user) {
+      fetchProjects();
+    }
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['client']}>
@@ -110,7 +106,7 @@ export default function ManageProjectsPage() {
                             Posted {new Date(project.createdAt).toLocaleDateString()}
                           </span>
                           <span className="flex items-center gap-1 font-semibold text-primary-600">
-                            Budget: ${project.budget.min} - ${project.budget.max}
+                            Budget: {project.budget ? `$${project.budget.min} - $${project.budget.max}` : 'N/A'}
                           </span>
                         </div>
                       </div>

@@ -23,6 +23,7 @@ const sidebarItems = [
   { icon: Files, label: 'Files', href: '/files' },
   { icon: CreditCard, label: 'Payments', href: '/payments' },
   { icon: Clock, label: 'Timeline', href: '/timeline' },
+  { icon: Activity, label: 'Activity', href: '/activity' },
 ];
 
 export function WorkspaceSidebar({ projectSlug }: { projectSlug: string }) {

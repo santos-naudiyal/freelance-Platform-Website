@@ -17,6 +17,11 @@ export const requireAuth = async (req: AuthRequest, res: Response, next: NextFun
   }
 
   const idToken = authHeader.split('Bearer ')[1];
+  console.log('Token received, length:', idToken ? idToken.length : 0);
+  if (idToken) {
+    console.log('Token start:', idToken.substring(0, 15));
+    console.log('Token end:', idToken.slice(-15));
+  }
 
   try {
     const decodedToken = await auth.verifyIdToken(idToken);

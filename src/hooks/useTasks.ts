@@ -8,11 +8,13 @@ import {
   doc, 
   updateDoc,
   addDoc,
-  serverTimestamp 
+  serverTimestamp,
+  where
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Task } from '@/types';
 import { useAuthStore } from '@/store/useAuthStore';
+import { callBackend } from '@/lib/api';
 
 export function useTasks(workspaceId: string) {
   const { isAuthenticated, isInitialized } = useAuthStore();
@@ -24,7 +26,8 @@ export function useTasks(workspaceId: string) {
     if (!workspaceId || !isInitialized || !isAuthenticated) return;
 
     const q = query(
-      collection(db, 'Projects', workspaceId, 'tasks')
+      collection(db, 'Tasks'),
+      where('projectId', '==', workspaceId)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -45,8 +48,10 @@ export function useTasks(workspaceId: string) {
 
   const updateTaskStatus = async (taskId: string, status: Task['status']) => {
     try {
-      const taskRef = doc(db, 'Projects', workspaceId, 'tasks', taskId);
-      await updateDoc(taskRef, { status });
+      await callBackend(`workspaces/tasks/${taskId}`, 'PATCH', {
+        status,
+        projectId: workspaceId
+      });
     } catch (err) {
       console.error('Update task status error:', err);
       throw new Error('Failed to update task.');
@@ -55,9 +60,9 @@ export function useTasks(workspaceId: string) {
 
   const addTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
     try {
-      await addDoc(collection(db, 'Projects', workspaceId, 'tasks'), {
+      await callBackend('workspaces/tasks', 'POST', {
         ...task,
-        createdAt: serverTimestamp(),
+        projectId: workspaceId
       });
     } catch (err) {
       console.error('Add task error:', err);

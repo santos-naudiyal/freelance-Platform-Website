@@ -6,6 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Loader } from '../ui/Loader';
+import { callBackend } from '../../lib/api';
 
 export function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) {
   const router = useRouter();
@@ -23,15 +24,9 @@ export function ProtectedRoute({ children, allowedRoles }: { children: React.Rea
       }
 
       try {
-        const token = await firebaseUser.getIdToken();
-        const resp = await fetch('http://localhost:5000/api/users/profile', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const data = await callBackend('users/profile');
         
-        if (resp.ok) {
-          const data = await resp.json();
+        if (data) {
           setUser({
             id: data.id,
             name: data.name,

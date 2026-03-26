@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { Card, CardContent } from '../../../components/ui/Card';
 import { 
   LayoutDashboard, 
@@ -31,15 +32,16 @@ const sidebarItems = [
 ];
 
 export default function FreelancerProjectsPage() {
+  const { user } = useAuthStore();
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchActive = async () => {
+       if (!user || !auth.currentUser) return;
+
        try {
-         const firebaseUser = auth.currentUser;
-         if (!firebaseUser) return;
-         const token = await firebaseUser.getIdToken();
+         const token = await auth.currentUser.getIdToken();
          const resp = await fetch('http://localhost:5000/api/proposals/my', {
            headers: { 'Authorization': `Bearer ${token}` }
          });
@@ -69,15 +71,11 @@ export default function FreelancerProjectsPage() {
          setIsLoading(false);
        }
     };
-    if (auth.currentUser) {
+
+    if (user) {
       fetchActive();
-    } else {
-      const unsubscribe = auth.onAuthStateChanged(user => {
-        if (user) fetchActive();
-      });
-      return () => unsubscribe();
     }
-  }, []);
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>

@@ -27,6 +27,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       name,
       email,
       role,
+      aiCredits: 10, // Proactive initialization
       createdAt: Date.now(),
     });
 
@@ -34,6 +35,18 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
   } catch (error: any) {
     console.error('Registration Error:', error);
     res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+export const getCredits = async (req: AuthRequest, res: Response) => {
+  try {
+    const uid = req.user?.uid;
+    if (!uid) return res.status(401).json({ error: 'Unauthorized' });
+
+    const userDoc = await db.collection('Users').doc(uid as string).get();
+    res.json({ credits: userDoc.data()?.aiCredits || 0 });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed' });
   }
 };
 
@@ -45,7 +58,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    const userDoc = await db.collection('Users').doc(uid).get();
+    const userDoc = await db.collection('Users').doc(uid as string).get();
     if (!userDoc.exists) {
       res.status(404).json({ error: 'User not found' });
       return;

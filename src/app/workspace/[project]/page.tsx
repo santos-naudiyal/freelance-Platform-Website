@@ -20,6 +20,7 @@ import { ActivityFeed } from '@/components/workspace/ActivityFeed';
 import { Timeline } from '@/components/workspace/Timeline';
 import { TaskBoard } from '@/components/workspace/TaskBoard';
 import { Chat } from '@/components/workspace/Chat';
+import { AIIntelligencePanel } from '@/components/workspace/AIIntelligencePanel';
 
 export default function WorkspacePage({ 
   params 
@@ -111,6 +112,10 @@ export default function WorkspacePage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content: AI Intelligence & Recent Activity */}
           <div className="lg:col-span-2 space-y-10">
+            <section>
+               <AIIntelligencePanel projectId={project} />
+            </section>
+            
             <section>
                <AIProjectPlanner outcome={projectOutcome} />
             </section>

@@ -8,6 +8,7 @@ import { LayoutDashboard, Briefcase, FileText, MessageSquare, DollarSign, Settin
 import { Button } from '../../../components/ui/Button';
 import Link from 'next/link';
 import { auth } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { cn } from '../../../components/ui/Button';
 
 const sidebarItems = [
@@ -21,13 +22,16 @@ const sidebarItems = [
 ];
 
 export default function FreelancerProposalsPage() {
+  const { user } = useAuthStore();
   const [proposals, setProposals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProposals = async () => {
+      if (!user || !auth.currentUser) return;
+
       try {
-        const token = await auth.currentUser?.getIdToken();
+        const token = await auth.currentUser.getIdToken();
         const resp = await fetch('http://localhost:5000/api/proposals/my', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -41,15 +45,11 @@ export default function FreelancerProposalsPage() {
         setIsLoading(false);
       }
     };
-    if (auth.currentUser) {
+
+    if (user) {
       fetchProposals();
-    } else {
-      const unsubscribe = auth.onAuthStateChanged(user => {
-        if (user) fetchProposals();
-      });
-      return () => unsubscribe();
     }
-  }, []);
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>
