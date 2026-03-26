@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   CheckCircle2, 
@@ -14,6 +14,9 @@ import {
 import { cn } from '@/lib/utils';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { formatDistanceToNow } from 'date-fns';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const iconMap: Record<string, React.ReactNode> = {
   upload: <ImageIcon className="text-blue-500" size={16} />,
@@ -26,6 +29,35 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function ActivityFeed({ workspaceId }: { workspaceId: string }) {
   const { activities, loading } = useActivityFeed(workspaceId);
+  const { user } = useAuthStore();
+  const [updateText, setUpdateText] = useState('');
+  const [isPosting, setIsPosting] = useState(false);
+
+  const handlePostUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!updateText.trim() || !user) return;
+    
+    setIsPosting(true);
+    try {
+      await addDoc(collection(db, 'ActivityLogs'), {
+        projectId: workspaceId,
+        type: 'message',
+        content: `Daily Update: ${updateText}`,
+        user: {
+          id: user.id,
+          name: user.name || 'User',
+          avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`
+        },
+        timestamp: Date.now(),
+        createdAt: Date.now()
+      });
+      setUpdateText('');
+    } catch (err) {
+      console.error('Failed to post update', err);
+    } finally {
+      setIsPosting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -35,6 +67,26 @@ export function ActivityFeed({ workspaceId }: { workspaceId: string }) {
           <MoreHorizontal size={20} />
         </button>
       </div>
+
+      {user?.role === 'freelancer' && (
+        <form onSubmit={handlePostUpdate} className="flex gap-3 mb-6">
+          <input 
+            type="text" 
+            value={updateText}
+            onChange={(e) => setUpdateText(e.target.value)}
+            placeholder="Share your daily project update..." 
+            className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all font-medium"
+            disabled={isPosting}
+          />
+          <button 
+            type="submit" 
+            disabled={isPosting || !updateText.trim()}
+            className="px-6 py-3 rounded-2xl bg-primary-600 text-white font-bold text-xs uppercase tracking-widest hover:bg-primary-700 transition-colors disabled:opacity-50"
+          >
+            {isPosting ? 'Posting...' : 'Post'}
+          </button>
+        </form>
+      )}
 
       <div className="space-y-4">
         {loading ? (

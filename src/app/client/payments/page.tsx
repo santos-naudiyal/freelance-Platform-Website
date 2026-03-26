@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { auth } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/Card';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { 
@@ -35,13 +36,18 @@ const sidebarItems = [
 ];
 
 export default function ClientPaymentsPage() {
+  const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [pendingInvoices, setPendingInvoices] = useState(0);
 
   useEffect(() => {
     const fetchPayments = async () => {
+      if (!user || !auth.currentUser) return;
+
       try {
-        const token = await auth.currentUser?.getIdToken();
+        const token = await auth.currentUser.getIdToken();
         const resp = await fetch('http://localhost:5000/api/payments/my', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -49,6 +55,18 @@ export default function ClientPaymentsPage() {
         if (resp.ok) {
           const data = await resp.json();
           setTransactions(data);
+          
+          let spent = 0;
+          let pending = 0;
+          data.forEach((tx: any) => {
+            if (tx.status === 'completed' || tx.status === 'escrowed') {
+              spent += tx.amount;
+            } else if (tx.status === 'pending') {
+              pending += tx.amount;
+            }
+          });
+          setTotalSpent(spent);
+          setPendingInvoices(pending);
         }
       } catch (err) {
         console.error('Failed to fetch payment history:', err);
@@ -57,8 +75,10 @@ export default function ClientPaymentsPage() {
       }
     };
 
-    fetchPayments();
-  }, []);
+    if (user) {
+      fetchPayments();
+    }
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['client']}>
@@ -93,7 +113,7 @@ export default function ClientPaymentsPage() {
                    </div>
                    <div className="relative z-10 space-y-4">
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Total Spent</p>
-                      <h3 className="text-4xl font-black">$12,450.00</h3>
+                      <h3 className="text-4xl font-black">${totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
                          <TrendingUp size={14} />
                          +12% from last month
@@ -103,7 +123,7 @@ export default function ClientPaymentsPage() {
                 <Card className="p-8 border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-all">
                    <div className="space-y-4">
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Pending Invoices</p>
-                      <h3 className="text-4xl font-black text-slate-950 dark:text-white">$1,500.00</h3>
+                      <h3 className="text-4xl font-black text-slate-950 dark:text-white">${pendingInvoices.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       <p className="text-xs text-slate-500 font-medium italic">1 invoice awaiting approval</p>
                    </div>
                 </Card>

@@ -1,7 +1,8 @@
 import { Response } from 'express';
-import { db } from '../config/firebase';
 import { AuthRequest } from '../middleware/auth';
-import { v4 as uuidv4 } from 'uuid';
+import { ProjectService } from '../services/projectService';
+
+const projectService = new ProjectService();
 
 export const createProject = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -11,24 +12,8 @@ export const createProject = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const { title, description, budget, deadline, skillsRequired } = req.body;
-
-    const projectId = uuidv4();
-    const projectData = {
-      id: projectId,
-      clientId: uid,
-      title,
-      description,
-      budget,
-      deadline: deadline || null,
-      skillsRequired: skillsRequired || [],
-      status: 'open',
-      createdAt: Date.now(),
-    };
-
-    await db.collection('Projects').doc(projectId).set(projectData);
-
-    res.status(201).json({ message: 'Project created successfully', data: projectData });
+    const project = await projectService.createProject({ ...req.body, clientId: uid });
+    res.status(201).json({ message: 'Project created successfully', data: project });
   } catch (error: any) {
     console.error('Create Project Error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -37,8 +22,7 @@ export const createProject = async (req: AuthRequest, res: Response): Promise<vo
 
 export const getAllProjects = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const snapshot = await db.collection('Projects').where('status', '==', 'open').get();
-    const projects = snapshot.docs.map((doc: any) => doc.data());
+    const projects = await projectService.getAllActiveProjects();
     res.status(200).json(projects);
   } catch (error: any) {
     console.error('Get All Projects Error:', error);
@@ -48,15 +32,12 @@ export const getAllProjects = async (req: AuthRequest, res: Response): Promise<v
 
 export const getProjectById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const projectId = req.params.id as string;
-    const projectDoc = await db.collection('Projects').doc(projectId).get();
-    
-    if (!projectDoc.exists) {
+    const project = await projectService.getProjectById(req.params.id as string);
+    if (!project) {
       res.status(404).json({ error: 'Project not found' });
       return;
     }
-
-    res.status(200).json(projectDoc.data());
+    res.status(200).json(project);
   } catch (error: any) {
     console.error('Get Project By ID Error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -66,34 +47,27 @@ export const getProjectById = async (req: AuthRequest, res: Response): Promise<v
 export const updateProjectStatus = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const uid = req.user?.uid;
-    const projectId = req.params.id as string;
     const { status } = req.body;
 
-    if (!uid || req.user?.role !== 'client') {
-      res.status(403).json({ error: 'Only clients can update projects' });
-      return;
-    }
-
-    const projectRef = db.collection('Projects').doc(projectId);
-    const projectDoc = await projectRef.get();
-
-    if (!projectDoc.exists) {
+    const project = await projectService.getProjectById(req.params.id as string);
+    if (!project) {
       res.status(404).json({ error: 'Project not found' });
       return;
     }
 
-    if (projectDoc.data()?.clientId !== uid) {
+    if (project.clientId !== uid) {
       res.status(403).json({ error: 'You are not the owner of this project' });
       return;
     }
 
-    await projectRef.update({ status });
+    await projectService.updateStatus(req.params.id as string, status);
     res.status(200).json({ message: 'Project status updated successfully', status });
   } catch (error: any) {
     console.error('Update Project Status Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 export const getUserProjects = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -103,11 +77,11 @@ export const getUserProjects = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    const snapshot = await db.collection('Projects').where('clientId', '==', uid).get();
-    const projects = snapshot.docs.map((doc: any) => doc.data());
+    const projects = await projectService.getUserProjects(uid);
     res.status(200).json(projects);
   } catch (error: any) {
     console.error('Get User Projects Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+

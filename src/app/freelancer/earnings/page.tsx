@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { auth } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/Card';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { 
@@ -35,13 +36,16 @@ const sidebarItems = [
 ];
 
 export default function FreelancerEarningsPage() {
+  const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchEarnings = async () => {
+      if (!user || !auth.currentUser) return;
+
       try {
-        const token = await auth.currentUser?.getIdToken();
+        const token = await auth.currentUser.getIdToken();
         const resp = await fetch('http://localhost:5000/api/payments/my', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -57,8 +61,10 @@ export default function FreelancerEarningsPage() {
       }
     };
 
-    fetchEarnings();
-  }, []);
+    if (user) {
+      fetchEarnings();
+    }
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>

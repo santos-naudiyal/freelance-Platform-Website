@@ -9,25 +9,22 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-10-16' as any,
 });
 
+import { PaymentService } from '../services/paymentService';
+
+const paymentService = new PaymentService();
+
 export const createPaymentIntent = async (req: Request, res: Response) => {
   try {
     const { amount, projectId, milestoneId } = req.body;
     const userId = (req as any).user.uid;
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Stripe expects amount in cents
-      currency: 'usd',
-      metadata: {
-        projectId,
-        milestoneId,
-        clientId: userId,
-      },
-    });
+    const clientSecret = await paymentService.createEscrowPayment(userId, projectId, milestoneId, amount);
 
     res.json({
-      clientSecret: paymentIntent.client_secret,
+      clientSecret,
     });
   } catch (err: any) {
+     console.error('Payment Error:', err);
     res.status(500).json({ error: err.message });
   }
 };

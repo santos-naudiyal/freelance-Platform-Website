@@ -1,33 +1,30 @@
 {
-  "indexes": [
-    {
-      "collectionGroup": "Chats",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "participants",
-          "arrayConfig": "CONTAINS"
-        },
-        {
-          "fieldPath": "updatedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "Messages",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "chatId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "ASCENDING"
-        }
-      ]
-    }
-  ],
-  "fieldOverrides": []
+  "firestore": {
+    "indexes": [
+      {
+        "collectionGroup": "Milestones",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "projectId", "order": "ASCENDING" },
+          { "fieldPath": "createdAt", "order": "ASCENDING" }
+        ]
+      },
+      {
+        "collectionGroup": "Messages",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "workspaceId", "order": "ASCENDING" },
+          { "fieldPath": "createdAt", "order": "ASCENDING" }
+        ]
+      },
+      {
+        "collectionGroup": "ActivityLogs",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "projectId", "order": "ASCENDING" },
+          { "fieldPath": "timestamp", "order": "DESCENDING" }
+        ]
+      }
+    ]
+  }
 }
