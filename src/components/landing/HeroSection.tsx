@@ -7,11 +7,26 @@ import { motion } from 'framer-motion';
 
 export function HeroSection() {
   return (
-    <section className="relative pt-24 pb-20 overflow-hidden md:pt-40 md:pb-32">
+   <section className="relative pt-24 pb-20 overflow-hidden md:pt-40 md:pb-32 
+    bg-gradient-to-b from-white via-slate-50 to-slate-100 
+      dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       {/* Background Decorative Elements */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-100/40 blur-[120px] dark:bg-primary-900/20" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-100/40 blur-[120px] dark:bg-indigo-900/20" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden pointer-events-none">
+        <motion.div 
+          animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.6, 0.4] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary-400/30 blur-[130px] dark:bg-primary-600/20 mix-blend-multiply dark:mix-blend-screen" 
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-400/30 blur-[130px] dark:bg-indigo-600/20 mix-blend-multiply dark:mix-blend-screen" 
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
+          className="absolute top-[20%] left-[60%] w-[30%] h-[30%] rounded-full bg-violet-400/20 blur-[100px] dark:bg-violet-600/20 mix-blend-multiply dark:mix-blend-screen" 
+        />
       </div>
 
       <div className="container px-6 mx-auto">
@@ -28,13 +43,13 @@ export function HeroSection() {
           </motion.div> 
 
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="text-6xl md:text-8xl font-display font-black tracking-tighter text-slate-950 dark:text-white leading-[1.05]"
           >
             Build anything with <br />
-            <span className="text-gradient font-black">experts in hours</span>
+            <span className="text-gradient font-black filter drop-shadow-sm">experts in hours</span>
           </motion.h1>
 
           <motion.p 
@@ -48,13 +63,14 @@ export function HeroSection() {
           </motion.p>
 
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="w-full max-w-2xl relative group"
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-2xl relative group mt-8"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2.5rem] blur opacity-20 group-focus-within:opacity-40 transition duration-500"></div>
-            <div className="relative premium-glass rounded-[2.3rem] p-2 flex items-center shadow-2xl">
+            <div className="absolute -inset-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-violet-500 rounded-[2.5rem] blur-md opacity-30 group-hover:opacity-60 transition duration-700 animate-pulse"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-400 to-indigo-400 rounded-[2.5rem] blur-[2px] opacity-0 group-hover:opacity-40 transition duration-500"></div>
+            <div className="relative premium-glass rounded-[2.3rem] p-2.5 flex items-center shadow-2xl bg-white/80 dark:bg-slate-900/80">
               <div className="flex-1 px-6">
                 <label htmlFor="project-creator" className="block text-[10px] font-black uppercase tracking-widest text-primary-600 mb-1">
                   What do you want to build?

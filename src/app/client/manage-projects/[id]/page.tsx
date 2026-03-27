@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProtectedRoute } from '../../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../../components/layout/DashboardLayout';
+import { useAuthStore } from '../../../../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../../../components/ui/Card';
 import { 
   LayoutDashboard, 
@@ -24,10 +25,12 @@ import { Button } from '../../../../components/ui/Button';
 import { Badge } from '../../../../components/ui/Badge';
 import { auth } from '../../../../lib/firebase';
 import { Project, Proposal } from '../../../../types';
+import { PaymentModal } from '../../../../components/workspace/PaymentModal';
+import { callBackend } from '../../../../lib/api';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
-  { name: 'Post a Project', href: '/client/post-project', icon: PlusSquare },
+  { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
   { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
@@ -38,30 +41,26 @@ const sidebarItems = [
 export default function ProjectProposalsPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { user } = useAuthStore();
   
   const [project, setProject] = useState<Project | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selectedProposalForPayment, setSelectedProposalForPayment] = useState<Proposal | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const firebaseUser = auth.currentUser;
-        if (!firebaseUser) return;
-        const token = await firebaseUser.getIdToken();
+      if (!user) return;
 
+      try {
         // Fetch Project
-        const pResp = await fetch(`http://localhost:5000/api/projects/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (pResp.ok) setProject(await pResp.json());
+        const pResp = await callBackend(`projects/${id}`);
+        if (pResp) setProject(pResp);
 
         // Fetch Proposals
-        const propResp = await fetch(`http://localhost:5000/api/proposals/project/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (propResp.ok) setProposals(await propResp.json());
+        const propResp = await callBackend(`proposals/project/${id}`);
+        if (propResp) setProposals(propResp);
         
       } catch (err) {
         console.error(err);
@@ -70,38 +69,22 @@ export default function ProjectProposalsPage() {
       }
     };
 
-    fetchData();
-  }, [id]);
+    if (user) {
+      fetchData();
+    }
+  }, [id, user]);
 
   const handleProposalAction = async (proposalId: string, status: 'accepted' | 'rejected') => {
     setActionLoading(proposalId);
     try {
-      const firebaseUser = auth.currentUser;
-      if (!firebaseUser) return;
-      const token = await firebaseUser.getIdToken();
+      const resp = await callBackend(`proposals/${proposalId}/status`, 'PATCH', { status });
 
-      const resp = await fetch(`http://localhost:5000/api/proposals/${proposalId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status })
-      });
-
-      if (resp.ok) {
+      if (resp) {
         setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, status } : p));
         
         if (status === 'accepted') {
           // If accepted, also mark project as in_progress (simplified logic)
-          await fetch(`http://localhost:5000/api/projects/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ status: 'in_progress' })
-          });
+          await callBackend(`projects/${id}/status`, 'PATCH', { status: 'in_progress' });
         }
       }
     } catch (err) {
@@ -170,7 +153,7 @@ export default function ProjectProposalsPage() {
                                 size="sm" 
                                 className="w-full gap-2" 
                                 isLoading={actionLoading === proposal.id}
-                                onClick={() => handleProposalAction(proposal.id, 'accepted')}
+                                onClick={() => setSelectedProposalForPayment(proposal)}
                               >
                                 <CheckCircle2 size={16} /> Hire
                               </Button>
@@ -205,11 +188,11 @@ export default function ProjectProposalsPage() {
                 <CardContent className="space-y-4">
                    <div className="flex justify-between text-sm">
                      <span className="text-slate-500">Budget Range</span>
-                     <span className="font-semibold">${project?.budget.min} - ${project?.budget.max}</span>
+                     <span className="font-semibold">${project?.budget?.min || 0} - ${project?.budget?.max || 0}</span>
                    </div>
                    <div className="flex justify-between text-sm">
                      <span className="text-slate-500">Payment Type</span>
-                     <span className="capitalize">{project?.budget.type} Price</span>
+                     <span className="capitalize">{project?.budget?.type || 'fixed'} Price</span>
                    </div>
                    <div className="flex justify-between text-sm">
                      <span className="text-slate-500">Posted On</span>
@@ -228,6 +211,19 @@ export default function ProjectProposalsPage() {
             </div>
           </div>
         </div>
+
+        {selectedProposalForPayment && project && (
+          <PaymentModal
+            isOpen={!!selectedProposalForPayment}
+            onClose={() => setSelectedProposalForPayment(null)}
+            amount={selectedProposalForPayment.bidAmount || 0}
+            projectId={project.id}
+            onSuccess={() => {
+              handleProposalAction(selectedProposalForPayment.id, 'accepted');
+              setSelectedProposalForPayment(null);
+            }}
+          />
+        )}
       </DashboardLayout>
     </ProtectedRoute>
   );

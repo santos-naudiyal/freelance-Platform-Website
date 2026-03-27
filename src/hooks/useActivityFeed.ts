@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
+
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -14,9 +15,11 @@ export function useActivityFeed(workspaceId: string) {
     if (!workspaceId || !isInitialized || !isAuthenticated) return;
 
     const q = query(
-      collection(db, 'workspaces', workspaceId, 'activity'),
-      orderBy('createdAt', 'desc')
+      collection(db, 'ActivityLogs'),
+      where('projectId', '==', workspaceId),
+      orderBy('timestamp', 'desc')
     );
+
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const activityList = snapshot.docs.map(doc => ({
@@ -31,7 +34,7 @@ export function useActivityFeed(workspaceId: string) {
     });
 
     return () => unsubscribe();
-  }, [workspaceId]);
+  }, [workspaceId, isInitialized, isAuthenticated]);
 
   return { activities, loading };
 }

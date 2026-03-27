@@ -7,11 +7,13 @@ import {
   orderBy, 
   onSnapshot, 
   addDoc, 
-  serverTimestamp 
+  serverTimestamp,
+  where
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Message } from '@/types';
 import { useAuthStore } from '@/store/useAuthStore';
+import { callBackend } from '@/lib/api';
 
 export function useChat(workspaceId: string) {
   const { isAuthenticated, isInitialized } = useAuthStore();
@@ -23,7 +25,8 @@ export function useChat(workspaceId: string) {
     if (!workspaceId || !isInitialized || !isAuthenticated) return;
 
     const q = query(
-      collection(db, 'workspaces', workspaceId, 'messages'),
+      collection(db, 'Messages'),
+      where('workspaceId', '==', workspaceId),
       orderBy('createdAt', 'asc')
     );
 
@@ -41,17 +44,14 @@ export function useChat(workspaceId: string) {
     });
 
     return () => unsubscribe();
-  }, [workspaceId]);
+  }, [workspaceId, isInitialized, isAuthenticated]);
 
   const sendMessage = async (text: string, senderId: string, senderName: string, type: 'user' | 'ai' = 'user') => {
     try {
-      await addDoc(collection(db, 'workspaces', workspaceId, 'messages'), {
+      await callBackend('workspaces/messages', 'POST', {
         workspaceId,
-        senderId,
-        senderName,
         text,
-        type,
-        createdAt: serverTimestamp(),
+        type
       });
     } catch (err) {
       console.error('Send message error:', err);

@@ -1,26 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
-import { Card, CardContent } from '../../../components/ui/Card';
-import { 
-  LayoutDashboard, 
-  Briefcase, 
-  FileText, 
-  MessageSquare, 
-  DollarSign, 
-  Settings,
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-  Search
-} from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/Card';
+import { LayoutDashboard, Briefcase, FileText, MessageSquare, DollarSign, Settings, CheckCircle2, Clock } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
-import { Badge } from '../../../components/ui/Badge';
-import { auth } from '../../../lib/firebase';
 import Link from 'next/link';
-import { Proposal } from '../../../types';
+import { auth } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { cn } from '../../../components/ui/Button';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/freelancer/dashboard', icon: LayoutDashboard },
@@ -32,108 +21,106 @@ const sidebarItems = [
   { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 
-export default function MyProposalsPage() {
+export default function FreelancerProposalsPage() {
+  const { user } = useAuthStore();
   const [proposals, setProposals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProposals = async () => {
+      if (!user || !auth.currentUser) return;
+
       try {
-        const firebaseUser = auth.currentUser;
-        if (!firebaseUser) return;
-        const token = await firebaseUser.getIdToken();
-
-        const resp = await fetch(`http://localhost:5000/api/proposals/freelancer/${firebaseUser.uid}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const token = await auth.currentUser.getIdToken();
+        const resp = await fetch('http://localhost:5000/api/proposals/my', {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        
-        if (resp.status === 404) {
-           // If route not implemented yet, we'll implement it later/now
-           setProposals([]);
-           return;
-        }
-
         if (resp.ok) {
-          setProposals(await resp.json());
+          const data = await resp.json();
+          setProposals(data);
         }
       } catch (err) {
-        console.error(err);
+        console.error('Failed to fetch proposals:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProposals();
-  }, []);
+    if (user) {
+      fetchProposals();
+    }
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>
       <DashboardLayout sidebarItems={sidebarItems} title="My Proposals">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-display font-bold">Track Your Applications</h2>
-            <Link href="/projects/browse">
-              <Button size="sm" variant="outline">Browse More Projects</Button>
-            </Link>
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-3xl font-display font-black tracking-tight text-slate-950 dark:text-white">
+              My Proposals
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">
+              Track the status of your submitted bids here.
+            </p>
           </div>
 
-          <div className="space-y-4">
-            {isLoading ? (
-               <div className="py-12 text-center text-slate-500">Loading your proposals...</div>
-            ) : proposals.length === 0 ? (
-              <Card className="border-dashed border-2 py-16 text-center rounded-3xl">
-                <CardContent>
-                  <FileText size={48} className="mx-auto text-slate-200 mb-4" />
-                  <h3 className="text-lg font-semibold">No proposals yet</h3>
-                  <p className="text-slate-500 mb-6">Start applying to projects to see them here.</p>
-                  <Link href="/projects/browse">
-                    <Button>Find Projects</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ) : (
-              proposals.map((proposal) => (
-                <Card key={proposal.id} className="overflow-hidden border-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800">
-                  <div className="p-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-slate-900 dark:text-white">Applied to Project ID: {proposal.projectId}</h4>
-                          <Badge variant={proposal.status === 'pending' ? 'default' : proposal.status === 'accepted' ? 'success' : 'error'}>
-                            {proposal.status.toUpperCase()}
-                          </Badge>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+               <CardTitle>Sent Proposals ({proposals.length})</CardTitle>
+               <Link href="/projects/browse">
+                  <Button size="sm">Browse More</Button>
+               </Link>
+            </CardHeader>
+            <CardContent>
+               {isLoading ? (
+                 <div className="py-12 text-center text-slate-500">Loading proposals...</div>
+               ) : proposals.length === 0 ? (
+                 <div className="py-12 text-center space-y-4">
+                   <p className="text-slate-500 font-medium">You haven't submitted any proposals yet.</p>
+                   <Link href="/projects/browse">
+                      <Button variant="outline" className="rounded-xl">Browse Projects</Button>
+                   </Link>
+                 </div>
+               ) : (
+                 <div className="space-y-4">
+                   {proposals.map((proposal) => (
+                      <div key={proposal.id} className="group flex items-center justify-between p-6 rounded-3xl border border-slate-100 dark:border-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-all">
+                        <div className="flex items-center gap-5">
+                          <div className="h-14 w-14 rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400 group-hover:text-primary-500 transition-colors">
+                            <FileText size={24} />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-lg text-slate-950 dark:text-white">
+                              {proposal.projectId}
+                            </h4>
+                            <p className="text-sm text-slate-500 font-medium">
+                              Bid: ${proposal.bidAmount} • Sent on {new Date(proposal.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-slate-500 line-clamp-2 italic">&ldquo;{proposal.coverLetter}&rdquo;</p>
-                        <div className="flex flex-wrap gap-4 text-xs text-slate-500 mt-2">
-                          <span className="flex items-center gap-1"><Clock size={14} /> Submitted {new Date(proposal.createdAt).toLocaleDateString()}</span>
-                          <span className="flex items-center gap-1 font-semibold text-primary-600">Your Bid: ${proposal.bidAmount}</span>
+                        <div className="text-right flex flex-col items-end gap-2">
+                           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800">
+                             <div className={cn(
+                               "h-1.5 w-1.5 rounded-full animate-pulse",
+                               proposal.status === 'accepted' ? 'bg-emerald-500' : proposal.status === 'rejected' ? 'bg-rose-500' : 'bg-amber-500'
+                             )} />
+                             <p className={cn(
+                               "text-[10px] font-bold uppercase tracking-wider",
+                               proposal.status === 'accepted' ? 'text-emerald-600' : proposal.status === 'rejected' ? 'text-rose-600' : 'text-amber-600'
+                             )}>{proposal.status}</p>
+                           </div>
+                           <Link href={`/projects/browse/${proposal.projectId}`}>
+                              <Button variant="ghost" size="sm" className="text-xs h-8">View Project</Button>
+                           </Link>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Link href={`/projects/browse/${proposal.projectId}`}>
-                          <Button variant="outline" size="sm" className="gap-2">
-                            <ExternalLink size={16} />
-                            View Project
-                          </Button>
-                        </Link>
-                        {proposal.status === 'accepted' && (
-                          <Link href={`/freelancer/projects`}>
-                            <Button size="sm">Go to Contract</Button>
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
+                   ))}
+                 </div>
+               )}
+            </CardContent>
+          </Card>
         </div>
       </DashboardLayout>
     </ProtectedRoute>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

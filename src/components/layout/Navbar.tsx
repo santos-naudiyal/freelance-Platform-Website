@@ -22,11 +22,12 @@ export function Navbar() {
   };
 
   const dashboardHref = user?.role === 'client' ? '/client/dashboard' : '/freelancer/dashboard';
+  const profileHref = user?.role === 'client' ? '/client/settings' : '/freelancer/profile';
 
   return (
-    <header className="sticky top-0 z-50 w-full premium-glass border-b border-white/10 shadow-lg dark:border-slate-800/50">
-      <div className="container mx-auto px-6 sm:px-10 lg:px-12">
-        <div className="flex h-20 items-center justify-between">
+    <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[96%] max-w-7xl premium-glass rounded-[2rem] border border-white/20 shadow-2xl dark:border-slate-700/50 transition-all duration-500">
+      <div className="px-6 sm:px-8 lg:px-10">
+        <div className="flex h-[4.5rem] items-center justify-between">
           <div className="flex items-center gap-10">
             <Link href={user ? dashboardHref : "/"} className="flex items-center gap-2 group">
               <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:scale-110 transition-transform duration-300">
@@ -39,12 +40,11 @@ export function Navbar() {
             
             <nav className="hidden xl:flex items-center gap-10">
               {[
-                { name: 'Home', href: '/' },
-                { name: 'Explore Experts', href: '/explore' },
-                { name: 'Instant Teams', href: '/instant-team' },
-                { name: 'Workspaces', href: '/workspace/fintech-app' },
-                { name: 'Community', href: '/community' },
-                { name: 'Learn', href: '/learn' },
+                { name: 'Home', href: user ? dashboardHref : '/' },
+                { name: 'Projects', href: '/projects/browse' },
+                { name: 'Explore', href: '/freelancers/discover' },
+                { name: 'Messages', href: '/messages' },
+                { name: 'Profile', href: user ? profileHref : '/auth/login' },
               ].map((link) => (
                 <Link 
                   key={link.name} 

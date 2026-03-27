@@ -27,21 +27,26 @@ type PlannedMilestone = {
   isExpanded?: boolean;
 };
 
-export function AIProjectPlanner({ outcome }: { outcome: string }) {
+export function AIProjectPlanner({ outcome, onPlanGenerated }: { outcome: string, onPlanGenerated?: (data: { plan: PlannedMilestone[], analysis: any }) => void }) {
   const { generatePlan, loading, error } = useAI();
   const [plan, setPlan] = useState<PlannedMilestone[]>([]);
   const [analysis, setAnalysis] = useState<any>(null);
+  const lastGeneratedOutcome = React.useRef<string | null>(null);
 
   useEffect(() => {
-    if (outcome && !plan.length && !loading) {
+    if (outcome && lastGeneratedOutcome.current !== outcome && !loading) {
+      lastGeneratedOutcome.current = outcome;
       generatePlan(outcome).then((result) => {
         if (result) {
           setPlan(result.plan || []);
           setAnalysis(result.analysis || null);
+          if (onPlanGenerated) {
+            onPlanGenerated(result);
+          }
         }
       });
     }
-  }, [outcome]);
+  }, [outcome, onPlanGenerated, loading]);
 
   const toggleMilestone = (id: string) => {
     setPlan(plan.map(m => m.id === id ? { ...m, isExpanded: !m.isExpanded } : m));
@@ -81,8 +86,9 @@ export function AIProjectPlanner({ outcome }: { outcome: string }) {
                   Detected Required Expertise
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {analysis.skills?.map((skill: string) => (
-                    <div key={skill} className="px-4 py-2 rounded-xl bg-primary-50 dark:bg-primary-950/20 border border-primary-100 dark:border-primary-900/30 text-xs font-bold text-primary-600 flex items-center gap-2">
+                 {analysis.skills?.map((skill: string, index: number) => (
+
+                    <div key={`${skill}-${index}`} className="px-4 py-2 rounded-xl bg-primary-50 dark:bg-primary-950/20 border border-primary-100 dark:border-primary-900/30 text-xs font-bold text-primary-600 flex items-center gap-2">
                       <CheckCircle2 size={12} />
                       {skill}
                     </div>

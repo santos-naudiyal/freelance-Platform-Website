@@ -20,6 +20,7 @@ import { ActivityFeed } from '@/components/workspace/ActivityFeed';
 import { Timeline } from '@/components/workspace/Timeline';
 import { TaskBoard } from '@/components/workspace/TaskBoard';
 import { Chat } from '@/components/workspace/Chat';
+import { AIIntelligencePanel } from '@/components/workspace/AIIntelligencePanel';
 
 export default function WorkspacePage({ 
   params 
@@ -69,31 +70,40 @@ export default function WorkspacePage({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="space-y-1">
                 <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                  <Clock size={12} className="text-primary-400" />
-                  Timeline
-                </div>
-                <div className="text-lg font-bold">{workspace?.daysLeft || 0} Days Left</div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
                   <CheckCircle2 size={12} className="text-emerald-400" />
-                  Tasks
+                  Task Completion
                 </div>
-                <div className="text-lg font-bold">{workspace?.completedTasks || 0} / {workspace?.totalTasks || 0} Done</div>
+                <div className="text-lg font-bold">{workspace?.completedTasks || 0} / {workspace?.totalTasks || 0} ({workspace?.progress || 0}%)</div>
               </div>
               <div className="space-y-1">
                 <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                  <TrendingUp size={12} className="text-amber-400" />
-                  Visibility
+                  <Clock size={12} className="text-blue-400" />
+                  Last Activity
                 </div>
-                <div className="text-lg font-bold">Active</div>
+                <div className="text-lg font-bold">10 mins ago</div>
               </div>
               <div className="space-y-1">
                 <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
                   <AlertCircle size={12} className="text-rose-400" />
-                  Health
+                  AI Delay Detection
                 </div>
-                <div className="text-lg font-bold text-emerald-400">Excellent</div>
+                <div className="text-lg font-bold text-emerald-400">0 Delays Detected</div>
+              </div>
+              <div className="space-y-1 text-right">
+                <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center justify-end gap-1.5 mb-2">
+                  <Users size={12} className="text-purple-400" />
+                  Who's working now
+                </div>
+                <div className="flex -space-x-2 overflow-hidden justify-end">
+                  <div className="relative">
+                    <img className="inline-block h-8 w-8 rounded-full ring-2 ring-slate-900 bg-slate-800" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Sarah" />
+                    <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-slate-900 bg-emerald-400"></span>
+                  </div>
+                  <div className="relative z-10">
+                    <img className="inline-block h-8 w-8 rounded-full ring-2 ring-slate-900 bg-slate-800" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus" alt="Marcus" />
+                    <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-slate-900 bg-amber-400 animate-pulse"></span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -102,6 +112,10 @@ export default function WorkspacePage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content: AI Intelligence & Recent Activity */}
           <div className="lg:col-span-2 space-y-10">
+            <section>
+               <AIIntelligencePanel projectId={project} />
+            </section>
+            
             <section>
                <AIProjectPlanner outcome={projectOutcome} />
             </section>

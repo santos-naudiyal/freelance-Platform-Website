@@ -24,32 +24,28 @@ interface DashboardLayoutProps {
   title: string;
 }
 
-export function DashboardLayout({ children, title }: DashboardLayoutProps) {
+export function DashboardLayout({ children, title, sidebarItems }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { user } = useAuthStore();
 
-  const freelancerSidebar = [
-    { name: 'Dashboard', href: '/freelancer/dashboard', icon: LayoutDashboard },
-    { name: 'Browse Projects', href: '/projects/browse', icon: Briefcase },
-    { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
-    { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
+  const freelancerSidebar: SidebarItem[] = [
+    { name: 'Home', href: '/freelancer/dashboard', icon: LayoutDashboard },
+    { name: 'Projects', href: '/freelancer/projects', icon: Briefcase },
+    { name: 'Explore', href: '/explore', icon: Search },
     { name: 'Messages', href: '/messages', icon: MessageSquare },
-    { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
-    { name: 'Settings', href: '/freelancer/settings', icon: SettingsIcon },
+    { name: 'Profile', href: '/freelancer/profile', icon: UserIcon },
   ];
 
-  const clientSidebar = [
-    { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
-    { name: 'Post a Project', href: '/client/post-project', icon: PlusSquare },
-    { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
-    { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
+  const clientSidebar: SidebarItem[] = [
+    { name: 'Home', href: '/client/dashboard', icon: LayoutDashboard },
+    { name: 'Projects', href: '/client/manage-projects', icon: Briefcase },
+    { name: 'Explore', href: '/explore', icon: Search },
     { name: 'Messages', href: '/messages', icon: MessageSquare },
-    { name: 'Payments', href: '/client/payments', icon: CreditCard },
-    { name: 'Settings', href: '/client/settings', icon: SettingsIcon },
+    { name: 'Profile', href: '/client/profile', icon: UserIcon },
   ];
 
-  const activeSidebarItems = user?.role === 'client' ? clientSidebar : freelancerSidebar;
+  const activeSidebarItems = sidebarItems || (user?.role === 'client' ? clientSidebar : freelancerSidebar);
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">

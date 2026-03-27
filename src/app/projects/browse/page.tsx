@@ -158,33 +158,37 @@ export default function BrowseProjectsPage() {
                              <h4 className="text-2xl font-black text-slate-950 dark:text-white group-hover:text-primary-600 transition-colors leading-tight">
                                {project.title}
                              </h4>
-                             {project.budget.min >= 5000 && (
+                             {project.budget?.min >= 5000 && (
                                 <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800 font-black h-6">
                                    HIGH VALUE
                                 </Badge>
                              )}
                            </div>
                            <p className="text-lg text-slate-500 font-medium leading-relaxed line-clamp-2">
-                             {project.description}
+                             {project.description || "No description provided."}
                            </p>
                            <div className="flex flex-wrap gap-2.5 pt-2">
-                             {project.skillsRequired.map(skill => (
+                             {project.skillsRequired?.map(skill => (
                                <Badge key={skill} className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-transparent group-hover:border-slate-200 dark:group-hover:border-slate-700 transition-all">
                                  {skill}
                                </Badge>
-                             ))}
+                             )) || (
+                               <Badge className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-transparent">
+                                 Development
+                               </Badge>
+                             )}
                            </div>
                          </div>
    
                          <div className="flex flex-col sm:flex-row lg:flex-col items-center sm:items-end lg:items-end justify-between min-w-[280px] gap-8">
                            <div className="text-center sm:text-right lg:text-right space-y-1">
                              <p className="text-4xl font-black text-slate-950 dark:text-white tracking-tighter">
-                               ${project.budget.min.toLocaleString()} - ${project.budget.max.toLocaleString()}
+                               ${(project.budget?.min || 0).toLocaleString()} - ${(project.budget?.max || 0).toLocaleString()}
                              </p>
                              <div className="flex items-center gap-2 justify-center sm:justify-end lg:justify-end">
                                 <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />
                                 <p className="text-xs text-slate-400 font-black uppercase tracking-[0.2em]">
-                                  {project.budget.type} RATE
+                                  {project.budget?.type || 'FIXED'} RATE
                                 </p>
                              </div>
                            </div>

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../../components/ui/Card';
 import { 
   LayoutDashboard, 
@@ -21,10 +22,11 @@ import { Badge } from '../../../components/ui/Badge';
 import { auth } from '../../../lib/firebase';
 import Link from 'next/link';
 import { Project } from '../../../types';
+import { callBackend } from '../../../lib/api';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
-  { name: 'Post a Project', href: '/client/post-project', icon: PlusSquare },
+  { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
   { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
@@ -33,26 +35,18 @@ const sidebarItems = [
 ];
 
 export default function ManageProjectsPage() {
+  const { user } = useAuthStore();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProjects = async () => {
+      if (!user) return;
+      
       try {
-        const firebaseUser = auth.currentUser;
-        if (!firebaseUser) return;
-        
-        const token = await firebaseUser.getIdToken();
-        const resp = await fetch('http://localhost:5000/api/projects', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (resp.ok) {
-          const data = await resp.json();
-          // In this simplified API, we filter by client ID on frontend for demonstration
-          // In a real production app, the backend should handle this filtering
-          setProjects(data.filter((p: any) => p.clientId === firebaseUser.uid));
-        }
+        const data = await callBackend('projects/my');
+        // The backend /my endpoint already returns the user's projects
+        setProjects(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -60,8 +54,10 @@ export default function ManageProjectsPage() {
       }
     };
 
-    fetchProjects();
-  }, []);
+    if (user) {
+      fetchProjects();
+    }
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['client']}>
@@ -69,7 +65,7 @@ export default function ManageProjectsPage() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-display font-bold">Your Project Listings</h2>
-            <Link href="/client/post-project">
+            <Link href="/create-project">
               <Button size="sm" className="gap-2">
                 <PlusSquare size={16} />
                 New Project
@@ -86,7 +82,7 @@ export default function ManageProjectsPage() {
                   <ClipboardList size={48} className="mx-auto text-slate-300 mb-4" />
                   <h3 className="text-lg font-semibold">No projects posted yet</h3>
                   <p className="text-slate-500 mb-6">Create your first project to start hiring global talent.</p>
-                  <Link href="/client/post-project">
+                  <Link href="/create-project">
                     <Button>Post My First Project</Button>
                   </Link>
                 </CardContent>
@@ -110,7 +106,7 @@ export default function ManageProjectsPage() {
                             Posted {new Date(project.createdAt).toLocaleDateString()}
                           </span>
                           <span className="flex items-center gap-1 font-semibold text-primary-600">
-                            Budget: ${project.budget.min} - ${project.budget.max}
+                            Budget: {project.budget ? `$${project.budget.min} - $${project.budget.max}` : 'N/A'}
                           </span>
                         </div>
                       </div>

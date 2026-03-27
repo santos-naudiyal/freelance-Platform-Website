@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { Card, CardContent } from '../../../components/ui/Card';
 import { 
   LayoutDashboard, 
@@ -31,17 +32,50 @@ const sidebarItems = [
 ];
 
 export default function FreelancerProjectsPage() {
+  const { user } = useAuthStore();
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Similarly to proposals, this would fetch from a specific "active projects" endpoint
-    // For now we'll simulate empty state or simple fetch
     const fetchActive = async () => {
-       setIsLoading(false);
+       if (!user || !auth.currentUser) return;
+
+       try {
+         const token = await auth.currentUser.getIdToken();
+         const resp = await fetch('http://localhost:5000/api/proposals/my', {
+           headers: { 'Authorization': `Bearer ${token}` }
+         });
+         
+         if (resp.ok) {
+           const data = await resp.json();
+           const accepted = data.filter((p: any) => p.status === 'accepted');
+           
+           const mappedProjects = await Promise.all(accepted.map(async (p: any) => {
+             try {
+                const projResp = await fetch(`http://localhost:5000/api/projects/${p.projectId}`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (projResp.ok) {
+                   const projData = await projResp.json();
+                   return { ...p, projectTitle: projData.title, clientId: projData.clientId };
+                }
+             } catch (e) {}
+             return { ...p, projectTitle: 'Unknown Project', clientId: 'Unknown' };
+           }));
+           
+           setProjects(mappedProjects);
+         }
+       } catch (err) {
+         console.error(err);
+       } finally {
+         setIsLoading(false);
+       }
     };
-    fetchActive();
-  }, []);
+
+    if (user) {
+      fetchActive();
+    }
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>
@@ -53,38 +87,51 @@ export default function FreelancerProjectsPage() {
           </div>
 
           <div className="space-y-4">
-             {/* Simulated active items for UI demonstration */}
-             {[1, 2].map((i) => (
-                <Card key={i} className="border-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800 overflow-hidden">
-                   <div className="p-6">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                         <div className="flex gap-4 items-start">
-                            <div className="h-12 w-12 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600">
-                               <PlayCircle size={28} />
-                            </div>
-                            <div className="space-y-1">
-                               <h4 className="font-bold text-lg">Next.js E-commerce Integration</h4>
-                               <p className="text-sm text-slate-500">Client: WebSolutions Ltd.</p>
-                               <div className="flex gap-4 mt-2">
-                                  <div className="w-48 bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                                     <div className="bg-primary-500 h-full w-[65%]" />
-                                  </div>
-                                  <span className="text-[10px] font-bold text-slate-500">65% DONE</span>
-                               </div>
-                            </div>
-                         </div>
-                         <div className="flex items-center gap-3">
-                            <Link href="/messages">
-                              <Button variant="outline" size="sm" className="gap-2">
-                                 <MessageSquare size={16} /> Chat
-                              </Button>
-                            </Link>
-                            <Button size="sm">Manage Milestones</Button>
-                         </div>
-                      </div>
-                   </div>
-                </Card>
-             ))}
+             {isLoading ? (
+               <div className="py-12 text-center text-slate-500">Loading active projects...</div>
+             ) : projects.length === 0 ? (
+               <Card className="border-dashed border-2 py-12 text-center">
+                 <CardContent>
+                   <Briefcase size={48} className="mx-auto text-slate-300 mb-4" />
+                   <h3 className="text-lg font-semibold">No active projects</h3>
+                   <p className="text-slate-500 mb-6">You don't have any ongoing contracts right now.</p>
+                   <Link href="/projects/browse">
+                     <Button>Browse Projects</Button>
+                   </Link>
+                 </CardContent>
+               </Card>
+             ) : (
+               projects.map((project) => (
+                  <Card key={project.id} className="border-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800 overflow-hidden">
+                     <div className="p-6">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                           <div className="flex gap-4 items-start">
+                              <div className="h-12 w-12 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600">
+                                 <PlayCircle size={28} />
+                              </div>
+                              <div className="space-y-1">
+                                 <h4 className="font-bold text-lg">{project.projectTitle}</h4>
+                                 <p className="text-sm text-slate-500">Contract ID: {project.id}</p>
+                                 <div className="flex gap-4 mt-2">
+                                    <div className="w-48 bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                       <div className="bg-primary-500 h-full w-[20%]" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500">IN PROGRESS</span>
+                                 </div>
+                              </div>
+                           </div>
+                           <div className="flex items-center gap-3">
+                              <Link href={`/messages`}>
+                                <Button variant="outline" size="sm" className="gap-2">
+                                   <MessageSquare size={16} /> Chat
+                                </Button>
+                              </Link>
+                           </div>
+                        </div>
+                     </div>
+                  </Card>
+               ))
+             )}
           </div>
         </div>
       </DashboardLayout>
