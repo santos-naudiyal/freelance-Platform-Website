@@ -34,7 +34,7 @@ export default async function TimelinePage({
           </div>
         </div>
 
-        <Timeline />
+        <Timeline workspaceId={project} />
       </div>
     </WorkspaceLayout>
   );
