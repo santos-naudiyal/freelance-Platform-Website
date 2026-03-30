@@ -12,7 +12,7 @@ export default async function ActivityPage({
   return (
     <WorkspaceLayout projectSlug={project}>
       <div className="max-w-3xl mx-auto">
-        <ActivityFeed />
+
       </div>
     </WorkspaceLayout>
   );

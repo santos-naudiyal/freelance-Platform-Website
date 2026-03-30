@@ -14,7 +14,7 @@ import {
   Settings,
   CheckCircle2,
   Clock,
-  PlayCircle
+
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
@@ -57,10 +57,7 @@ export default function FreelancerProjectsPage() {
                 });
                 if (projResp.ok) {
                    const projData = await projResp.json();
-                   return { ...p, projectTitle: projData.title, clientId: projData.clientId };
-                }
-             } catch (e) {}
-             return { ...p, projectTitle: 'Unknown Project', clientId: 'Unknown' };
+
            }));
            
            setProjects(mappedProjects);
@@ -80,57 +77,7 @@ export default function FreelancerProjectsPage() {
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>
       <DashboardLayout sidebarItems={sidebarItems} title="Active Projects">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-display font-bold">Your Ongoing Work</h2>
-            <Badge variant="info" className="px-4">3 Active Contracts</Badge>
-          </div>
 
-          <div className="space-y-4">
-             {isLoading ? (
-               <div className="py-12 text-center text-slate-500">Loading active projects...</div>
-             ) : projects.length === 0 ? (
-               <Card className="border-dashed border-2 py-12 text-center">
-                 <CardContent>
-                   <Briefcase size={48} className="mx-auto text-slate-300 mb-4" />
-                   <h3 className="text-lg font-semibold">No active projects</h3>
-                   <p className="text-slate-500 mb-6">You don't have any ongoing contracts right now.</p>
-                   <Link href="/projects/browse">
-                     <Button>Browse Projects</Button>
-                   </Link>
-                 </CardContent>
-               </Card>
-             ) : (
-               projects.map((project) => (
-                  <Card key={project.id} className="border-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800 overflow-hidden">
-                     <div className="p-6">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                           <div className="flex gap-4 items-start">
-                              <div className="h-12 w-12 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600">
-                                 <PlayCircle size={28} />
-                              </div>
-                              <div className="space-y-1">
-                                 <h4 className="font-bold text-lg">{project.projectTitle}</h4>
-                                 <p className="text-sm text-slate-500">Contract ID: {project.id}</p>
-                                 <div className="flex gap-4 mt-2">
-                                    <div className="w-48 bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                                       <div className="bg-primary-500 h-full w-[20%]" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-500">IN PROGRESS</span>
-                                 </div>
-                              </div>
-                           </div>
-                           <div className="flex items-center gap-3">
-                              <Link href={`/messages`}>
-                                <Button variant="outline" size="sm" className="gap-2">
-                                   <MessageSquare size={16} /> Chat
-                                </Button>
-                              </Link>
-                           </div>
-                        </div>
-                     </div>
-                  </Card>
-               ))
              )}
           </div>
         </div>
