@@ -1,5 +1,6 @@
 import { TaskRepository, Task } from '../repositories/TaskRepository';
 import { emitTaskUpdate, emitToWorkspace } from './socketService';
+import { db } from '../config/firebase';
 
 export class TaskService {
   private taskRepository: TaskRepository;
@@ -29,6 +30,16 @@ export class TaskService {
       console.log(`✅ Task ${taskId} updated → ${status}`);
 
       emitTaskUpdate(projectId, { id: taskId, status });
+
+      // Auto-log activity feed event
+      await db.collection('ActivityLogs').add({
+        projectId: projectId,
+        type: 'task',
+        content: `Task ${taskId.substring(0, 8)}... was moved to "${status}".`,
+        user: { name: 'Workspace System', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=System' },
+        timestamp: Date.now(),
+        createdAt: Date.now()
+      });
 
     } catch (err) {
       console.error("❌ updateTaskStatus failed:", err);

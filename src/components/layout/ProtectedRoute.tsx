@@ -16,32 +16,30 @@ export function ProtectedRoute({ children, allowedRoles }: { children: React.Rea
 
   useEffect(() => {
     const fetchUserProfile = async (firebaseUser: FirebaseUser) => {
-      // Avoid redundant fetches if we already have the user profile
-      if (user && user.email === firebaseUser.email) {
-        setLoading(false);
-        setAuthInitialized(true);
-        return;
-      }
+      // Only fetch the profile if we don't have it in state already 
+      // or if it's the initial load to ensure consistency
+      if (user && authInitialized) return;
 
       try {
         const data = await callBackend('users/profile');
         
         if (data) {
+          console.log('User Profile Hydrated:', { role: data.role, email: data.email });
           setUser({
-            id: data.id,
-            name: data.name,
-            email: data.email,
-            role: data.role,
-            avatar: data.avatar,
-            createdAt: data.createdAt,
+            ...data,
+            freelancerDetails: undefined
           });
           
           if (data.role === 'freelancer' && data.freelancerDetails) {
             setFreelancerDetails(data.freelancerDetails);
           }
         }
-      } catch (err) {
-        console.error('Failed to fetch user profile:', err);
+      } catch (err: any) {
+        if (err?.message?.includes('8')) {
+          console.error('CRITICAL: Firestore Quota Exceeded (Error 8). Please check your Firebase billing plan.');
+        } else {
+          console.error('Failed to fetch user profile:', err);
+        }
       } finally {
         setLoading(false);
         setAuthInitialized(true);
@@ -60,7 +58,7 @@ export function ProtectedRoute({ children, allowedRoles }: { children: React.Rea
     });
 
     return () => unsubscribe();
-  }, [setUser, setFreelancerDetails, setLoading, user]);
+  }, [setUser, setFreelancerDetails, setLoading]);
 
   useEffect(() => {
     if (authInitialized && !isLoading) {

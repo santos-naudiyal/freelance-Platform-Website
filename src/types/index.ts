@@ -7,20 +7,33 @@ export interface User {
   role: UserRole;
   avatar?: string;
   country?: string;
+  address?: string;
+  companyName?: string;
+  industry?: string;
+  website?: string;
   createdAt: number;
 }
 
 export interface FreelancerProfile {
   userId: string;
-  title: string;
-  bio: string;
-  skills: string[];
-  hourlyRate: number;
+  profile: {
+    title: string;
+    bio: string;
+    skills: string[];
+    hourlyRate: number;
+    githubUrl?: string;
+    portfolioLinks?: string[];
+    avatar?: string;
+  };
   rating: number;
   availability: 'available' | 'busy' | 'offline';
   successRate?: number;
   velocity?: number;
   satisfaction?: number;
+  socialLinks?: {
+    linkedin?: string;
+    twitter?: string;
+  };
 }
 
 export interface Project {
@@ -37,6 +50,14 @@ export interface Project {
   skillsRequired: string[];
   status: 'open' | 'in_progress' | 'completed' | 'cancelled';
   createdAt: number;
+  clientDetails?: {
+    name: string;
+    companyName?: string;
+    industry?: string;
+    website?: string;
+    address?: string;
+    avatar?: string;
+  };
 }
 
 export interface Workspace {

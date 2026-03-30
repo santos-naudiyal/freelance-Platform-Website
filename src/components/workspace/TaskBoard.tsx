@@ -46,11 +46,25 @@ export function TaskBoard({ workspaceId }: TaskBoardProps) {
                 </button>
               </div>
 
-              <div className="flex-1 space-y-3 p-1 overflow-y-auto scrollbar-hide">
+              <div 
+                className="flex-1 space-y-3 p-1 overflow-y-auto scrollbar-hide min-h-[150px] rounded-2xl border-2 border-transparent transition-all"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add('border-primary-500/20', 'bg-primary-50/5');
+                }}
+                onDragLeave={(e) => {
+                  e.currentTarget.classList.remove('border-primary-500/20', 'bg-primary-50/5');
+                }}
+                onDrop={(e) => {
+                  e.currentTarget.classList.remove('border-primary-500/20', 'bg-primary-50/5');
+                  const taskId = e.dataTransfer.getData('taskId');
+                  if (taskId) updateTaskStatus(taskId, column.id as Task['status']);
+                }}
+              >
                 {columnTasks.map((task) => (
                   <div 
                     key={task.id} 
-                    className="premium-card p-5 cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-primary-500/20 group"
+                    className="premium-card p-5 cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-primary-500/20 group relative z-10"
                     draggable
                     onDragStart={(e) => e.dataTransfer.setData('taskId', task.id)}
                   >
@@ -61,21 +75,25 @@ export function TaskBoard({ workspaceId }: TaskBoardProps) {
                         task.priority === 'medium' ? "bg-amber-100 text-amber-600 dark:bg-amber-950/30" :
                         "bg-slate-100 text-slate-600 dark:bg-slate-800"
                       )}>
-                        {task.priority}
+                        {task.priority || 'NORMAL'}
                       </span>
                       <button className="text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">
                         <MoreHorizontal size={16} />
                       </button>
                     </div>
                     
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4 line-clamp-2 uppercase tracking-tight">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4 line-clamp-2 leading-tight">
                       {task.title}
                     </h4>
+
+                    {task.description && (
+                      <p className="text-[10px] text-slate-500 mb-4 line-clamp-2 leading-relaxed">{task.description}</p>
+                    )}
 
                     <div className="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">
                       <div className="flex items-center gap-2">
                         <img 
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${task.assigneeId || 'Sarah'}`} 
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${task.assigneeId || 'Team'}`} 
                           className="h-6 w-6 rounded-lg bg-slate-100 dark:bg-slate-800"
                           alt="assignee"
                         />
@@ -91,16 +109,6 @@ export function TaskBoard({ workspaceId }: TaskBoardProps) {
                   </div>
                 ))}
               </div>
-              
-              {/* Drop Zone */}
-              <div 
-                className="h-12 border-2 border-dashed border-transparent hover:border-primary-500/20 hover:bg-primary-50/5 rounded-2xl transition-all"
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  const taskId = e.dataTransfer.getData('taskId');
-                  updateTaskStatus(taskId, column.id as Task['status']);
-                }}
-              />
             </div>
           );
         })

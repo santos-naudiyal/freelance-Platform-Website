@@ -10,7 +10,8 @@ if (!admin.apps.length) {
     console.log('Initializing Firebase Admin with:', serviceAccountPath);
     
     admin.initializeApp({
-      credential: admin.credential.cert(require(serviceAccountPath))
+      credential: admin.credential.cert(require(serviceAccountPath)),
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'freelace-website.firebasestorage.app'
     });
     console.log('Firebase Admin Initialized successfully');
   } catch (error) {
@@ -20,3 +21,4 @@ if (!admin.apps.length) {
 
 export const db = admin.firestore();
 export const auth = admin.auth();
+export const storage = admin.storage();

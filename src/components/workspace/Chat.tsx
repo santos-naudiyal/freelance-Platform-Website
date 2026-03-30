@@ -10,12 +10,15 @@ import {
   Sparkles,
   Phone,
   Video,
-  Info
+  Info,
+  ListPlus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChat } from '@/hooks/useChat';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAI } from '@/hooks/useAI';
+import { callBackend } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 interface ChatProps {
   workspaceId: string;
@@ -26,6 +29,36 @@ export function Chat({ workspaceId }: ChatProps) {
   const { messages, loading, sendMessage } = useChat(workspaceId);
   const { askCopilot, loading: aiLoading } = useAI();
   const [inputValue, setInputValue] = useState('');
+  const [isTaskifying, setIsTaskifying] = useState(false);
+
+  const handleTaskify = async () => {
+    try {
+      setIsTaskifying(true);
+      const res = await callBackend('ai/assistant/taskify', 'POST', { workspaceId });
+      
+      if (res && res.tasks && res.tasks.length > 0) {
+        // Iterate through tasks and add them to the TaskBoard via backend calls
+        await Promise.all(res.tasks.map((task: any) => 
+          callBackend('workspaces/tasks', 'POST', {
+            projectId: workspaceId,
+            title: task.title || task.name || 'Untitled Task',
+            status: 'todo',
+            priority: 'medium',
+            description: `Auto-extracted from chat: ${task.duration || ''} | ${task.role || ''}`,
+            assigneeId: user?.id,
+          })
+        ));
+        toast.success(`Extracted ${res.tasks.length} tasks!`);
+      } else {
+        toast.error('No clear tasks found in recent chat.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Failed to extract tasks.');
+    } finally {
+      setIsTaskifying(false);
+    }
+  };
 
   const handleSend = async () => {
     if (!inputValue.trim() || !user) return;
@@ -47,13 +80,13 @@ export function Chat({ workspaceId }: ChatProps) {
            content: m.text
         }));
 
-        const aiResponse = await askCopilot(
+        const aiResponse: any = await askCopilot(
           prompt,
           JSON.stringify(contextMessages)
         );
 
-        if (aiResponse) {
-           await sendMessage(aiResponse, 'ai_copilot_service', 'Freelace AI Co-Pilot', 'ai');
+        if (aiResponse && aiResponse.reply) {
+           await sendMessage(aiResponse.reply, 'ai_copilot_service', 'Freelace AI Co-Pilot', 'ai');
         }
       }
     } catch (err) {
@@ -91,6 +124,15 @@ export function Chat({ workspaceId }: ChatProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          <button 
+            onClick={handleTaskify}
+            disabled={isTaskifying}
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary-50 text-primary-600 hover:bg-primary-100 transition-all font-bold text-xs shadow-sm border border-primary-100 disabled:opacity-50 mr-2"
+          >
+            {isTaskifying ? <Sparkles size={14} className="animate-spin" /> : <ListPlus size={14} />}
+            Taskify Chat
+          </button>
+          
           <button className="p-2 rounded-xl hover:bg-white dark:hover:bg-slate-800 text-slate-500 hover:text-primary-600 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
             <Phone size={18} />
           </button>

@@ -28,13 +28,12 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { user } = useAuthStore();
-
   const freelancerSidebar: SidebarItem[] = [
     { name: 'Home', href: '/freelancer/dashboard', icon: LayoutDashboard },
     { name: 'Projects', href: '/freelancer/projects', icon: Briefcase },
     { name: 'Explore', href: '/explore', icon: Search },
     { name: 'Messages', href: '/messages', icon: MessageSquare },
-    { name: 'Profile', href: '/freelancer/profile', icon: UserIcon },
+    { name: 'Settings', href: '/freelancer/settings', icon: SettingsIcon },
   ];
 
   const clientSidebar: SidebarItem[] = [
@@ -42,7 +41,7 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
     { name: 'Projects', href: '/client/manage-projects', icon: Briefcase },
     { name: 'Explore', href: '/explore', icon: Search },
     { name: 'Messages', href: '/messages', icon: MessageSquare },
-    { name: 'Profile', href: '/client/profile', icon: UserIcon },
+    { name: 'Settings', href: '/client/settings', icon: SettingsIcon },
   ];
 
   const activeSidebarItems = sidebarItems || (user?.role === 'client' ? clientSidebar : freelancerSidebar);
@@ -126,8 +125,18 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
                 <Bell size={20} />
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary-500 border-2 border-white dark:border-slate-950" />
              </button>
-             <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-primary-500/20 flex items-center justify-center">
-                <UserIcon size={20} className="text-slate-500" />
+             <div className="flex items-center gap-3">
+               <div className="hidden md:flex flex-col items-end">
+                  <span className="text-sm font-black text-slate-900 dark:text-white">{user?.name || 'User'}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{user?.role}</span>
+               </div>
+               <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-primary-500/20 flex items-center justify-center overflow-hidden">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="Avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    <UserIcon size={20} className="text-slate-500" />
+                  )}
+               </div>
              </div>
           </div>
         </header>

@@ -34,8 +34,8 @@ export class WorkspaceService {
         description:
           analysis.description || `AI planned project for: ${outcome}`,
         budget: {
-          min: parseInt(investmentStr.split('-')[0]) || 0,
-          max: parseInt(investmentStr.split('-')[1]) || 5000,
+          min: parseInt(investmentStr.split('-')[0]?.replace(/[^0-9]/g, '')) || 0,
+          max: parseInt(investmentStr.split('-')[1]?.replace(/[^0-9]/g, '')) || 5000,
           type: 'fixed'
         },
         skillsRequired: analysis.skills || [],

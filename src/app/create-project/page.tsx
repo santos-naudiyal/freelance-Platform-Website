@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { AIProjectPlanner } from '@/components/workspace/AIProjectPlanner';
 import { AIExpertMatching } from '@/components/workspace/AIExpertMatching';
+import { SmartPricingWidget } from '@/components/projects/SmartPricingWidget';
 import { Sparkles, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '@/lib/firebase';
@@ -126,6 +127,9 @@ export default function CreateProjectPage() {
                       </div>
                     </motion.div>
                   )}
+                  
+                  {/* Smart Pricing Engine Integration */}
+                  <SmartPricingWidget outcome={outcome} />
                 </div>
                 
                 <div className="flex justify-end pt-6">

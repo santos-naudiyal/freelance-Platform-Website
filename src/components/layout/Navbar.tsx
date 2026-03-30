@@ -44,7 +44,7 @@ export function Navbar() {
                 { name: 'Projects', href: '/projects/browse' },
                 { name: 'Explore', href: '/freelancers/discover' },
                 { name: 'Messages', href: '/messages' },
-                { name: 'Profile', href: user ? profileHref : '/auth/login' },
+                { name: 'Settings', href: user ? (user.role === 'client' ? '/client/settings' : '/freelancer/settings') : '/auth/login' },
               ].map((link) => (
                 <Link 
                   key={link.name} 

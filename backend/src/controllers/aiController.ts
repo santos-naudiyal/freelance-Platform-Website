@@ -1,12 +1,13 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
-import { AIService } from '../services/aiService';
+import { AIOrchestrator } from '../services/ai/aiOrchestrator';
 import { db } from '../config/firebase';
+import { logger } from '../utils/logger';
 
 
 import { MatchingService } from '../services/matchingService';
 
-const aiService = new AIService();
+const aiService = new AIOrchestrator();
 const matchingService = new MatchingService();
 
 export const generatePlan = async (req: AuthRequest, res: Response) => {
@@ -22,8 +23,8 @@ export const generatePlan = async (req: AuthRequest, res: Response) => {
     const result = await aiService.generateProjectPlan(outcome);
     res.json(result);
   } catch (error: any) {
-    console.error('AI Plan Error:', error);
-    res.status(500).json({ error: `Backend AI Error: ${error.message || 'Unknown error'} | Stack: ${error.stack}` });
+    logger.error({ error: error.message, stack: error.stack }, 'AI Plan Error');
+    res.status(500).json({ error: `Backend AI Error: ${error.message || 'Unknown error'}` });
   }
 };
 
@@ -47,7 +48,7 @@ export const analyzeRisk = async (req: AuthRequest, res: Response) => {
     const analysis = await aiService.analyzeRisk(projectDetails);
     res.json(analysis);
   } catch (error: any) {
-    console.error('AI Risk Error:', error);
+    logger.error('AI Risk Error:', error);
     res.status(500).json({ error: `Backend AI Error: ${error.message}` });
   }
 };
@@ -62,7 +63,7 @@ export const matchExperts = async (req: AuthRequest, res: Response) => {
     const matches = await matchingService.matchFreelancers(outcome);
     res.json({ experts: matches });
   } catch (error: any) {
-    console.error('AI Match Error:', error);
+    logger.error('AI Match Error:', error);
     res.status(500).json({ error: `Backend AI Error: ${error.message}` });
   }
 };
@@ -100,9 +101,54 @@ export const getProjectInsights = async (req: AuthRequest, res: Response) => {
     const insights = await aiService.getAIProjectManagerInsights(projectContext);
     res.json(insights);
   } catch (error: any) {
-    console.error('AI Insights Error:', error);
+    logger.error('AI Insights Error:', error);
     res.status(500).json({ error: `Backend AI Error: ${error.message}` });
   }
 };
 
+export const draftProposal = async (req: AuthRequest, res: Response) => {
+  try {
+    const { projectId } = req.body;
+    const userId = req.user?.uid;
+    
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (!projectId) return res.status(400).json({ error: 'Project ID is required' });
+
+    // 1. Fetch Project Details
+    const projectDoc = await db.collection('Projects').doc(projectId).get();
+    if (!projectDoc.exists) return res.status(404).json({ error: 'Project not found' });
+    const projectContext = { id: projectDoc.id, ...projectDoc.data() };
+
+    // 2. Fetch Freelancer details
+    const freelancerDoc = await db.collection('Freelancers').doc(userId).get();
+    if (!freelancerDoc.exists) {
+        return res.status(400).json({ error: 'Freelancer profile missing. Complete profile first.' });
+    }
+    const freelancerProfile = { userId, ...freelancerDoc.data() };
+
+    // 3. Draft via Orchestrator
+    const draft = await aiService.draftProposal(projectContext, freelancerProfile);
+    
+    res.json(draft);
+  } catch (error: any) {
+    logger.error('Proposal Drafting Error:', error);
+    res.status(500).json({ error: `Backend AI Error: ${error.message}` });
+  }
+};
+
+export const estimatePricing = async (req: AuthRequest, res: Response) => {
+  try {
+    const { outcome } = req.body;
+    
+    if (!outcome) {
+      return res.status(400).json({ error: 'Project outcome/scope is required for pricing estimation' });
+    }
+
+    const pricing = await aiService.estimatePricing(outcome);
+    res.json(pricing);
+  } catch (error: any) {
+    logger.error('Pricing Estimation Error:', error);
+    res.status(500).json({ error: `Backend AI Error: ${error.message}` });
+  }
+};
 

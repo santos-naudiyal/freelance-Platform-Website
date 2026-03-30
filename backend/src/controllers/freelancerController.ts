@@ -16,20 +16,31 @@ export const updateFreelancerProfile = async (req: AuthRequest, res: Response): 
       return;
     }
 
-    const { title, bio, skills, hourlyRate, availability } = req.body;
+    const { title, bio, skills, hourlyRate, availability, githubUrl, portfolioLinks, avatar } = req.body;
 
-    const freelancerData = {
+    const freelancerData: any = {
       userId: uid,
-      title,
-      bio,
-      skills,
-      hourlyRate,
-      availability,
       updatedAt: Date.now(),
     };
 
+    if (title !== undefined) freelancerData.title = title;
+    if (bio !== undefined) freelancerData.bio = bio;
+    if (skills !== undefined) freelancerData.skills = skills;
+    if (hourlyRate !== undefined) freelancerData.hourlyRate = hourlyRate;
+    if (availability !== undefined) freelancerData.availability = availability;
+    
+    // Professional trust fields
+    if (githubUrl !== undefined) freelancerData.githubUrl = githubUrl;
+    if (portfolioLinks !== undefined) freelancerData.portfolioLinks = portfolioLinks;
+    if (avatar !== undefined) freelancerData.avatar = avatar;
+
     // Use set with merge true so we don't overwrite rating if it exists
-    await db.collection('Freelancers').doc(uid).set(freelancerData, { merge: true });
+    await db.collection('Freelancers').doc(uid).set({ profile: freelancerData }, { merge: true });
+
+    // If avatar was updated, sync it to the User document as well
+    if (avatar) {
+      await db.collection('Users').doc(uid).update({ avatar });
+    }
 
     res.status(200).json({ message: 'Freelancer profile updated successfully', data: freelancerData });
   } catch (error: any) {

@@ -21,6 +21,8 @@ import { Timeline } from '@/components/workspace/Timeline';
 import { TaskBoard } from '@/components/workspace/TaskBoard';
 import { Chat } from '@/components/workspace/Chat';
 import { AIIntelligencePanel } from '@/components/workspace/AIIntelligencePanel';
+import { useTasks } from '@/hooks/useTasks';
+import { Task } from '@/types';
 
 export default function WorkspacePage({ 
   params 
@@ -29,6 +31,7 @@ export default function WorkspacePage({
 }) {
   const { project } = use(params);
   const { workspace, loading } = useWorkspace(project);
+  const { tasks } = useTasks(project);
 
   if (loading) {
     return (
@@ -44,6 +47,11 @@ export default function WorkspacePage({
 
   const projectOutcome = workspace?.title || project.replace(/-/g, ' ');
 
+  // Calculate local progress based on live tasks
+  const totalTasks = tasks.length > 0 ? tasks.length : (workspace?.totalTasks || 0);
+  const completedTasksCount = tasks.length > 0 ? tasks.filter((t: Task) => t.status === 'done').length : (workspace?.completedTasks || 0);
+  const calculatedProgress = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : (workspace?.progress || 0);
+
   return (
     <WorkspaceLayout projectSlug={project}>
       <div className="max-w-6xl mx-auto space-y-10">
@@ -58,13 +66,13 @@ export default function WorkspacePage({
                 <p className="text-slate-400 font-medium">Status: {workspace?.status || 'Active'}</p>
               </div>
               <div className="text-right">
-                <div className="text-4xl font-display font-black text-primary-400">{workspace?.progress || 0}%</div>
+                <div className="text-4xl font-display font-black text-primary-400">{calculatedProgress}%</div>
                 <div className="text-xs font-black uppercase tracking-widest text-slate-500">Overall Progress</div>
               </div>
             </div>
 
             <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden mb-10">
-              <div className="h-full bg-gradient-to-r from-primary-500 to-indigo-500 rounded-full shadow-lg shadow-primary-500/50 transition-all duration-1000" style={{ width: `${workspace?.progress || 0}%` }} />
+              <div className="h-full bg-gradient-to-r from-primary-500 to-indigo-500 rounded-full shadow-lg shadow-primary-500/50 transition-all duration-1000" style={{ width: `${calculatedProgress}%` }} />
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -73,7 +81,7 @@ export default function WorkspacePage({
                   <CheckCircle2 size={12} className="text-emerald-400" />
                   Task Completion
                 </div>
-                <div className="text-lg font-bold">{workspace?.completedTasks || 0} / {workspace?.totalTasks || 0} ({workspace?.progress || 0}%)</div>
+                <div className="text-lg font-bold">{completedTasksCount} / {totalTasks} ({calculatedProgress}%)</div>
               </div>
               <div className="space-y-1">
                 <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">

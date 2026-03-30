@@ -24,11 +24,9 @@ import { callBackend } from '@/lib/api';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
-  { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
   { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Payments', href: '/client/payments', icon: CreditCard },
   { name: 'Settings', href: '/client/settings', icon: Settings },
 ];
 

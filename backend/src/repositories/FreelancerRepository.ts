@@ -11,6 +11,8 @@ export interface Freelancer extends DocumentData {
     bio: string;
     hourlyRate: number;
     avatar?: string;
+    githubUrl?: string;
+    portfolioLinks?: string[];
   };
   scores?: {
     skillScore: number;

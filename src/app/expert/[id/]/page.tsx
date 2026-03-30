@@ -16,7 +16,8 @@ import {
   Award,
   Zap,
   ArrowRight,
-  Maximize2
+  Maximize2,
+  Layout
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { TrustBadge } from '@/components/trust/TrustBadge';
@@ -30,20 +31,47 @@ export default async function ExpertProfilePage({
 }) {
   const { id } = await params;
   
-  // Fetch real expert data
-  let expertData = null;
+  // Fetch real expert data from Freelancers and Users collections
+  let expertData: any = null;
   try {
-    const docRef = doc(db, 'experts', id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      expertData = { id: docSnap.id, ...docSnap.data() };
+    const freelancerRef = doc(db, 'Freelancers', id);
+    const userRef = doc(db, 'Users', id);
+    
+    const [freelancerSnap, userSnap] = await Promise.all([
+      getDoc(freelancerRef),
+      getDoc(userRef)
+    ]);
+
+    if (freelancerSnap.exists() && userSnap.exists()) {
+      const fData = freelancerSnap.data();
+      const uData = userSnap.data();
+      const profile = fData.profile || {};
+      
+      expertData = {
+        id: id,
+        name: uData.name || 'Anonymous Expert',
+        role: profile.title || 'Professional Freelancer',
+        bio: profile.bio || 'This expert hasn\'t provided a bio yet.',
+        location: uData.address || 'Remote',
+        website: profile.portfolioLinks?.[0] || uData.website || '',
+        githubUrl: profile.githubUrl || '',
+        portfolioLinks: profile.portfolioLinks || [],
+        avatar: profile.avatar || uData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
+        skills: profile.skills || [],
+        hourlyRate: profile.hourlyRate || 0,
+        availability: fData.availability || 'available',
+        successRate: '99.9%', // Placeholder for future reputation engine
+        deliverySpeed: 'Elite',
+        satisfactionScore: '5.0/5.0',
+        verifiedProjects: 0
+      };
     }
   } catch (err) {
     console.error('Fetch expert error:', err);
   }
 
   const expert: any = expertData || {
-    id: 'sarah-chen',
+    id: 'placeholder',
     name: 'Sarah Chen',
     role: 'Elite Systems Architect',
     bio: 'I specialize in scaling fintech infrastructures from zero to 100M users.',
@@ -54,7 +82,10 @@ export default async function ExpertProfilePage({
     deliverySpeed: '1.2x Faster',
     satisfactionScore: '4.9/5.0',
     verifiedProjects: 14,
-    skills: ['Flutter', 'Node.js', 'Firebase', 'AWS', 'Kubernetes']
+    skills: ['Flutter', 'Node.js', 'Firebase', 'AWS', 'Kubernetes'],
+    githubUrl: 'https://github.com',
+    portfolioLinks: [],
+    hourlyRate: 95
   };
 
   return (
@@ -116,17 +147,31 @@ export default async function ExpertProfilePage({
                   </div>
                   <div className="flex items-center gap-2">
                     <Globe size={18} className="text-primary-500" />
-                    {expert.website || 'portfolio.io'}
+                    {expert.website ? (
+                      <a href={expert.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                        {expert.website.replace('https://', '').replace('http://', '')}
+                      </a>
+                    ) : (
+                      'portfolio.io'
+                    )}
                   </div>
                   <div className="flex items-center gap-4">
                     <Linkedin size={18} className="hover:text-primary-600 cursor-pointer transition-colors" />
                     <Twitter size={18} className="hover:text-primary-600 cursor-pointer transition-colors" />
-                    <Github size={18} className="hover:text-primary-600 cursor-pointer transition-colors" />
+                    {expert.githubUrl && (
+                      <a href={expert.githubUrl} target="_blank" rel="noopener noreferrer">
+                        <Github size={18} className="hover:text-primary-600 cursor-pointer transition-colors text-slate-900 dark:text-white" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 items-center">
+                <div className="mr-6 py-4 px-6 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-500/10">
+                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Standard Rate</p>
+                   <p className="text-xl font-black italic">${expert.hourlyRate}/hr</p>
+                </div>
                 <Button variant="outline" className="h-[3.8rem] px-8 rounded-2xl font-black text-xs uppercase tracking-widest gap-2 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                   <MessageSquare size={18} />
                   Message
@@ -165,38 +210,34 @@ export default async function ExpertProfilePage({
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[
-                  { 
-                    title: 'Fintech Mobile App', 
-                    client: 'NeoVault', 
-                    outcome: '99.99% Uptime, 0.2s latency', 
-                    img: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800' 
-                  },
-                  { 
-                    title: 'B2B SaaS Platform', 
-                    client: 'Lumina HQ', 
-                    outcome: 'Automated 85% of workflows', 
-                    img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800' 
-                  },
-                ].map((item) => (
-                  <div key={item.title} className="premium-card p-0 overflow-hidden group">
-                    <div className="h-48 overflow-hidden relative">
-                      <img src={item.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.title} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
-                      <div className="absolute bottom-4 left-4">
-                        <div className="text-[10px] font-black uppercase tracking-widest text-primary-400 mb-1">{item.client}</div>
-                        <h4 className="text-lg font-bold text-white uppercase tracking-tight">{item.title}</h4>
+                {expert.portfolioLinks && expert.portfolioLinks.length > 0 ? (
+                  expert.portfolioLinks.map((link: string, i: number) => (
+                    <div key={i} className="premium-card p-0 overflow-hidden group">
+                      <div className="h-48 overflow-hidden relative">
+                        <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                           <Layout size={40} className="text-slate-300" />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
+                        <div className="absolute bottom-4 left-4">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-primary-400 mb-1">External Project</div>
+                          <h4 className="text-lg font-bold text-white uppercase tracking-tight truncate max-w-[250px]">{link.replace('https://', '').replace('http://', '')}</h4>
+                        </div>
+                      </div>
+                      <div className="p-6">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Verified Outcome</div>
+                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Live Production Deployment</p>
+                        <a href={link} target="_blank" rel="noopener noreferrer" className="mt-6 text-[10px] font-black uppercase tracking-widest text-primary-600 flex items-center gap-2 hover:gap-3 transition-all">
+                          View Live Project <ArrowRight size={14} />
+                        </a>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Verified Outcome</div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{item.outcome}</p>
-                      <button className="mt-6 text-[10px] font-black uppercase tracking-widest text-primary-600 flex items-center gap-2 hover:gap-3 transition-all">
-                        View Workspace Details <ArrowRight size={14} />
-                      </button>
-                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-2 p-12 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900/40 border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center text-center">
+                     <Layout size={48} className="text-slate-300 mb-4" />
+                     <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No public projects showcased yet</p>
                   </div>
-                ))}
+                )}
               </div>
             </section>
           </div>

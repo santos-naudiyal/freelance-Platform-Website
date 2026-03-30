@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { logger } from './utils/logger';
 
 // Configure dotenv before any other imports that might use process.env
 dotenv.config();
@@ -30,8 +31,8 @@ app.use(cors());
 app.use(express.json());
 
 // Diagnostic Logger
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+app.use((req: Request, res: Response, next: NextFunction) => {
+  logger.info({ method: req.method, url: req.url }, 'Incoming Request');
   next();
 });
 
@@ -53,8 +54,16 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/invites', invitationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+// Global Error Handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  logger.error(err, 'Unhandled Exception');
+  res.status(err.status || 500).json({
+    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
+    status: err.status || 500
+  });
+});
 
 httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });
 
