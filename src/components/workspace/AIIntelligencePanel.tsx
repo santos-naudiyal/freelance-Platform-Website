@@ -36,7 +36,7 @@ export function AIIntelligencePanel({ projectId }: { projectId: string }) {
     );
   }
 
-  const { summary, alerts = [], recommendedActions: suggestions = [], velocityScore = 0, nextBigMove } = insights || {};
+
 
   return (
     <div className="space-y-6">
@@ -72,8 +72,7 @@ export function AIIntelligencePanel({ projectId }: { projectId: string }) {
                 Live Alerts
               </h4>
               <div className="space-y-3">
-                {alerts.map((alert: any, i: number) => (
-                  <div key={i} className="flex gap-3">
+
                     <div className={cn(
                       "mt-0.5 h-2 w-2 rounded-full shrink-0",
                       alert.severity === 'high' ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]' : 
