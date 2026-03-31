@@ -86,43 +86,43 @@ export default function ClientDashboard() {
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 space-y-6 sm:space-y-8 lg:space-y-10 text-slate-900 dark:text-white">
 
           {/* Welcome */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-display font-black tracking-tight text-slate-900 dark:text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="space-y-1">
+              <h2 className="text-2xl sm:text-3xl font-display font-black tracking-tight text-slate-900 dark:text-white">
                 Hello, {user?.name || 'Partner'}!
               </h2>
-              <p className="text-slate-600 dark:text-slate-300 mt-2 font-medium">
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium">
                 {projects.length > 0
                   ? `You have ${projects.length} active projects running.`
                   : "Post a project to start collaborating with top freelancers."}
               </p>
             </div>
 
-            <Link href="/create-project">
-              <Button className="h-11 sm:h-12 px-5 sm:px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-primary-500/20">
+            <Link href="/create-project" className="w-full sm:w-auto">
+              <Button className="w-full h-12 px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-primary-500/20">
                 <PlusSquare size={18} />
-                Post a New Project
+                Post New Project
               </Button>
             </Link>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {stats.map((stat) => (
-              <Card key={stat.name} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <CardContent className="p-4 sm:p-6 lg:p-7">
-                  <div className="flex items-center gap-4 sm:gap-5">
-                    <div className={cn("p-3 rounded-xl", stat.bg)}>
+              <Card key={stat.name} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <CardContent className="p-5 sm:p-6">
+                  <div className="flex items-center gap-4">
+                    <div className={cn("p-2.5 sm:p-3 rounded-xl shrink-0", stat.bg)}>
                       <stat.icon className={cn("w-5 h-5 sm:w-6 sm:h-6", stat.color)} />
                     </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                    <div className="min-w-0">
+                      <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
                         {stat.name}
                       </p>
                       {isLoading ? (
                         <Skeleton className="h-6 w-16 mt-1" />
                       ) : (
-                        <p className="text-xl sm:text-2xl font-bold mt-1 text-slate-900 dark:text-white">
+                        <p className="text-xl sm:text-2xl font-black mt-0.5 text-slate-900 dark:text-white">
                           {stat.value}
                         </p>
                       )}

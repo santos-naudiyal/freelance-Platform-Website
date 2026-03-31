@@ -118,6 +118,19 @@ export class AIOrchestrator {
     this.cache.set(cacheKey, result);
     return result;
   }
+
+  async generateProjectQuotation(outcome: string): Promise<any> {
+    const cacheKey = `quotation:${outcome.trim().toLowerCase()}`;
+    if (this.cache.has(cacheKey)) return this.cache.get(cacheKey);
+
+    const { system, buildUserPrompt } = Prompts.PROJECT_QUOTATION;
+    const prompt = buildUserPrompt(outcome);
+    
+    const result = await this.provider.generateJSON<any>("gpt-4o", system, prompt);
+    
+    this.cache.set(cacheKey, result);
+    return result;
+  }
 }
 
 

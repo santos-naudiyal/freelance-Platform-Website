@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
-import { DashboardLayout } from '../../../components/layout/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/Card';
-import { Skeleton } from '../../../components/ui/Skeleton';
+import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -21,12 +21,13 @@ import {
   TrendingUp,
   Sparkles
 } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
-import { Input } from '../../../components/ui/Input';
-import { Badge } from '../../../components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
-import { Project } from '../../../types';
-import { cn } from '../../../components/ui/Button';
+import { Project } from '@/types';
+import { cn } from '@/lib/utils';
+import { callBackend } from '@/lib/api';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/freelancer/dashboard', icon: LayoutDashboard },
@@ -47,14 +48,13 @@ export default function BrowseProjectsPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const resp = await fetch('http://localhost:5000/api/projects');
-        if (resp.ok) {
-          const data = await resp.json();
+        const data = await callBackend('projects');
+        if (data) {
           setProjects(data);
           setFilteredProjects(data);
         }
       } catch (err) {
-        console.error(err);
+        console.error("Browse Projects Error:", err);
       } finally {
         setTimeout(() => setIsLoading(false), 800);
       }

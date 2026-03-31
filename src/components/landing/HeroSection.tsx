@@ -46,9 +46,9 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-6xl md:text-8xl font-display font-black tracking-tighter text-slate-950 dark:text-white leading-[1.05]"
+            className="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tighter text-slate-950 dark:text-white leading-[1.1] md:leading-[1.05]"
           >
-            Build anything with <br />
+            Build anything with <br className="hidden sm:block" />
             <span className="text-gradient font-black filter drop-shadow-sm">experts in hours</span>
           </motion.h1>
 
@@ -56,7 +56,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed"
+            className="text-base sm:text-lg md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed px-4 sm:px-0"
           >
             The world's first <span className="font-bold text-slate-900 dark:text-slate-200">Work Operating System</span>. 
             Describe your outcome, and we'll build the workspace, recommend experts, and track progress for you.
@@ -70,23 +70,23 @@ export function HeroSection() {
           >
             <div className="absolute -inset-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-violet-500 rounded-[2.5rem] blur-md opacity-30 group-hover:opacity-60 transition duration-700 animate-pulse"></div>
             <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-400 to-indigo-400 rounded-[2.5rem] blur-[2px] opacity-0 group-hover:opacity-40 transition duration-500"></div>
-            <div className="relative premium-glass rounded-[2.3rem] p-2.5 flex items-center shadow-2xl bg-white/80 dark:bg-slate-900/80">
-              <div className="flex-1 px-6">
-                <label htmlFor="project-creator" className="block text-[10px] font-black uppercase tracking-widest text-primary-600 mb-1">
+            <div className="relative premium-glass rounded-3xl sm:rounded-[2.3rem] p-1.5 sm:p-2.5 flex flex-col sm:flex-row items-stretch sm:items-center shadow-2xl bg-white/80 dark:bg-slate-900/80 gap-2">
+              <div className="flex-1 px-4 sm:px-6 py-2 sm:py-0">
+                <label htmlFor="project-creator" className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-primary-600 mb-1">
                   What do you want to build?
                 </label>
                 <input 
                   id="project-creator"
                   type="text" 
-                  placeholder="e.g. Build a Flutter app, Create a landing page..."
-                  className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 font-medium text-lg"
+                  placeholder="e.g. Build a Flutter app..."
+                  className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 font-medium text-base sm:text-lg p-0"
                 />
               </div>
               <button 
                 onClick={() => window.location.href = '/create-project'}
-                className="h-[4.5rem] px-10 rounded-2xl bg-primary-600 text-white font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary-500/30 flex items-center gap-2 group"
+                className="h-12 sm:h-[4.5rem] px-6 sm:px-10 rounded-2xl sm:rounded-2xl bg-primary-600 text-white font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary-500/30 flex items-center justify-center gap-2 group"
               >
-                Continue 
+                <span>Continue</span>
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -113,11 +113,11 @@ export function HeroSection() {
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-10">
               Powering innovation at
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 md:gap-x-20 opacity-40 grayscale contrast-125 dark:invert dark:opacity-30">
-              <div className="text-3xl font-black tracking-tighter">STRIPE</div>
-              <div className="text-3xl font-black tracking-tighter">NETFLIX</div>
-              <div className="text-3xl font-black tracking-tighter">UBER</div>
-              <div className="text-3xl font-black tracking-tighter">AIRBNB</div>
+            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-6 md:gap-x-20 opacity-40 grayscale contrast-125 dark:invert dark:opacity-30">
+              <div className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter">STRIPE</div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter">NETFLIX</div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter">UBER</div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter">AIRBNB</div>
             </div>
           </motion.div>
         </div>

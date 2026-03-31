@@ -6,16 +6,16 @@ const chatService = new ChatService();
 
 export const sendMessage = async (req: AuthRequest, res: Response) => {
   try {
-    const { workspaceId, text, type } = req.body;
+    const { projectId, text, type } = req.body;
     const senderId = req.user?.uid;
-    const senderName = req.user?.email || 'Anonymous'; // In real app, fetch from User profile
+    const senderName = req.user?.email || 'User'; 
 
-    if (!senderId || !workspaceId || !text) {
+    if (!senderId || !projectId || !text) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const message = await chatService.sendMessage({
-      workspaceId,
+      projectId,
       senderId,
       senderName,
       text,
@@ -31,13 +31,13 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
 
 export const getMessages = async (req: AuthRequest, res: Response) => {
   try {
-    const workspaceId = req.params.workspaceId as string;
+    const projectId = req.params.projectId as string;
 
-    if (!workspaceId) {
-      return res.status(400).json({ error: 'Workspace ID is required' });
+    if (!projectId) {
+      return res.status(400).json({ error: 'Project ID is required' });
     }
 
-    const messages = await chatService.getMessages(workspaceId);
+    const messages = await chatService.getMessages(projectId);
     res.json(messages);
   } catch (error: any) {
     console.error('Get Messages Error:', error);

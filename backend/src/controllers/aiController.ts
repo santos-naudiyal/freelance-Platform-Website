@@ -152,3 +152,18 @@ export const estimatePricing = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const generateQuotation = async (req: AuthRequest, res: Response) => {
+  try {
+    const { outcome } = req.body;
+    if (!outcome) {
+      return res.status(400).json({ error: 'Outcome is required' });
+    }
+
+    const quotation = await aiService.generateProjectQuotation(outcome);
+    res.json(quotation);
+  } catch (error: any) {
+    logger.error('Quotation Generation Error:', error);
+    res.status(500).json({ error: `Backend AI Error: ${error.message}` });
+  }
+};
+

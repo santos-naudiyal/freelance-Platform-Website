@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { AIProjectPlanner } from '@/components/workspace/AIProjectPlanner';
 import { AIExpertMatching } from '@/components/workspace/AIExpertMatching';
 import { SmartPricingWidget } from '@/components/projects/SmartPricingWidget';
+import { ProjectQuotation } from '@/components/projects/ProjectQuotation';
 import { Sparkles, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '@/lib/firebase';
@@ -220,37 +221,23 @@ export default function CreateProjectPage() {
                   <CheckCircle2 size={40} strokeWidth={3} />
                 </div>
 
-                <div className="space-y-3">
-                  <h1 className="text-4xl font-display font-black tracking-tight text-slate-900 dark:text-white">
-                    Workspace Ready.
+                <div className="space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800 animate-fade-in">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">AI Architecting Complete</span>
+                  </div>
+                  <h1 className="text-5xl font-display font-black tracking-tight text-slate-900 dark:text-white">
+                    Project Architecture & Quotation.
                   </h1>
-                  <p className="text-base font-medium text-slate-500 max-w-xl mx-auto">
-                    Your project environment is indexed, experts are notified, and the AI Co-Pilot is standing by.
+                  <p className="text-lg font-medium text-slate-500 max-w-2xl mx-auto leading-relaxed">
+                    Our AI has analyzed your vision and generated a comprehensive financial and technical roadmap. Review your detailed project quotation below and download the official PDF brief for your records.
                   </p>
                 </div>
 
-                <Button 
-                  onClick={async () => {
-                    if (!user) return;
-
-                    try {
-                      const result = await callBackend('workspaces/create-from-ai', 'POST', {
-                        outcome,
-                        aiData
-                      });
-
-                      if (result.projectId) {
-                        window.location.href = `/workspace/${result.projectId}`;
-                      }
-
-                    } catch (err) {
-                      console.error('Workspace Creation Error:', err);
-                    }
-                  }}
-                  className="h-14 px-8 rounded-xl bg-slate-950 dark:bg-slate-800 text-white font-black text-xs uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-slate-700 transition-all shadow-xl mt-4"
-                >
-                  Launch Intelligence Workspace
-                </Button>
+                {/* Project Quotation Section */}
+                <div className="w-full mt-12 text-left">
+                  <ProjectQuotation outcome={outcome} />
+                </div>
 
               </motion.div>
             )}

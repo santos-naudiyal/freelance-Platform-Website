@@ -130,24 +130,22 @@ export default function ManageProjectsPage() {
                       <CardFooter className="flex gap-2">
 
                         {/* VIEW / PROPOSALS */}
-                        <Link href={`/client/manage-projects/${project.id}`} className="w-full">
-                          <Button variant="outline" className="w-full">
-                            {project.status === 'open' ? 'Review Proposals' : 'View Project'}
-                          </Button>
-                        </Link>
+                        <div className="flex gap-2 w-full">
+                          <Link href={`/client/manage-projects/${project.id}`} className="flex-grow">
+                            <Button variant="outline" className="w-full h-12 rounded-xl font-bold flex items-center justify-center gap-2 group-hover:bg-slate-900 group-hover:text-white transition-all">
+                              {project.status === 'open' ? 'Review Proposals' : 'View Details'}
+                              <ChevronRight size={16} />
+                            </Button>
+                          </Link>
 
-                        {/* 🔥 OPEN WORKSPACE */}
-                        {(project.status === 'in_progress' || project.workspaceId) && (
-                          <Button
-                            onClick={() =>
-                              window.location.href = `/workspace/${project.workspaceId || project.id}`
-                            }
-                            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-                          >
-                            <ExternalLink size={16} />
-                            Open
-                          </Button>
-                        )}
+                          {project.status === 'in_progress' && (
+                            <Link href={`/messages?projectId=${project.id}`}>
+                              <Button className="h-12 w-12 rounded-xl bg-primary-600 text-white p-0 flex items-center justify-center shrink-0 shadow-lg shadow-primary-500/20">
+                                <MessageSquare size={20} />
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
 
                       </CardFooter>
 

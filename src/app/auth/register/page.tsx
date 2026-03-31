@@ -136,11 +136,22 @@ export default function RegisterPage() {
   const isStep2Valid = name && email && password.length >= 6;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-900 transition-colors">
-      <div className="w-full max-w-lg">
-        <div className="mb-8 text-center">
-          <Link href="/" className="text-4xl font-display font-black tracking-tighter bg-gradient-to-br from-primary-600 to-indigo-600 bg-clip-text text-transparent italic">
-            FreelanceHub
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8 sm:py-12 dark:bg-slate-950 relative overflow-hidden transition-colors">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary-400/20 blur-[120px] dark:bg-primary-600/10" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-400/20 blur-[120px] dark:bg-indigo-600/10" />
+      </div>
+
+      <div className="w-full max-w-lg relative">
+        <div className="mb-10 text-center">
+          <Link href="/" className="inline-flex items-center gap-2 group">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:scale-110 transition-transform">
+              <Sparkles size={20} className="text-white" />
+            </div>
+            <span className="text-3xl font-display font-black tracking-tight text-slate-950 dark:text-white">
+              Freelace<span className="text-primary-600">.</span>
+            </span>
           </Link>
         </div>
         
@@ -152,15 +163,15 @@ export default function RegisterPage() {
              />
           </div>
 
-          <CardHeader className="space-y-2 pt-10 px-8">
-            <div className="flex justify-between items-center mb-2">
-               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-600">Step 0{step} of 03</span>
+          <CardHeader className="space-y-2 pt-10 px-6 sm:px-8 text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-2 gap-2">
+               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-600 bg-primary-50 dark:bg-primary-900/40 px-3 py-1 rounded-full">Step 0{step} of 03</span>
                <span className="text-[10px] font-bold text-slate-400">{role ? role.toUpperCase() : 'SELECT ROLE'}</span>
             </div>
-            <CardTitle className="text-3xl font-display font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+            <CardTitle className="text-2xl sm:text-3xl font-display font-black tracking-tight text-slate-950 dark:text-white leading-tight">
               {step === 1 ? 'Start your journey.' : step === 2 ? 'Account security.' : 'Professional identity.'}
             </CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400 font-medium text-base">
+            <CardDescription className="text-slate-500 dark:text-slate-400 font-medium text-sm sm:text-base px-2 sm:px-0">
               {step === 1 ? 'Choose how you want to use the platform.' : step === 2 ? 'Secure your professional workspace.' : 'This information builds trust with your future partners.'}
             </CardDescription>
           </CardHeader>

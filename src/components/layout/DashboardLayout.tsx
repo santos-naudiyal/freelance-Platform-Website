@@ -123,10 +123,10 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
             </span>
           </Link>
           <button
-            className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             onClick={() => setIsSidebarOpen(false)}
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
@@ -183,7 +183,7 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
       {/* ─── Main Content ─── */}
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         {/* Top Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8">
           {/* Mobile menu button */}
           <button
             className="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -194,9 +194,9 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
 
           {/* Page Title */}
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white font-display truncate">
-              {title}
-            </h1>
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-display truncate">
+                {title}
+              </h1>
           </div>
 
           {/* Right actions */}
@@ -222,7 +222,7 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

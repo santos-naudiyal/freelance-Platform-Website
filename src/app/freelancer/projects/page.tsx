@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
-import { DashboardLayout } from '../../../components/layout/DashboardLayout';
-import { useAuthStore } from '../../../store/useAuthStore';
-import { Card, CardContent } from '../../../components/ui/Card';
+import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { useAuthStore } from '@/store/useAuthStore';
+import { Card, CardContent } from '@/components/ui/Card';
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -20,12 +20,14 @@ import {
   ChevronRight,
   TrendingUp
 } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
-import { Badge } from '../../../components/ui/Badge';
-import { Skeleton } from '../../../components/ui/Skeleton';
-import { auth } from '../../../lib/firebase';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { callBackend } from '@/lib/api';
+import { Project } from '@/types';
+import { cn } from '@/lib/utils';
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/freelancer/dashboard', icon: LayoutDashboard },
@@ -37,17 +39,6 @@ const sidebarItems = [
   { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  status: string;
-  clientId: string;
-  createdAt: string;
-  category?: string;
-}
-
 export default function FreelancerProjectsPage() {
   const { user } = useAuthStore();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -55,38 +46,26 @@ export default function FreelancerProjectsPage() {
 
   useEffect(() => {
     const fetchActive = async () => {
-       if (!user || !auth.currentUser) return;
+       if (!user) return;
 
        try {
-         const token = await auth.currentUser.getIdToken();
-         const resp = await fetch('http://localhost:5000/api/proposals/my', {
-           headers: { 'Authorization': `Bearer ${token}` }
-         });
+         const data = await callBackend('proposals/my');
+         // Filter for accepted proposals which indicate active projects for the freelancer
+         const acceptedProposals = (data || []).filter((p: any) => p.status === 'accepted');
          
-         if (resp.ok) {
-           const data = await resp.json();
-           // Filter for accepted proposals which indicate active projects for the freelancer
-           const acceptedProposals = data.filter((p: any) => p.status === 'accepted');
-           
-           const mappedProjects = await Promise.all(
-             acceptedProposals.map(async (proposal: any) => {
-               try {
-                  const projResp = await fetch(`http://localhost:5000/api/projects/${proposal.projectId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                  });
-                  if (projResp.ok) {
-                     return await projResp.json();
-                  }
-               } catch (err) {
-                  console.error(`Error fetching project ${proposal.projectId}:`, err);
-               }
-               return null;
-             })
-           );
-           
-           // Filter out any nulls from failed project fetches
-           setProjects(mappedProjects.filter(p => p !== null));
-         }
+         const mappedProjects = await Promise.all(
+           acceptedProposals.map(async (proposal: any) => {
+             try {
+                return await callBackend(`projects/${proposal.projectId}`);
+             } catch (err) {
+                console.error(`Error fetching project ${proposal.projectId}:`, err);
+                return null;
+             }
+           })
+         );
+         
+         // Filter out any nulls from failed project fetches
+         setProjects(mappedProjects.filter(p => p !== null));
        } catch (err) {
          console.error('Failed to fetch projects:', err);
        } finally {
@@ -174,7 +153,7 @@ export default function FreelancerProjectsPage() {
                         <div className="flex flex-col h-full gap-6">
                           <div className="space-y-3">
                             <Badge variant="info" className="bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 border-none px-3 py-1 font-bold">
-                              {project.category || 'General'}
+                              {(project as any).category || 'AI & Code'}
                             </Badge>
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors duration-300 line-clamp-1">
                               {project.title}
@@ -188,8 +167,8 @@ export default function FreelancerProjectsPage() {
                             <div className="space-y-1">
                               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Budget</p>
                               <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-                                <DollarSign size={14} className="text-emerald-500" />
-                                <span>${project.budget.toLocaleString()}</span>
+                                <span className="text-emerald-500 font-black">₹</span>
+                                <span>{(project.budget?.max || 0).toLocaleString()}</span>
                               </div>
                             </div>
                             <div className="space-y-1">
@@ -268,7 +247,7 @@ export default function FreelancerProjectsPage() {
                      {i === 1 ? 'Pending Earnings' : i === 2 ? 'Completed' : 'Upcoming Deadlines'}
                    </p>
                    <h4 className="text-2xl font-display font-black tracking-tight text-slate-900 dark:text-white">
-                     {i === 1 ? '$0.00' : i === 2 ? '0' : 'None'}
+                      {i === 1 ? '₹0.00' : i === 2 ? '0' : 'None'}
                    </h4>
                  </div>
                ))}
@@ -280,6 +259,6 @@ export default function FreelancerProjectsPage() {
   );
 }
 
-function cn(...inputs: any[]) {
+function cnLocal(...inputs: any[]) {
   return inputs.filter(Boolean).join(' ');
 }

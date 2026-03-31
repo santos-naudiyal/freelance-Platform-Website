@@ -1,9 +1,9 @@
-import { emitToWorkspace } from './socketService';
+import { emitToProjectChat } from './socketService';
 import { db } from '../config/firebase';
 
 export interface Message {
   id?: string;
-  workspaceId: string;
+  projectId: string;
   senderId: string;
   senderName: string;
   text: string;
@@ -26,7 +26,7 @@ export class ChatService {
       console.log("💬 Message saved:", message.id);
 
       // ✅ emit socket
-      emitToWorkspace(message.workspaceId, 'new-message', message);
+      emitToProjectChat(message.projectId, 'new-message', message);
 
       return message;
 
@@ -36,7 +36,7 @@ export class ChatService {
       // fallback message (prevents UI crash)
       return {
         id: 'failed',
-        workspaceId: messageData.workspaceId,
+        projectId: messageData.projectId,
         senderId: messageData.senderId,
         senderName: messageData.senderName,
         text: "Message failed to send",
@@ -46,13 +46,13 @@ export class ChatService {
     }
   }
 
-  async getMessages(workspaceId: string): Promise<Message[]> {
+  async getMessages(projectId: string): Promise<Message[]> {
     try {
-      console.log("📥 Fetching messages for:", workspaceId);
+      console.log("📥 Fetching messages for:", projectId);
 
       const snapshot = await db
         .collection('Messages')
-        .where('workspaceId', '==', workspaceId)
+        .where('projectId', '==', projectId)
         .orderBy('createdAt', 'asc')
         .get();
 
@@ -61,7 +61,7 @@ export class ChatService {
 
         return {
           id: doc.id,
-          workspaceId: data.workspaceId,
+          projectId: data.projectId,
           senderId: data.senderId,
           senderName: data.senderName,
           text: data.text,

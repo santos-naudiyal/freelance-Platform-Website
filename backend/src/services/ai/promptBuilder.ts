@@ -106,5 +106,51 @@ Return EXACTLY this JSON format:
   "complexityScore": 8
 }
 `
+  },
+
+  PROJECT_QUOTATION: {
+    system: "You are an expert freelance project estimator. Analyze the given project and generate a complete professional quotation. Return ONLY valid JSON.",
+    buildUserPrompt: (outcome: string) => `
+Analyze the following project and generate a complete professional quotation.
+
+The quotation must be realistic, market-aligned, and applicable across different industries such as technology, finance, design, and marketing.
+
+Provide the response strictly in structured JSON format and include the following:
+
+1. A clear summary explaining the project and its complexity level (Low, Medium, High) along with a confidence score (0-100).
+2. A pricing section with currency (INR), minimum price, maximum price, and recommended price based on real-world market rates.
+3. A timeline estimate including minimum days, maximum days, and recommended duration.
+4. A detailed task breakdown where each task includes name, short description, estimated hours, and cost.
+5. A list of required skills relevant to the project.
+6. A risk analysis section mentioning possible risks and their mitigation strategies.
+7. Market insights including average market price, demand level, and competition level.
+8. Three pricing options: Basic, Standard, and Premium (each with price and features).
+
+Ensure:
+- Prices are not underestimated and in INR.
+- Output is clean JSON (no extra explanation).
+- Works for any type of freelance project.
+- Maintain professional and practical tone.
+
+Project details:
+"${outcome}"
+
+Return JSON in this EXACT format:
+{
+  "summary": { "text": "...", "complexity": "Low/Medium/High", "confidenceScore": 85 },
+  "pricing": { "currency": "INR", "min": 50000, "max": 150000, "recommended": 120000 },
+  "timeline": { "minDays": 15, "maxDays": 45, "recommended": "30 days" },
+  "tasks": [ { "name": "...", "description": "...", "hours": 10, "cost": 5000 } ],
+  "skills": ["Skill 1", "Skill 2"],
+  "risks": [ { "risk": "...", "mitigation": "..." } ],
+  "marketInsights": { "avgPrice": "INR X to Y", "demand": "High", "competition": "Medium" },
+  "pricingOptions": {
+    "basic": { "price": 50000, "features": ["Feature 1"] },
+    "standard": { "price": 100000, "features": ["Feature A"] },
+    "premium": { "price": 150000, "features": ["Adv Feature"] }
+  },
+  "projectTitle": "Clear, professional name"
+}
+`
   }
 };

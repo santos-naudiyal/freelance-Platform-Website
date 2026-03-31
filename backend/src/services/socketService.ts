@@ -15,9 +15,9 @@ export const initSocket = (server: any) => {
   io.on('connection', (socket) => {
     console.log("🔌 User connected:", socket.id);
 
-    socket.on('join-workspace', (workspaceId: string) => {
-      console.log(`📥 Socket ${socket.id} joined workspace ${workspaceId}`);
-      socket.join(workspaceId);
+    socket.on('join-project-chat', (projectId: string) => {
+      console.log(`📥 Socket ${socket.id} joined project chat ${projectId}`);
+      socket.join(projectId);
     });
 
     socket.on('disconnect', () => {
@@ -36,29 +36,29 @@ export const getIO = () => {
   return io;
 };
 
-export const emitToWorkspace = (
-  workspaceId: string,
+export const emitToProjectChat = (
+  projectId: string,
   event: string,
   data: any
 ) => {
   if (!io) {
-    console.warn("⚠️ emit failed: socket not initialized");
+    console.warn("⚠️ emit-chat failed: socket not initialized");
     return;
   }
 
-  console.log(`📡 Emitting ${event} to workspace ${workspaceId}`);
+  console.log(`📡 Emitting ${event} to project chat ${projectId}`);
 
   try {
-    io.to(workspaceId).emit(event, data);
+    io.to(projectId).emit(event, data);
   } catch (err) {
-    console.error("❌ Emit error:", err);
+    console.error("❌ Chat Emit error:", err);
   }
 };
 
-export const emitTaskUpdate = (workspaceId: string, task: any) => {
-  emitToWorkspace(workspaceId, 'task-updated', task);
+export const emitTaskUpdate = (projectId: string, task: any) => {
+  emitToProjectChat(projectId, 'task-updated', task);
 };
 
-export const emitMilestoneUpdate = (workspaceId: string, milestone: any) => {
-  emitToWorkspace(workspaceId, 'milestone-updated', milestone);
+export const emitMilestoneUpdate = (projectId: string, milestone: any) => {
+  emitToProjectChat(projectId, 'milestone-updated', milestone);
 };

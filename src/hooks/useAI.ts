@@ -47,12 +47,17 @@ export function useAI() {
     return executeAction(() => callBackend('ai/insights', 'POST', { projectId }));
   };
 
+  const generateQuotation = async (outcome: string) => {
+    return executeAction(() => callBackend('ai/generate-quotation', 'POST', { outcome }));
+  };
+
   return {
     generatePlan,
     analyzeRisk,
     matchExperts,
     askCopilot,
     getInsights,
+    generateQuotation,
     loading,
     error
   };

@@ -90,20 +90,53 @@ export const getFreelancerDashboardSummary = async (req: AuthRequest, res: Respo
       return;
     }
 
-    // 1. Fetch Freelancer's Proposals
-    const proposalSnapshot = await db.collection('Proposals').where('freelancerId', '==', uid).get();
-    const proposals = proposalSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Proposal));
+    // 1. Fetch Freelancer Profile for stats
+    const freelancerDoc = await db.collection('Freelancers').doc(uid).get();
+    const fData = freelancerDoc.data() || {};
+    const rating = fData.rating || 5.0;
+    const earnings = fData.totalEarnings || 0;
 
-    // 2. Stats
+    // 2. Fetch Freelancer's Proposals
+    const proposalSnapshot = await db.collection('Proposals').where('freelancerId', '==', uid).get();
+    const proposals = proposalSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+
+    // 3. Fetch Active Projects (Accepted Proposals)
+    const acceptedProposals = proposals.filter(p => p.status === 'accepted');
+    const projectIds = acceptedProposals.map(p => p.projectId);
+    
+    let activeProjects: any[] = [];
+    if (projectIds.length > 0) {
+      // Chunking if > 10, but for now 10 is fine
+      const projectDocs = await db.collection('Projects')
+        .where('id', 'in', projectIds.slice(0, 10))
+        .get();
+        
+      activeProjects = projectDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+
+    // Add project titles to recent proposals for UI
+    const enhancedProposals = await Promise.all(proposals.map(async (p) => {
+       if (p.projectTitle) return p; // already there
+       // Quick fetch or find in activeProjects
+       const activeP = activeProjects.find(ap => ap.id === p.projectId);
+       if (activeP) return { ...p, projectTitle: activeP.title };
+       
+       // Fallback fetch for individual
+       const pDoc = await db.collection('Projects').doc(p.projectId).get();
+       return { ...p, projectTitle: pDoc.data()?.title || 'Unknown Project' };
+    }));
+
+    // 4. Stats (INR ₹)
     const stats = [
-      { name: 'Active Projects', value: proposals.filter(p => p.status === 'accepted').length.toString() },
+      { name: 'Active Projects', value: acceptedProposals.length.toString() },
       { name: 'Proposals Sent', value: proposals.length.toString() },
-      { name: 'Total Earnings', value: '$0' },
-      { name: 'Avg. Rating', value: '5.0' }
+      { name: 'Total Earnings', value: `₹${earnings.toLocaleString()}` },
+      { name: 'Avg. Rating', value: rating.toFixed(1) }
     ];
 
     res.status(200).json({
-      proposals,
+      proposals: enhancedProposals,
+      activeProjects,
       stats
     });
   } catch (error: any) {

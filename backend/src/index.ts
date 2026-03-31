@@ -18,6 +18,7 @@ import workspaceRoutes from './routes/workspaceRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import invitationRoutes from './routes/invitationRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
+import chatRoutes from './routes/chatRoutes';
 import { createServer } from 'http';
 import { initSocket } from './services/socketService';
 
@@ -53,6 +54,7 @@ app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/invites', invitationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Global Error Handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
