@@ -59,7 +59,7 @@ export default function FreelancerProjectsPage() {
 
        try {
          const token = await auth.currentUser.getIdToken();
-         const resp = await fetch('http://localhost:5001/api/proposals/my', {
+         const resp = await fetch('http://localhost:5000/api/proposals/my', {
            headers: { 'Authorization': `Bearer ${token}` }
          });
          
@@ -71,7 +71,7 @@ export default function FreelancerProjectsPage() {
            const mappedProjects = await Promise.all(
              acceptedProposals.map(async (proposal: any) => {
                try {
-                  const projResp = await fetch(`http://localhost:5001/api/projects/${proposal.projectId}`, {
+                  const projResp = await fetch(`http://localhost:5000/api/projects/${proposal.projectId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                   });
                   if (projResp.ok) {

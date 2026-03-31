@@ -25,7 +25,7 @@ async function getToken(): Promise<string | null> {
 }
 
 // Ensure proper base URL format
-const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
+const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
 
 export const apiClient = axios.create({

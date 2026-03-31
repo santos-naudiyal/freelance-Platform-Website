@@ -46,7 +46,7 @@ export default function FreelancerEarningsPage() {
 
       try {
         const token = await auth.currentUser.getIdToken();
-        const resp = await fetch('http://localhost:5001/api/payments/my', {
+        const resp = await fetch('http://localhost:5000/api/payments/my', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
