@@ -9,13 +9,13 @@ import { auth } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
 
 export function Navbar() {
-  const { user, setUser, setFreelancerDetails } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setUser(null);
-      setFreelancerDetails(null);
+      // ✅ Use store's logout() to clear token cache + reset isInitialized
+      logout();
     } catch (error) {
       console.error('Logout error:', error);
     }

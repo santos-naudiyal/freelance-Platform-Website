@@ -15,6 +15,8 @@ export interface Project extends DocumentData {
   status: 'open' | 'in_progress' | 'completed' | 'cancelled';
   createdAt: number;
   progress: number;
+
+  workspaceId?: string;
   clientDetails?: {
     name: string;
     companyName?: string;

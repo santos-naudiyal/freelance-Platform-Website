@@ -26,8 +26,12 @@ export default function LoginPage() {
     setError(null);
     
     try {
+      // ✅ Always clear any cached token before a new login attempt
+      // Prevents the new user's API calls from using a previous user's JWT
+      const { clearTokenCache } = await import('../../../lib/api');
+      clearTokenCache();
+
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // Firebase auth listener in layout usually handles global state, but we can optimistically set some state
       
       // Fetch the user profile from our Node backend to get the role
       const token = await userCredential.user.getIdToken();

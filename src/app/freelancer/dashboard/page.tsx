@@ -94,10 +94,10 @@ export default function FreelancerDashboard() {
       }
     };
 
-    if (user) {
+    if (user?.id) {
       fetchDashboardData();
     }
-  }, [user]);
+  }, [user?.id]);
 
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
+import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../../components/ui/Card';
 import { 
   Compass, 
@@ -9,28 +10,29 @@ import {
   TrendingUp, 
   Users,
   LayoutDashboard,
-  Briefcase,
-  FileText,
-  CheckCircle2,
+  PlusSquare,
+  ClipboardList,
+  Search,
   MessageSquare,
-  DollarSign,
+  CreditCard,
   Settings
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 
 const sidebarItems = [
-  { name: 'Dashboard', href: '/freelancer/dashboard', icon: LayoutDashboard },
-  { name: 'Browse Projects', href: '/projects/browse', icon: Briefcase },
-  { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
-  { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
+  { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
+  { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
+  { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
+  { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
-  { name: 'Settings', href: '/freelancer/settings', icon: Settings },
+  { name: 'Payments', href: '/client/payments', icon: CreditCard },
+  { name: 'Settings', href: '/client/settings', icon: Settings },
 ];
 
 export default function DiscoverFreelancersPage() {
   return (
-    <DashboardLayout sidebarItems={sidebarItems} title="Discover">
+    <ProtectedRoute allowedRoles={['client']}>
+    <DashboardLayout sidebarItems={sidebarItems} title="Find Freelancers">
       <div className="space-y-8">
         <div>
           <h2 className="text-2xl font-display font-bold text-slate-900 dark:text-white">
@@ -84,5 +86,6 @@ export default function DiscoverFreelancersPage() {
         </Card>
       </div>
     </DashboardLayout>
+    </ProtectedRoute>
   );
 }

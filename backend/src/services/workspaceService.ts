@@ -44,6 +44,11 @@ export class WorkspaceService {
 
       console.log("✅ Project created:", project.id);
 
+      // 🔥🔥 CRITICAL FIX: LINK WORKSPACE (PROJECT = WORKSPACE)
+      await db.collection('Projects').doc(project.id).update({
+        workspaceId: project.id // 👈 THIS FIXES YOUR ISSUE
+      });
+
       // ✅ HANDLE EMPTY AI PLAN
       let plan = aiData?.plan;
 
@@ -73,7 +78,7 @@ export class WorkspaceService {
         ];
       }
 
-      // ✅ CREATE MILESTONES + TASKS (parallel)
+      // ✅ CREATE MILESTONES + TASKS
       await Promise.all(
         plan.map(async (milestonePlan: any) => {
           const milestoneId = `milestone-${uuidv4()}`;
@@ -119,7 +124,7 @@ export class WorkspaceService {
 
       console.log("🎉 Workspace fully created");
 
-      return project.id;
+      return project.id; // 👈 projectId = workspaceId
 
     } catch (err) {
       console.error("❌ Workspace creation failed:", err);

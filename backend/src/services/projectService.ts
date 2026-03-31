@@ -1,23 +1,98 @@
+
 import { ProjectRepository, Project } from '../repositories/ProjectRepository';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../config/firebase';
+import { AIService } from './aiService';
 
 export class ProjectService {
   private projectRepository: ProjectRepository;
+  private aiService: AIService;
 
   constructor() {
     this.projectRepository = new ProjectRepository();
+    this.aiService = new AIService();
   }
 
-  // ... (keeping createProject the same)
+  // 🔥 AI Pricing Generator (uses chatCopilot)
+  private async generatePricing(data: Partial<Project>) {
+    try {
+      const prompt = `
+You are a freelance pricing expert (India market).
+
+Analyze this project and return STRICT JSON:
+
+{
+  "hours": number,
+  "rate": number,
+  "complexity": number,
+  "buffer": number,
+  "total": number,
+  "equation": "string",
+  "breakdown": {
+    "development": number,
+    "complexity": number,
+    "buffer": number
+  }
+}
+
+Project:
+Title: ${data.title}
+Description: ${data.description}
+Skills: ${data.skillsRequired?.join(", ") || "Not specified"}
+
+Rules:
+- Only JSON
+- No explanation
+`;
+
+      // ✅ Use your existing AI method
+      const aiResponse = await this.aiService.chatCopilot(prompt);
+
+      // ✅ Clean response (VERY IMPORTANT)
+      const cleaned = aiResponse
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
+
+      const parsed = JSON.parse(cleaned);
+
+      if (!parsed.total || !parsed.breakdown) {
+        throw new Error("Invalid AI response");
+      }
+
+      return parsed;
+
+    } catch (err) {
+      console.error("❌ AI Pricing Failed:", err);
+
+      // ✅ Fallback (never break project creation)
+      return {
+        hours: 20,
+        rate: 500,
+        complexity: 2000,
+        buffer: 1000,
+        total: 13000,
+        equation: "(20 × 500) + 2000 + 1000",
+        breakdown: {
+          development: 10000,
+          complexity: 2000,
+          buffer: 1000
+        }
+      };
+    }
+  }
+
+  // 🔥 UPDATED createProject
   async createProject(data: Partial<Project>): Promise<Project> {
     try {
-      // ✅ Validate required fields
       if (!data.clientId || !data.title || !data.description) {
         throw new Error("Missing required project fields");
       }
 
       const projectId = uuidv4();
+
+      // 🔥 AI PRICING
+      const pricing = await this.generatePricing(data);
 
       const project: Project = {
         id: projectId,
@@ -33,11 +108,12 @@ export class ProjectService {
         status: data.status || 'open',
         createdAt: Date.now(),
         progress: data.progress || 0,
+        pricing // ✅ added
       };
 
       await this.projectRepository.create(projectId, project);
 
-      console.log("✅ Project created:", projectId);
+      console.log("✅ Project created with pricing:", projectId);
 
       return project;
 
@@ -50,10 +126,13 @@ export class ProjectService {
   async getProjectById(id: string): Promise<Project | null> {
     try {
       const project = await this.projectRepository.getById(id);
+
       if (project && project.clientId) {
         const clientDoc = await db.collection('Users').doc(project.clientId).get();
+
         if (clientDoc.exists) {
           const clientData = clientDoc.data();
+
           project.clientDetails = {
             name: clientData?.name || 'Unknown',
             companyName: clientData?.companyName,
@@ -64,7 +143,9 @@ export class ProjectService {
           };
         }
       }
+
       return project;
+
     } catch (err) {
       console.error("❌ getProjectById failed:", err);
       return null;
@@ -82,10 +163,7 @@ export class ProjectService {
 
   async getAllActiveProjects(): Promise<Project[]> {
     try {
-      const projects = await this.projectRepository.getActiveProjects();
-      // Optionally attach client details to all active projects (might be expensive if many)
-      // For now, let's just do it for individual project view to save on reads.
-      return projects;
+      return await this.projectRepository.getActiveProjects();
     } catch (err) {
       console.error("❌ getAllActiveProjects failed:", err);
       return [];

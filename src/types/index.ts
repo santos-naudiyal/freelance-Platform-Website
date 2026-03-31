@@ -50,6 +50,10 @@ export interface Project {
   skillsRequired: string[];
   status: 'open' | 'in_progress' | 'completed' | 'cancelled';
   createdAt: number;
+
+    workspaceId?: string;
+
+
   clientDetails?: {
     name: string;
     companyName?: string;

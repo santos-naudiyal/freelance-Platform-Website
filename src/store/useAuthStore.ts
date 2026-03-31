@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { User, FreelancerProfile } from '../types';
+import { clearTokenCache } from '../lib/api';
 
 interface AuthState {
   user: User | null;
@@ -24,5 +25,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   setFreelancerDetails: (details) => set({ freelancerDetails: details }),
   setLoading: (isLoading) => set({ isLoading }),
   setInitialized: (isInitialized) => set({ isInitialized }),
-  logout: () => set({ user: null, freelancerDetails: null, isAuthenticated: false }),
+  logout: () => {
+    clearTokenCache();
+    set({ user: null, freelancerDetails: null, isAuthenticated: false, isInitialized: false });
+  },
 }));

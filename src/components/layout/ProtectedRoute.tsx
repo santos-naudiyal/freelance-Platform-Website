@@ -11,14 +11,18 @@ import { callBackend } from '../../lib/api';
 export function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, setUser, setFreelancerDetails, setLoading, isLoading } = useAuthStore();
+  const { user, setUser, setFreelancerDetails, setLoading, isLoading, isInitialized, setInitialized } = useAuthStore();
   const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async (firebaseUser: FirebaseUser) => {
-      // Only fetch the profile if we don't have it in state already 
-      // or if it's the initial load to ensure consistency
-      if (user && authInitialized) return;
+      // ✅ Only skip if the SAME user is already initialized in the store
+      // If a different user logged in, we must fetch their profile fresh.
+      if (isInitialized && user && user.id === firebaseUser.uid) {
+        setAuthInitialized(true);
+        setLoading(false);
+        return;
+      }
 
       try {
         const data = await callBackend('users/profile');
@@ -43,6 +47,7 @@ export function ProtectedRoute({ children, allowedRoles }: { children: React.Rea
       } finally {
         setLoading(false);
         setAuthInitialized(true);
+        setInitialized(true);
       }
     };
 
@@ -54,11 +59,12 @@ export function ProtectedRoute({ children, allowedRoles }: { children: React.Rea
         setFreelancerDetails(null);
         setLoading(false);
         setAuthInitialized(true);
+        setInitialized(true);
       }
     });
 
     return () => unsubscribe();
-  }, [setUser, setFreelancerDetails, setLoading]);
+  }, [setUser, setFreelancerDetails, setLoading, setInitialized, isInitialized, user]);
 
   useEffect(() => {
     if (authInitialized && !isLoading) {
