@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { updateFreelancerProfile, getFreelancerById } from '../controllers/freelancerController';
+import { updateFreelancerProfile, getFreelancerById, getAllFreelancers } from '../controllers/freelancerController';
 import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
+router.get('/', requireAuth, getAllFreelancers);
 router.put('/profile', requireAuth, updateFreelancerProfile);
 router.get('/:id', requireAuth, getFreelancerById);
 

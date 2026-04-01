@@ -70,3 +70,27 @@ export const getFreelancerById = async (req: AuthRequest, res: Response): Promis
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getAllFreelancers = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    // Optional query param for department filtering on the backend
+    const { department } = req.query;
+
+    let query: any = db.collection('Freelancers');
+    
+    // We can't easily filter by nested field profile.department in root query if it's dynamic
+    // but Firestore allows equality checks on nested objects.
+    if (department && department !== 'All') {
+      query = query.where('profile.department', '==', department);
+    }
+
+    const snapshot = await query.get();
+    const freelancers = snapshot.docs.map((doc: any) => doc.data());
+
+    // We might also want to stitch some user data, but the freelancer doc already has name, email, avatar.
+    res.status(200).json(freelancers);
+  } catch (error: any) {
+    console.error('Get All Freelancers Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

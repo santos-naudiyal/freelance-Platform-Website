@@ -91,7 +91,7 @@ export default function FreelancerProposalsPage() {
                           </div>
                           <div>
                             <h4 className="font-bold text-lg text-slate-950 dark:text-white">
-                              {proposal.projectId}
+                              {proposal.projectTitle || `Project ID: ${proposal.projectId}`}
                             </h4>
                             <p className="text-sm text-slate-500 font-medium">
                               Bid: ${proposal.bidAmount} • Sent on {new Date(proposal.createdAt).toLocaleDateString()}

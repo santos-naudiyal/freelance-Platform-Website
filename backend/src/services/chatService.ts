@@ -53,7 +53,6 @@ export class ChatService {
       const snapshot = await db
         .collection('Messages')
         .where('projectId', '==', projectId)
-        .orderBy('createdAt', 'asc')
         .get();
 
       return snapshot.docs.map(doc => {
@@ -68,7 +67,7 @@ export class ChatService {
           type: data.type,
           createdAt: data.createdAt
         } as Message;
-      });
+      }).sort((a, b) => a.createdAt - b.createdAt);
 
     } catch (err) {
       console.error("❌ getMessages failed:", err);

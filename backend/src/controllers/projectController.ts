@@ -89,13 +89,23 @@ export const updateProjectStatus = async (req: AuthRequest, res: Response): Prom
 export const getUserProjects = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const uid = req.user?.uid;
+    const role = req.user?.role;
 
     if (!uid) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
-    const projects = await projectService.getUserProjects(uid);
+    let projects = [];
+    
+    // 🔥 If the user is a freelancer, get projects where they won the bid
+    if (role === 'freelancer') {
+      projects = await projectService.getProjectsByFreelancerId(uid);
+    } 
+    // 🔥 Otherwise assume they are a client and get their created projects
+    else {
+      projects = await projectService.getUserProjects(uid);
+    }
 
     res.status(200).json(projects);
 

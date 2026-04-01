@@ -93,22 +93,20 @@ export function ChatInterface({ projectId, recipientName, className }: ChatInter
 
     setIsSending(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/chat/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Adjust based on your auth flow
-        },
-        body: JSON.stringify({
+      const newMessage = await callBackend('chat/send', 'POST', {
           projectId,
           text: inputText,
           type: 'user'
-        })
       });
 
-      if (!response.ok) throw new Error('Failed to send');
-      
-      const newMessage = await response.json();
+      // Optimistically add to UI immediately instead of waiting solely for Socket roundtrip
+      if (newMessage && newMessage.id) {
+        setMessages(prev => {
+          if (prev.find(m => m.id === newMessage.id)) return prev;
+          return [...prev, newMessage];
+        });
+      }
+
       setInputText('');
     } catch (err) {
       console.error("Send Error:", err);

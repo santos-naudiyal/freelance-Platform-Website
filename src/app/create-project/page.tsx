@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { AIProjectPlanner } from '@/components/workspace/AIProjectPlanner';
@@ -17,20 +18,58 @@ import { cn } from '@/lib/utils';
 import { callBackend } from '@/lib/api';
 
 export default function CreateProjectPage() {
+  const router = useRouter();
   const { user } = useAuthStore();
   const [step, setStep] = useState(1);
   const [outcome, setOutcome] = useState("Build a high-performance Flutter mobile app for a fintech startup");
   const [aiData, setAiData] = useState<any>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
 
   const sidebarItems = [
     { name: 'Dashboard', href: '/client/dashboard', icon: require('lucide-react').LayoutDashboard },
     { name: 'Post a Project', href: '/create-project', icon: require('lucide-react').PlusSquare },
     { name: 'Manage Projects', href: '/client/manage-projects', icon: require('lucide-react').ClipboardList },
+    { name: 'Proposals', href: '/client/proposals', icon: require('lucide-react').Users },
     { name: 'Find Freelancers', href: '/freelancers/discover', icon: require('lucide-react').Search },
     { name: 'Messages', href: '/messages', icon: require('lucide-react').MessageSquare },
     { name: 'Payments', href: '/client/payments', icon: require('lucide-react').CreditCard },
     { name: 'Settings', href: '/client/settings', icon: require('lucide-react').Settings },
   ];
+
+  const handlePublishProject = async () => {
+    if (!aiData || !user) return;
+    
+    setIsPublishing(true);
+    try {
+      // Extract data from AI analysis
+      const projectData = {
+        title: outcome.split('.')[0].slice(0, 50), // Simple title extraction
+        description: aiData.analysis?.description || outcome,
+        budget: {
+          min: parseInt(aiData.analysis?.investment?.split('-')[0].replace(/[^0-9]/g, '')) || 1000,
+          max: parseInt(aiData.analysis?.investment?.split('-')[1]?.replace(/[^0-9]/g, '')) || 5000,
+          type: 'fixed'
+        },
+        skillsRequired: aiData.analysis?.skills || [],
+        status: 'open'
+      };
+
+      await callBackend('projects', 'POST', projectData);
+      setPublishSuccess(true);
+      
+      // Delay redirect to show success state
+      setTimeout(() => {
+        router.push('/client/manage-projects');
+      }, 2000);
+      
+    } catch (err) {
+      console.error("Publishing Failed:", err);
+      alert("Failed to publish project. Please try again.");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
 
   return (
     <ProtectedRoute allowedRoles={['client']}>
@@ -235,8 +274,36 @@ export default function CreateProjectPage() {
                 </div>
 
                 {/* Project Quotation Section */}
-                <div className="w-full mt-12 text-left">
+                <div className="w-full mt-12 text-left space-y-10">
                   <ProjectQuotation outcome={outcome} />
+                  
+                  <div className="flex flex-col items-center gap-4 pt-10 border-t border-slate-100 dark:border-slate-800">
+                    <p className="text-sm font-medium text-slate-500 max-w-md">
+                      Ready to launch? Publishing will make your project visible to the top 1% of freelancers.
+                    </p>
+                    <Button 
+                      onClick={handlePublishProject}
+                      isLoading={isPublishing}
+                      disabled={publishSuccess}
+                      className={cn(
+                        "h-16 px-12 rounded-2xl font-black text-lg shadow-2xl transition-all",
+                        publishSuccess ? "bg-emerald-600 hover:bg-emerald-600" : "bg-primary-600 hover:scale-105"
+                      )}
+                    >
+                      {publishSuccess ? (
+                        <span className="flex items-center gap-2">
+                          <CheckCircle2 size={24} /> Project Published!
+                        </span>
+                      ) : (
+                        "Publish Project to Marketplace"
+                      )}
+                    </Button>
+                    {publishSuccess && (
+                      <p className="text-xs font-bold text-emerald-600 animate-pulse uppercase tracking-widest">
+                        Redirecting to your dashboard...
+                      </p>
+                    )}
+                  </div>
                 </div>
 
               </motion.div>

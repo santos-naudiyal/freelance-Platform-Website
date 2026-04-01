@@ -32,16 +32,20 @@ interface jsPDFWithAutoTable extends jsPDF {
 
 interface QuotationData {
   summary: { text: string; complexity: string; confidenceScore: number };
-  pricing: { currency: string; min: number; max: number; recommended: number };
+  architectureFlow: { phase: string; details: string; technologies: string[] }[];
+  pricing: { 
+    indianMarket: { currency: string; min: number; max: number; recommended: number; };
+    globalMarket: { currency: string; min: number; max: number; recommended: number; };
+  };
   timeline: { minDays: number; maxDays: number; recommended: string };
-  tasks: { name: string; description: string; hours: number; cost: number }[];
+  tasks: { name: string; description: string; hours: number; costINR: number; costUSD: number; }[];
   skills: string[];
   risks: { risk: string; mitigation: string }[];
-  marketInsights: { avgPrice: string; demand: string; competition: string };
+  marketInsights: { demand: string; competition: string; analysis: string; };
   pricingOptions: {
-    basic: { price: number; features: string[] };
-    standard: { price: number; features: string[] };
-    premium: { price: number; features: string[] };
+    basic: { priceINR: number; priceUSD: number; features: string[] };
+    standard: { priceINR: number; priceUSD: number; features: string[] };
+    premium: { priceINR: number; priceUSD: number; features: string[] };
   };
   projectTitle: string;
 }
@@ -50,6 +54,7 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
   const { generateQuotation, loading, error } = useAI();
   const [quotation, setQuotation] = useState<QuotationData | null>(null);
   const [activeTier, setActiveTier] = useState<'basic' | 'standard' | 'premium'>('standard');
+  const [market, setMarket] = useState<'indianMarket' | 'globalMarket'>('indianMarket');
 
   useEffect(() => {
     if (outcome && !loading && !quotation) {
@@ -101,13 +106,14 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
       let currentY = 76 + (splitSummary.length * 5) + 10;
 
       // Financial Summary Table
+      const mkt = quotation.pricing[market];
       autoTable(doc, {
         startY: currentY,
         head: [['Metric', 'Estimate']],
         body: [
-          ['Minimum Investment', `${quotation.pricing?.currency || 'INR'} ${(quotation.pricing?.min || 0).toLocaleString()}`],
-          ['Maximum Investment', `${quotation.pricing?.currency || 'INR'} ${(quotation.pricing?.max || 0).toLocaleString()}`],
-          ['Recommended Budget', `${quotation.pricing?.currency || 'INR'} ${(quotation.pricing?.recommended || 0).toLocaleString()}`],
+          ['Minimum Investment', `${mkt.currency} ${mkt.min.toLocaleString()}`],
+          ['Maximum Investment', `${mkt.currency} ${mkt.max.toLocaleString()}`],
+          ['Recommended Budget', `${mkt.currency} ${mkt.recommended.toLocaleString()}`],
           ['Estimated Timeline', quotation.timeline?.recommended || 'TBD'],
         ],
         theme: 'striped',
@@ -128,7 +134,7 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
             t.name || 'Task', 
             t.description || '',
             t.hours || 0, 
-            `${quotation.pricing?.currency || 'INR'} ${(t.cost || 0).toLocaleString()}`
+            `${mkt.currency} ${(market === 'indianMarket' ? t.costINR : t.costUSD).toLocaleString()}`
           ]),
           theme: 'grid',
           headStyles: { fillColor: [30, 41, 59] },
@@ -162,9 +168,11 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
       alert("Failed to generate PDF. Falling back to text download.");
       
       // Fallback to text download
+      const mktFallback = quotation.pricing[market];
       const textContent = `
         PROJECT QUOTATION: ${quotation.projectTitle}
-        Total Budget: ${quotation.pricing.currency} ${quotation.pricing.recommended.toLocaleString()}
+        Market: ${market === 'indianMarket' ? 'Indian (INR)' : 'Global (USD)'}
+        Total Budget: ${mktFallback.currency} ${mktFallback.recommended.toLocaleString()}
         Timeline: ${quotation.timeline.recommended}
         
         Summary:
@@ -232,27 +240,77 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
             </div>
           </div>
 
-          <Button 
-            onClick={downloadPDF}
-            className="h-14 px-8 rounded-2xl bg-slate-950 dark:bg-slate-800 text-white font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-3"
-          >
-            <Download size={20} />
-            Download Legal PDF Quotation
-          </Button>
+          <div className="flex items-center gap-4">
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl shadow-inner relative">
+              <button 
+                onClick={() => setMarket('indianMarket')}
+                className={cn("relative z-10 px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-xl transition-colors", market === 'indianMarket' ? "text-slate-900" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300")}
+              >
+                ₹ Indian Rate
+              </button>
+              <button 
+                onClick={() => setMarket('globalMarket')}
+                className={cn("relative z-10 px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-xl transition-colors", market === 'globalMarket' ? "text-slate-900" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300")}
+              >
+                $ Global Rate
+              </button>
+              <div 
+                className={cn(
+                  "absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white dark:bg-slate-600 rounded-xl shadow transition-all duration-300",
+                  market === 'indianMarket' ? "left-1.5" : "left-[calc(50%+3px)]"
+                )}
+              />
+            </div>
+            <Button 
+              onClick={downloadPDF}
+              className="h-12 px-6 rounded-2xl bg-slate-950 dark:bg-slate-800 text-white font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-3"
+            >
+              <Download size={18} />
+              PDF Quote
+            </Button>
+          </div>
         </div>
 
         <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatBox label="Min Investment" value={`${quotation.pricing.currency} ${quotation.pricing.min.toLocaleString()}`} icon={Zap} color="text-primary-500" />
-          <StatBox label="Max Investment" value={`${quotation.pricing.currency} ${quotation.pricing.max.toLocaleString()}`} icon={TrendingUp} color="text-emerald-500" />
-          <StatBox label="Recommended" value={`${quotation.pricing.currency} ${quotation.pricing.recommended.toLocaleString()}`} icon={CheckCircle2} color="text-indigo-500" />
+          <StatBox label="Min Investment" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].min.toLocaleString()}`} icon={Zap} color="text-primary-500" />
+          <StatBox label="Max Investment" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].max.toLocaleString()}`} icon={TrendingUp} color="text-emerald-500" />
+          <StatBox label="Recommended" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].recommended.toLocaleString()}`} icon={CheckCircle2} color="text-indigo-500" />
           <StatBox label="Timeline" value={quotation.timeline.recommended} icon={Clock} color="text-amber-500" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* LEFT COLUMN: PRICING TIERS */}
+        {/* LEFT COLUMN: PRICING TIERS & ARCHITECTURE */}
         <div className="lg:col-span-2 space-y-8">
+          
+          {/* ARCHITECTURE FLOW */}
+          {quotation.architectureFlow && quotation.architectureFlow.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-display font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <Layers size={20} className="text-primary-500" />
+                Domain Architecture & System Flow
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {quotation.architectureFlow.map((flow, idx) => (
+                  <div key={idx} className="p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm relative overflow-hidden group hover:border-primary-200 transition-all">
+                    <div className="absolute top-0 right-0 p-8 -mr-8 -mt-8 bg-slate-50 dark:bg-slate-800/50 rounded-full group-hover:bg-primary-50 dark:group-hover:bg-primary-900/10 transition-colors" />
+                    <span className="text-[10px] font-black tracking-widest text-primary-500 uppercase mb-2 block relative z-10">Phase {idx + 1}</span>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2 relative z-10">{flow.phase}</h4>
+                    <p className="text-xs font-medium text-slate-500 leading-relaxed relative z-10">{flow.details}</p>
+                    <div className="mt-4 flex flex-wrap gap-1.5 relative z-10">
+                      {flow.technologies.map((tech, tIdx) => (
+                        <span key={tIdx} className="px-2 py-1 bg-slate-50 dark:bg-slate-950 rounded-md text-[9px] font-bold text-slate-400 uppercase tracking-wider border border-slate-100 dark:border-slate-800">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4">
             <h3 className="text-xl font-display font-black text-slate-900 dark:text-white flex items-center gap-2">
               <Layers size={20} className="text-primary-500" />
@@ -276,7 +334,7 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
                       {tier}
                     </span>
                     <div className="text-xl font-black text-slate-900 dark:text-white my-2">
-                      ₹{quotation.pricingOptions[tier].price.toLocaleString()}
+                      {quotation.pricing[market].currency} {market === 'indianMarket' ? quotation.pricingOptions[tier].priceINR.toLocaleString() : quotation.pricingOptions[tier].priceUSD.toLocaleString()}
                     </div>
                     <ul className="mt-4 space-y-2 flex-grow">
                       {quotation.pricingOptions[tier].features.slice(0, 4).map((f, i) => (
@@ -319,7 +377,7 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
                       </td>
                       <td className="px-6 py-4 text-xs font-bold">{task.hours}h</td>
                       <td className="px-6 py-4 text-right text-xs font-black text-slate-900 dark:text-white">
-                        ₹{task.cost.toLocaleString()}
+                        {quotation.pricing[market].currency} {(market === 'indianMarket' ? task.costINR : task.costUSD).toLocaleString()}
                       </td>
                     </tr>
                   ))}
@@ -336,9 +394,9 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
             <div className="absolute bottom-0 right-0 p-10 -mr-10 -mb-10 bg-primary-600/20 blur-2xl rounded-full" />
             <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-6">Market Dynamics</h4>
             <div className="space-y-6 relative z-10">
-              <InsightRow label="Market Price Range" value={quotation.marketInsights.avgPrice} />
-              <InsightRow label="Project Demand" value={quotation.marketInsights.demand} highlight />
-              <InsightRow label="Competition" value={quotation.marketInsights.competition} />
+              <InsightRow label="Domain Strategy Analysis" value={quotation.marketInsights.analysis} highlight />
+              <InsightRow label="Project Demand & Market Fit" value={quotation.marketInsights.demand} />
+              <InsightRow label="Sector Competition" value={quotation.marketInsights.competition} />
             </div>
             
             <div className="mt-8 pt-8 border-t border-slate-800 relative z-10">

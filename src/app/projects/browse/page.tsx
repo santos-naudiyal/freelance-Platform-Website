@@ -46,12 +46,23 @@ export default function BrowseProjectsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchMarketplaceData = async () => {
       try {
-        const data = await callBackend('projects');
-        if (data) {
-          setProjects(data);
-          setFilteredProjects(data);
+        // Fetch ALL open projects AND the freelancer's current proposals in parallel
+        const [allProjects, myProposals] = await Promise.all([
+          callBackend('projects'),
+          callBackend('proposals/my').catch(() => []) // Graceful fail if no auth/proposals
+        ]);
+
+        if (allProjects) {
+          // Extract IDs of projects the user has ALREADY bid on
+          const appliedProjectIds = new Set(myProposals.map((p: any) => p.projectId));
+          
+          // Filter out projects where the freelancer has an existing bid!
+          const availableProjects = allProjects.filter((p: Project) => !appliedProjectIds.has(p.id));
+
+          setProjects(availableProjects);
+          setFilteredProjects(availableProjects);
         }
       } catch (err) {
         console.error("Browse Projects Error:", err);
@@ -60,15 +71,23 @@ export default function BrowseProjectsPage() {
       }
     };
 
-    fetchProjects();
+    fetchMarketplaceData();
   }, []);
 
   useEffect(() => {
-    const results = projects.filter(p => 
-      p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.skillsRequired.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const term = searchTerm.toLowerCase();
+    const results = projects.filter(p => {
+      const matchTitle = typeof p.title === 'string' && p.title.toLowerCase().includes(term);
+      const matchDesc = typeof p.description === 'string' && p.description.toLowerCase().includes(term);
+      const matchSkills = Array.isArray(p.skillsRequired) 
+        ? p.skillsRequired.some(s => {
+            if (typeof s === 'string') return s.toLowerCase().includes(term);
+            if (typeof s === 'object' && s !== null) return JSON.stringify(s).toLowerCase().includes(term);
+            return false;
+          })
+        : false;
+      return matchTitle || matchDesc || matchSkills;
+    });
     setFilteredProjects(results);
   }, [searchTerm, projects]);
 
@@ -168,11 +187,16 @@ export default function BrowseProjectsPage() {
                              {project.description || "No description provided."}
                            </p>
                            <div className="flex flex-wrap gap-2.5 pt-2">
-                             {project.skillsRequired?.map(skill => (
-                               <Badge key={skill} className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-transparent group-hover:border-slate-200 dark:group-hover:border-slate-700 transition-all">
-                                 {skill}
-                               </Badge>
-                             )) || (
+                             {Array.isArray(project.skillsRequired) && project.skillsRequired.length > 0 ? (
+                               project.skillsRequired.map((skill: any, idx) => {
+                                 const skillText = typeof skill === 'string' ? skill : (skill?.name || skill?.skill || JSON.stringify(skill).substring(0, 15));
+                                 return (
+                                   <Badge key={idx} className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-transparent group-hover:border-slate-200 dark:group-hover:border-slate-700 transition-all">
+                                     {skillText}
+                                   </Badge>
+                                 );
+                               })
+                             ) : (
                                <Badge className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-transparent">
                                  Development
                                </Badge>

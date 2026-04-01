@@ -161,6 +161,36 @@ Rules:
     }
   }
 
+  async getProjectsByFreelancerId(freelancerId: string): Promise<Project[]> {
+    try {
+      // 1. Fetch all accepted proposals for this freelancer
+      const snapshot = await db.collection('Proposals')
+        .where('freelancerId', '==', freelancerId)
+        .where('status', '==', 'accepted')
+        .get();
+
+      if (snapshot.empty) return [];
+
+      // 2. Extract unique project IDs
+      const projectIds = Array.from(new Set(snapshot.docs.map(doc => doc.data().projectId)));
+
+      if (projectIds.length === 0) return [];
+
+      // 3. Fetch each project by ID
+      // (Using simple Promise.all since exact 'in' query limitations exist in firestore)
+      const projects = await Promise.all(
+        projectIds.map(id => this.projectRepository.getById(id as string))
+      );
+
+      // Filter out nulls
+      return projects.filter((p): p is Project => p !== null);
+
+    } catch (err) {
+      console.error("❌ getProjectsByFreelancerId failed:", err);
+      return [];
+    }
+  }
+
   async getAllActiveProjects(): Promise<Project[]> {
     try {
       return await this.projectRepository.getActiveProjects();

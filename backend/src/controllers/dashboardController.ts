@@ -40,15 +40,14 @@ export const getClientDashboardSummary = async (req: AuthRequest, res: Response)
       
       const proposalSnapshot = await db.collection('Proposals')
         .where('projectId', 'in', projectIds.slice(0, 10))
-        .orderBy('createdAt', 'desc')
-        .limit(10)
         .get();
       
+      
       recentProposals = proposalSnapshot.docs.map(doc => {
-          const data = doc.data();
+          const data = doc.data() as any;
           const project = projects.find(p => p.id === data.projectId);
           return { id: doc.id, ...data, projectTitle: project?.title || 'Unknown Project' };
-      });
+      }).sort((a: any, b: any) => b.createdAt - a.createdAt).slice(0, 10);
     }
 
     // 3. Stats

@@ -37,6 +37,11 @@ export class ProjectRepository extends BaseRepository<Project> {
   }
 
   async getActiveProjects(): Promise<Project[]> {
-    return this.list(ref => ref.where('status', '==', 'open'));
+    console.log("Fetching active projects...");
+    const allProjects = await this.list();
+    console.log(`Total projects in DB: ${allProjects.length}`);
+    const activeProjects = allProjects.filter(p => ['open', 'active', 'in_progress'].includes(p.status || 'open'));
+    console.log(`Active projects fetched: ${activeProjects.length}`);
+    return activeProjects;
   }
 }

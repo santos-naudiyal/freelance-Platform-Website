@@ -19,6 +19,7 @@ export interface FreelancerProfile {
   profile: {
     title: string;
     bio: string;
+    department?: string;
     skills: string[];
     hourlyRate: number;
     githubUrl?: string;

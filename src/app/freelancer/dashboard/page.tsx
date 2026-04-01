@@ -91,25 +91,25 @@ export default function FreelancerDashboard() {
         <div className="max-w-7xl mx-auto space-y-10 py-6">
           
           {/* WELCOME HEADER */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-10 rounded-[3rem] bg-slate-900 text-white relative overflow-hidden shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-slate-900 text-white relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 p-24 -mr-24 -mt-24 bg-primary-600/20 blur-3xl rounded-full" />
-            <div className="space-y-2 relative z-10">
+            <div className="space-y-2 relative z-10 w-full md:w-auto">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-500/10 text-primary-400 text-[10px] font-black uppercase tracking-[0.2em] border border-primary-500/20 mb-2">
                 <Sparkles size={12} />
                 Global Freelancer Partner
               </div>
-              <h2 className="text-4xl font-display font-black tracking-tight">
+              <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight break-words">
                 Welcome back, {user?.name.split(' ')[0]}!
               </h2>
-              <p className="text-slate-400 font-medium max-w-lg">
+              <p className="text-slate-400 font-medium max-w-lg text-sm sm:text-base">
                 Your portfolio is gaining traction. You have {activeProjects.length} projects in development.
               </p>
             </div>
-            <Link href="/projects/browse" className="relative z-10 shrink-0">
-              <Button className="h-14 px-8 rounded-2xl bg-white text-slate-900 hover:bg-white/90 font-black text-sm gap-3 shadow-xl transition-all">
+            <Link href="/projects/browse" className="relative z-10 shrink-0 w-full sm:w-auto">
+              <Button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-white text-slate-900 hover:bg-white/90 font-black text-sm gap-3 shadow-xl transition-all">
                 <Briefcase size={20} />
                 Explore Marketplace
-                <ChevronRight size={18} />
+                <ChevronRight size={18} className="hidden sm:block" />
               </Button>
             </Link>
           </div>
@@ -159,15 +159,15 @@ export default function FreelancerDashboard() {
                       <Card key={project.id} className="group hover:shadow-xl transition-all border-slate-100 dark:border-slate-800 overflow-hidden">
                          <CardContent className="p-0">
                             <div className="flex flex-col sm:flex-row">
-                               <div className="flex-1 p-8 space-y-4">
+                               <div className="flex-1 p-6 sm:p-8 space-y-4">
                                   <div>
-                                     <div className="flex items-center gap-3 mb-2">
-                                        <h4 className="text-lg font-black text-slate-900 dark:text-white">{project.title}</h4>
-                                        <span className="px-2 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-600 text-[10px] font-bold uppercase tracking-widest">In Development</span>
+                                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                                        <h4 className="text-lg font-black text-slate-900 dark:text-white line-clamp-1">{project.title}</h4>
+                                        <span className="w-fit px-2 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-600 text-[10px] font-bold uppercase tracking-widest">In Development</span>
                                      </div>
-                                     <p className="text-xs text-slate-500 line-clamp-1 font-medium">{project.description}</p>
+                                     <p className="text-xs text-slate-500 line-clamp-2 font-medium">{project.description}</p>
                                   </div>
-                                  <div className="flex items-center gap-6 pt-2">
+                                  <div className="flex flex-wrap items-center gap-6 pt-2">
                                      <div>
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Next Deadline</p>
                                         <p className="text-xs font-bold text-slate-900 dark:text-white">{new Date(project.deadline || Date.now() + 604800000).toLocaleDateString()}</p>
@@ -178,7 +178,7 @@ export default function FreelancerDashboard() {
                                      </div>
                                   </div>
                                </div>
-                               <div className="sm:w-48 bg-slate-50 dark:bg-slate-900/50 p-8 flex items-center justify-center border-l border-slate-100 dark:border-slate-800">
+                               <div className="sm:w-48 bg-slate-50 dark:bg-slate-900/50 p-6 sm:p-8 flex items-center justify-center border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-slate-800">
                                   <Link href={`/freelancer/projects/${project.id}`} className="w-full">
                                      <Button variant="outline" className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all">Open</Button>
                                   </Link>

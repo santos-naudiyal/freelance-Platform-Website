@@ -89,6 +89,7 @@ export async function callBackend(
     const options: RequestInit = {
       method,
       headers,
+      cache: 'no-store', // Force fresh request always for real-time updates
     };
 
     if (body) {

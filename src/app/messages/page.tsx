@@ -18,7 +18,10 @@ import {
   Briefcase,
   ChevronRight,
   MessageCircle,
-  Inbox
+  Inbox,
+  FileText,
+  CheckCircle2,
+  DollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { callBackend } from '@/lib/api';
@@ -27,7 +30,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ChatInterface } from '@/components/chat/ChatInterface';
 
-const sidebarItems = [
+const clientSidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
   { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
   { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
@@ -35,6 +38,16 @@ const sidebarItems = [
   { name: 'Messages', href: '/messages', icon: MessageSquare },
   { name: 'Payments', href: '/client/payments', icon: CreditCard },
   { name: 'Settings', href: '/client/settings', icon: Settings },
+];
+
+const freelancerSidebarItems = [
+  { name: 'Dashboard', href: '/freelancer/dashboard', icon: LayoutDashboard },
+  { name: 'Browse Projects', href: '/projects/browse', icon: Briefcase },
+  { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
+  { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
+  { name: 'Messages', href: '/messages', icon: MessageSquare },
+  { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
+  { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 
 export default function MessagesPage() {
@@ -48,9 +61,9 @@ export default function MessagesPage() {
     const fetchActiveProjects = async () => {
       try {
         const projects = await callBackend('projects/my');
-        // Filter projects that are in_progress or completed (have active chats)
+        // Show projects that are in progress. For freelancers, show all returned projects since backend pre-filtered by accepted bids.
         const inProgress = (projects || []).filter((p: Project) => 
-          p.status === 'in_progress' || p.status === 'completed'
+          user?.role === 'freelancer' || ['in_progress', 'completed'].includes(p.status)
         );
         setActiveProjects(inProgress);
         
@@ -72,9 +85,11 @@ export default function MessagesPage() {
     p.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const activeSidebar = user?.role === 'freelancer' ? freelancerSidebarItems : clientSidebarItems;
+
   return (
-    <ProtectedRoute>
-      <DashboardLayout sidebarItems={sidebarItems} title="Messages">
+    <ProtectedRoute allowedRoles={['client', 'freelancer', 'admin']}>
+      <DashboardLayout sidebarItems={activeSidebar} title="Messages">
         <div className="h-[calc(100vh-160px)] max-w-7xl mx-auto">
           
           <div className="flex h-full gap-8">

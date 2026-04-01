@@ -34,6 +34,7 @@ const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
   { name: 'Post a Project', href: '/create-project', icon: PlusSquare },
   { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
+  { name: 'Proposals', href: '/client/proposals', icon: Search },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
   { name: 'Payments', href: '/client/payments', icon: CreditCard },

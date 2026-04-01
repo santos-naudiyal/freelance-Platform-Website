@@ -8,7 +8,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const { 
       email, password, name, role,
       companyName, address, industry, website,
-      title, bio, skills, githubUrl, portfolioLinks, avatar
+      title, bio, department, skills, githubUrl, portfolioLinks, avatar
     } = req.body;
 
     if (!['client', 'freelancer'].includes(role)) {
@@ -57,6 +57,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         profile: {
           title: title || 'Professional Freelancer',
           bio: bio || '',
+          department: department || 'Other',
           skills: skills || [],
           hourlyRate: 0, // Default to 0, to be updated by freelancer
           avatar: avatar || null,

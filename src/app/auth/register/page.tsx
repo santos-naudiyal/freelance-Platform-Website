@@ -31,6 +31,7 @@ export default function RegisterPage() {
   // Step 3: Freelancer Details
   const [title, setTitle] = useState('');
   const [bio, setBio] = useState('');
+  const [department, setDepartment] = useState('IT & Software');
   const [skills, setSkills] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [portfolioLink, setPortfolioLink] = useState('');
@@ -63,6 +64,7 @@ export default function RegisterPage() {
         // Freelancer specific
         title: role === 'freelancer' ? title : undefined,
         bio: role === 'freelancer' ? bio : undefined,
+        department: role === 'freelancer' ? department : undefined,
         skills: role === 'freelancer' ? skills.split(',').map(s => s.trim()) : undefined,
         githubUrl: role === 'freelancer' ? githubUrl : undefined,
         portfolioLinks: role === 'freelancer' ? [portfolioLink].filter(Boolean) : undefined,
@@ -371,6 +373,22 @@ export default function RegisterPage() {
                       icon={<Layout size={18} />}
                       required
                     />
+                    <div className="space-y-1.5">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Department</label>
+                       <select
+                          value={department}
+                          onChange={(e) => setDepartment(e.target.value)}
+                          className="w-full h-12 px-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm font-medium outline-none focus:ring-2 focus:ring-primary-500/20 text-slate-900 dark:text-white"
+                          required
+                       >
+                          <option value="IT & Software">IT & Software</option>
+                          <option value="Finance & Accounting">Finance & Accounting</option>
+                          <option value="Design & Creative">Design & Creative</option>
+                          <option value="Marketing & Sales">Marketing & Sales</option>
+                          <option value="Engineering & Architecture">Engineering & Architecture</option>
+                          <option value="Other">Other</option>
+                       </select>
+                    </div>
                     <div className="space-y-1.5">
                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Bio / About Me</label>
                        <textarea
