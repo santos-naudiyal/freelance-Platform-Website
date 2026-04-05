@@ -13,74 +13,8 @@ export class ProjectService {
     this.aiService = new AIService();
   }
 
-  // 🔥 AI Pricing Generator (uses chatCopilot)
-  private async generatePricing(data: Partial<Project>) {
-    try {
-      const prompt = `
-You are a freelance pricing expert (India market).
+  // Removing redundant AI Pricing Generator to ensure budget consistency
 
-Analyze this project and return STRICT JSON:
-
-{
-  "hours": number,
-  "rate": number,
-  "complexity": number,
-  "buffer": number,
-  "total": number,
-  "equation": "string",
-  "breakdown": {
-    "development": number,
-    "complexity": number,
-    "buffer": number
-  }
-}
-
-Project:
-Title: ${data.title}
-Description: ${data.description}
-Skills: ${data.skillsRequired?.join(", ") || "Not specified"}
-
-Rules:
-- Only JSON
-- No explanation
-`;
-
-      // ✅ Use your existing AI method
-      const aiResponse = await this.aiService.chatCopilot(prompt);
-
-      // ✅ Clean response (VERY IMPORTANT)
-      const cleaned = aiResponse
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .trim();
-
-      const parsed = JSON.parse(cleaned);
-
-      if (!parsed.total || !parsed.breakdown) {
-        throw new Error("Invalid AI response");
-      }
-
-      return parsed;
-
-    } catch (err) {
-      console.error("❌ AI Pricing Failed:", err);
-
-      // ✅ Fallback (never break project creation)
-      return {
-        hours: 20,
-        rate: 500,
-        complexity: 2000,
-        buffer: 1000,
-        total: 13000,
-        equation: "(20 × 500) + 2000 + 1000",
-        breakdown: {
-          development: 10000,
-          complexity: 2000,
-          buffer: 1000
-        }
-      };
-    }
-  }
 
   // 🔥 UPDATED createProject
   async createProject(data: Partial<Project>): Promise<Project> {
@@ -91,24 +25,20 @@ Rules:
 
       const projectId = uuidv4();
 
-      // 🔥 AI PRICING
-      const pricing = await this.generatePricing(data);
-
       const project: Project = {
         id: projectId,
         clientId: data.clientId,
         title: data.title,
         description: data.description,
         budget: {
-          min: data.budget?.min ?? 0,
-          max: data.budget?.max ?? 0,
-          type: data.budget?.type ?? 'fixed',
+          min: Number(data.budget?.min) || 0,
+          max: Number(data.budget?.max) || 0,
+          type: data.budget?.type || 'fixed',
         },
         skillsRequired: data.skillsRequired || [],
-        status: data.status || 'open',
+        status: 'open', // Always start as open for bidding
         createdAt: Date.now(),
-        progress: data.progress || 0,
-        pricing // ✅ added
+        progress: 0,
       };
 
       await this.projectRepository.create(projectId, project);
@@ -154,7 +84,27 @@ Rules:
 
   async getUserProjects(clientId: string): Promise<Project[]> {
     try {
-      return await this.projectRepository.getByClientId(clientId);
+      const projects = await this.projectRepository.getByClientId(clientId);
+
+      // Enrich with freelancer name from accepted proposals
+      const enriched = await Promise.all(projects.map(async (p) => {
+        const pSnapshot = await db.collection('Proposals')
+          .where('projectId', '==', p.id)
+          .where('status', '==', 'accepted')
+          .limit(1)
+          .get();
+
+        if (!pSnapshot.empty) {
+          const fId = pSnapshot.docs[0].data().freelancerId;
+          const uDoc = await db.collection('Users').doc(fId).get();
+          if (uDoc.exists) {
+            p.otherPersonName = uDoc.data()?.name || 'Assigned Freelancer';
+          }
+        }
+        return p;
+      }));
+
+      return enriched;
     } catch (err) {
       console.error("❌ getUserProjects failed:", err);
       return [];
@@ -176,10 +126,20 @@ Rules:
 
       if (projectIds.length === 0) return [];
 
-      // 3. Fetch each project by ID
-      // (Using simple Promise.all since exact 'in' query limitations exist in firestore)
+      // 3. Fetch each project by ID and enrich with Client info
       const projects = await Promise.all(
-        projectIds.map(id => this.projectRepository.getById(id as string))
+        projectIds.map(async (id) => {
+          const p = await this.projectRepository.getById(id as string);
+          if (p && p.clientId) {
+            const uDoc = await db.collection('Users').doc(p.clientId).get();
+            if (uDoc.exists) {
+              const uData = uDoc.data();
+              p.otherPersonName = uData?.name || 'Project Client';
+              p.otherPersonCompany = uData?.companyName;
+            }
+          }
+          return p;
+        })
       );
 
       // Filter out nulls

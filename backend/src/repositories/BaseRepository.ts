@@ -14,7 +14,7 @@ export abstract class BaseRepository<T extends DocumentData> {
 
   async getById(id: string): Promise<T | null> {
     const doc = await this.collection.doc(id).get();
-    return doc.exists ? (doc.data() as T) : null;
+    return doc.exists ? ({ id: doc.id, ...(doc.data() as any) } as T) : null;
   }
 
   async update(id: string, data: Partial<T>): Promise<void> {

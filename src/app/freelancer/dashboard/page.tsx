@@ -23,6 +23,7 @@ import {
   Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { callBackend } from '@/lib/api';
@@ -117,22 +118,23 @@ export default function FreelancerDashboard() {
           {/* STATS GRID */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, i) => (
-              <Card key={i} className="border-transparent hover:border-slate-100 dark:hover:border-slate-800 transition-all group shadow-soft">
+              <Card key={i} className="border-transparent hover:border-slate-100 dark:hover:border-slate-800 transition-all group shadow-soft relative overflow-hidden">
+                {i === 2 && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <Badge className="bg-primary-500/10 text-primary-600 text-[8px] font-black uppercase tracking-widest border-none">Coming Soon</Badge>
+                  </div>
+                )}
                 <CardContent className="p-8">
                   <div className="flex justify-between items-start">
                     <div className={cn("p-4 rounded-2xl group-hover:scale-110 transition-transform", stat.bg)}>
                       <stat.icon className={cn("h-6 w-6", stat.color)} />
                     </div>
-                    {i === 2 && (
-                       <div className="flex items-center gap-1 text-emerald-500 text-[10px] font-black bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full">
-                          <TrendingUp size={12} />
-                          +12.5%
-                       </div>
-                    )}
                   </div>
                   <div className="mt-6">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{stat.name}</p>
-                    <p className="text-3xl font-black text-slate-950 dark:text-white mt-1">{stat.value}</p>
+                    <p className="text-3xl font-black text-slate-950 dark:text-white mt-1">
+                      {i === 2 ? "Nexus" : stat.value}
+                    </p>
                   </div>
                 </CardContent>
               </Card>

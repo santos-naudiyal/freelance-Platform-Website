@@ -2,11 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  FileText, 
   Download, 
-  ChevronRight, 
-  Info, 
-  ShieldCheck, 
   Clock, 
   TrendingUp,
   Zap,
@@ -14,16 +10,21 @@ import {
   Layers,
   CheckCircle2,
   Trophy,
-  Briefcase
+  Briefcase,
+  ShieldCheck,
+  Globe,
+  IndianRupee,
+  Cpu,
+  BarChart3,
+  ArrowUpRight
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { useAI } from '@/hooks/useAI';
 import { cn } from '@/lib/utils';
 import { jsPDF } from 'jspdf';
-import autoTable, { UserOptions } from 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
-// Extend the jsPDF type to include autoTable or use explicit call
 interface jsPDFWithAutoTable extends jsPDF {
   lastAutoTable: {
     finalY: number;
@@ -50,7 +51,7 @@ interface QuotationData {
   projectTitle: string;
 }
 
-export function ProjectQuotation({ outcome }: { outcome: string }) {
+export function ProjectQuotation({ outcome, targetBudget }: { outcome: string; targetBudget?: { amount: string; currency: 'INR' | 'USD' } }) {
   const { generateQuotation, loading, error } = useAI();
   const [quotation, setQuotation] = useState<QuotationData | null>(null);
   const [activeTier, setActiveTier] = useState<'basic' | 'standard' | 'premium'>('standard');
@@ -58,374 +59,292 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
 
   useEffect(() => {
     if (outcome && !loading && !quotation) {
-      generateQuotation(outcome).then((data) => {
+      generateQuotation(outcome, targetBudget).then((data) => {
         if (data) setQuotation(data);
       });
     }
-  }, [outcome, generateQuotation, loading, quotation]);
+  }, [outcome, generateQuotation, loading, quotation, targetBudget]);
 
   const downloadPDF = () => {
-    if (!quotation) {
-      console.error("No quotation data available for download");
-      return;
-    }
+    if (!quotation) return;
+    const doc = new jsPDF() as jsPDFWithAutoTable;
+    const mkt = quotation.pricing[market];
+    
+    // Simple professional PDF generation
+    doc.setFontSize(20);
+    doc.text(`QUOTATION: ${quotation.projectTitle}`, 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    autoTable(doc, {
+      startY: 40,
+      head: [['Budget Summary', 'Value']],
+      body: [
+        ['Minimum Investment', `${mkt.currency} ${mkt.min.toLocaleString()}`],
+        ['Maximum Investment', `${mkt.currency} ${mkt.max.toLocaleString()}`],
+        ['Recommended', `${mkt.currency} ${mkt.recommended.toLocaleString()}`],
+        ['Timeline', quotation.timeline.recommended],
+      ],
+    });
 
-    try {
-      const doc = new jsPDF() as jsPDFWithAutoTable;
-      const pageWidth = doc.internal.pageSize.getWidth();
-
-      // Header
-      doc.setFillColor(30, 41, 59);
-      doc.rect(0, 0, pageWidth, 40, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      doc.text('PROJECT QUOTATION', 14, 20);
-      doc.setFontSize(10);
-      doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 30);
-
-      // Project Info
-      doc.setTextColor(30, 41, 59);
-      doc.setFontSize(14);
-      doc.text(quotation.projectTitle || 'Project Proposal', 14, 50);
-      doc.setFontSize(10);
-      doc.setTextColor(100, 116, 139);
-      const complexity = quotation.summary?.complexity || 'Standard';
-      const confidence = quotation.summary?.confidenceScore || 100;
-      doc.text(`Complexity: ${complexity} | Confidence: ${confidence}%`, 14, 56);
-
-      // Summary
-      doc.setTextColor(30, 41, 59);
-      doc.setFontSize(12);
-      doc.text('Project Overview', 14, 70);
-      doc.setFontSize(10);
-      doc.setTextColor(71, 85, 105);
-      const summaryText = quotation.summary?.text || '';
-      const splitSummary = doc.splitTextToSize(summaryText, pageWidth - 28);
-      doc.text(splitSummary, 14, 76);
-
-      let currentY = 76 + (splitSummary.length * 5) + 10;
-
-      // Financial Summary Table
-      const mkt = quotation.pricing[market];
-      autoTable(doc, {
-        startY: currentY,
-        head: [['Metric', 'Estimate']],
-        body: [
-          ['Minimum Investment', `${mkt.currency} ${mkt.min.toLocaleString()}`],
-          ['Maximum Investment', `${mkt.currency} ${mkt.max.toLocaleString()}`],
-          ['Recommended Budget', `${mkt.currency} ${mkt.recommended.toLocaleString()}`],
-          ['Estimated Timeline', quotation.timeline?.recommended || 'TBD'],
-        ],
-        theme: 'striped',
-        headStyles: { fillColor: [79, 70, 229] },
-      });
-
-      currentY = doc.lastAutoTable?.finalY || (currentY + 40);
-
-      // Task Breakdown
-      if (quotation.tasks && quotation.tasks.length > 0) {
-        doc.setFontSize(12);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Detailed Task Breakdown', 14, currentY + 15);
-        autoTable(doc, {
-          startY: currentY + 20,
-          head: [['Task', 'Description', 'Hours', 'Cost']],
-          body: quotation.tasks.map(t => [
-            t.name || 'Task', 
-            t.description || '',
-            t.hours || 0, 
-            `${mkt.currency} ${(market === 'indianMarket' ? t.costINR : t.costUSD).toLocaleString()}`
-          ]),
-          theme: 'grid',
-          headStyles: { fillColor: [30, 41, 59] },
-          columnStyles: {
-            1: { cellWidth: 80 }
-          }
-        });
-        currentY = doc.lastAutoTable?.finalY || (currentY + 60);
-      }
-
-      // Risks
-      if (quotation.risks && quotation.risks.length > 0) {
-        if (currentY > 230) { doc.addPage(); currentY = 20; } else { currentY += 15; }
-        doc.setFontSize(12);
-        doc.setTextColor(30, 41, 59);
-        doc.text('Risk Analysis & Mitigation', 14, currentY);
-        autoTable(doc, {
-          startY: currentY + 5,
-          head: [['Risk Factor', 'Mitigation Strategy']],
-          body: quotation.risks.map(r => [r.risk || 'General Risk', r.mitigation || 'N/A']),
-          theme: 'striped',
-          headStyles: { fillColor: [225, 29, 72] }, // Rose-600
-        });
-      }
-
-      // Save
-      const fileName = `Quotation_${(quotation.projectTitle || 'Project').replace(/\s+/g, '_')}.pdf`;
-      doc.save(fileName);
-    } catch (err) {
-      console.error("PDF Generation Error:", err);
-      alert("Failed to generate PDF. Falling back to text download.");
-      
-      // Fallback to text download
-      const mktFallback = quotation.pricing[market];
-      const textContent = `
-        PROJECT QUOTATION: ${quotation.projectTitle}
-        Market: ${market === 'indianMarket' ? 'Indian (INR)' : 'Global (USD)'}
-        Total Budget: ${mktFallback.currency} ${mktFallback.recommended.toLocaleString()}
-        Timeline: ${quotation.timeline.recommended}
-        
-        Summary:
-        ${quotation.summary.text}
-      `;
-      const blob = new Blob([textContent], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Quotation_${quotation.projectTitle.replace(/\s+/g, '_')}.txt`;
-      a.click();
-    }
+    const fileName = `Quotation_${quotation.projectTitle.replace(/\s+/g, '_')}.pdf`;
+    doc.save(fileName);
   };
 
-  if (loading) {
-    return (
-      <div className="p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 animate-pulse space-y-6">
-        <div className="h-8 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-lg" />
-        <div className="h-4 w-full bg-slate-50 dark:bg-slate-900 rounded-md" />
-        <div className="grid grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => <div key={i} className="h-40 bg-slate-50 dark:bg-slate-900 rounded-2xl" />)}
+  if (loading) return (
+    <div className="w-full space-y-10 animate-pulse py-10">
+      <div className="h-40 bg-slate-100 dark:bg-slate-800 rounded-[3rem]" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <div className="h-64 bg-slate-50 dark:bg-slate-900 rounded-[2.5rem]" />
+          <div className="h-96 bg-slate-50 dark:bg-slate-900 rounded-[2.5rem]" />
         </div>
+        <div className="h-full bg-slate-50 dark:bg-slate-900 rounded-[2.5rem]" />
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (error) return <div className="p-4 text-red-500 font-medium text-center">Error generating quotation. Please try again.</div>;
+  if (error) return <div className="p-8 text-rose-500 font-bold text-center bg-rose-50 rounded-3xl border border-rose-100">AI Architecting failed. Please refresh.</div>;
   if (!quotation) return null;
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-6xl mx-auto space-y-10 pb-20"
+      className="max-w-7xl mx-auto space-y-12 pb-32"
+      id="quotation-container"
     >
-      {/* HEADER SECTION */}
-      <div className="premium-glass p-10 rounded-[3rem] border-primary-100 dark:border-primary-900 shadow-2xl shadow-primary-500/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-20 -mr-20 -mt-20 bg-primary-500/10 blur-3xl rounded-full" />
-        
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-primary-600 text-white shadow-xl shadow-primary-600/30">
-                <Trophy size={28} />
-              </div>
-              <div>
-                <h2 className="text-3xl font-display font-black tracking-tight text-slate-900 dark:text-white uppercase line-clamp-1">
-                  {quotation.projectTitle}
-                </h2>
-                <div className="flex items-center gap-4 mt-1">
-                  <span className={cn(
-                    "text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest",
-                    quotation.summary.complexity === 'High' ? "bg-rose-100 text-rose-600" :
-                    quotation.summary.complexity === 'Medium' ? "bg-amber-100 text-amber-600" : 
-                    "bg-emerald-100 text-emerald-600"
-                  )}>
-                    {quotation.summary.complexity} Complexity
-                  </span>
-                  <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    <ShieldCheck size={12} className="text-primary-500" />
-                    {quotation.summary.confidenceScore}% Confidence
-                  </div>
+      {/* 1. HERO ARCHITECT CARD */}
+      <div className="relative group">
+        <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-indigo-600 rounded-[3.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+        <div className="relative premium-glass p-10 lg:p-14 rounded-[3rem] border-primary-100/20 dark:border-primary-800/20 shadow-2xl overflow-hidden">
+          {/* Background Decorative Elements */}
+          <div className="absolute top-0 right-0 p-32 -mr-24 -mt-24 bg-primary-500/10 blur-[100px] rounded-full" />
+          <div className="absolute bottom-0 left-0 p-32 -ml-24 -mb-24 bg-indigo-500/10 blur-[100px] rounded-full" />
+          
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 relative z-10">
+            <div className="space-y-6 max-w-3xl">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="p-3.5 rounded-2xl bg-primary-600 text-white shadow-xl shadow-primary-600/30">
+                  <Trophy size={32} />
+                </div>
+                <div className="space-y-1">
+                  <h1 className="text-4xl lg:text-5xl font-display font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
+                    {quotation.projectTitle}
+                  </h1>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary-500">Official AI-Architected Quotation</p>
                 </div>
               </div>
+              
+              <div className="flex flex-wrap items-center gap-6">
+                <Badge icon={Cpu} text={`${quotation.summary.complexity} Complexity`} color="rose" />
+                <Badge icon={ShieldCheck} text={`${quotation.summary.confidenceScore}% Confidence`} color="emerald" />
+                <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block" />
+                <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
+                  <Clock size={14} className="text-amber-500" />
+                  Est. Delivery: {quotation.timeline.recommended}
+                </div>
+              </div>
+
+              <p className="text-lg font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl">
+                {quotation.summary.text}
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+              <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[2rem] shadow-inner w-full sm:w-auto">
+                <MarketToggle active={market === 'indianMarket'} onClick={() => setMarket('indianMarket')} icon={<IndianRupee size={14} />} label="Indian" />
+                <MarketToggle active={market === 'globalMarket'} onClick={() => setMarket('globalMarket')} icon={<Globe size={14} />} label="Global" />
+              </div>
+              <Button 
+                onClick={downloadPDF}
+                className="h-16 px-8 rounded-2xl bg-slate-950 dark:bg-white dark:text-slate-950 text-white font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-3 group/btn w-full sm:w-auto"
+              >
+                <Download size={20} className="group-hover:translate-y-0.5 transition-transform" />
+                Download Brief
+              </Button>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl shadow-inner relative">
-              <button 
-                onClick={() => setMarket('indianMarket')}
-                className={cn("relative z-10 px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-xl transition-colors", market === 'indianMarket' ? "text-slate-900" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300")}
-              >
-                ₹ Indian Rate
-              </button>
-              <button 
-                onClick={() => setMarket('globalMarket')}
-                className={cn("relative z-10 px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-xl transition-colors", market === 'globalMarket' ? "text-slate-900" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300")}
-              >
-                $ Global Rate
-              </button>
-              <div 
-                className={cn(
-                  "absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white dark:bg-slate-600 rounded-xl shadow transition-all duration-300",
-                  market === 'indianMarket' ? "left-1.5" : "left-[calc(50%+3px)]"
-                )}
-              />
-            </div>
-            <Button 
-              onClick={downloadPDF}
-              className="h-12 px-6 rounded-2xl bg-slate-950 dark:bg-slate-800 text-white font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-3"
-            >
-              <Download size={18} />
-              PDF Quote
-            </Button>
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <BentoStat label="Min Investment" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].min.toLocaleString()}`} icon={Zap} color="primary" />
+            <BentoStat label="Max Investment" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].max.toLocaleString()}`} icon={TrendingUp} color="emerald" />
+            <BentoStat label="Recommended" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].recommended.toLocaleString()}`} icon={CheckCircle2} color="indigo" />
+            <BentoStat label="Project Velocity" value={quotation.timeline.recommended} icon={Clock} color="amber" />
           </div>
-        </div>
-
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatBox label="Min Investment" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].min.toLocaleString()}`} icon={Zap} color="text-primary-500" />
-          <StatBox label="Max Investment" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].max.toLocaleString()}`} icon={TrendingUp} color="text-emerald-500" />
-          <StatBox label="Recommended" value={`${quotation.pricing[market].currency} ${quotation.pricing[market].recommended.toLocaleString()}`} icon={CheckCircle2} color="text-indigo-500" />
-          <StatBox label="Timeline" value={quotation.timeline.recommended} icon={Clock} color="text-amber-500" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        {/* LEFT COLUMN: PRICING TIERS & ARCHITECTURE */}
-        <div className="lg:col-span-2 space-y-8">
+        {/* LEFT COLUMN (8 cols) */}
+        <div className="lg:col-span-8 space-y-12">
           
-          {/* ARCHITECTURE FLOW */}
-          {quotation.architectureFlow && quotation.architectureFlow.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-xl font-display font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <Layers size={20} className="text-primary-500" />
-                Domain Architecture & System Flow
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {quotation.architectureFlow.map((flow, idx) => (
-                  <div key={idx} className="p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm relative overflow-hidden group hover:border-primary-200 transition-all">
-                    <div className="absolute top-0 right-0 p-8 -mr-8 -mt-8 bg-slate-50 dark:bg-slate-800/50 rounded-full group-hover:bg-primary-50 dark:group-hover:bg-primary-900/10 transition-colors" />
-                    <span className="text-[10px] font-black tracking-widest text-primary-500 uppercase mb-2 block relative z-10">Phase {idx + 1}</span>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2 relative z-10">{flow.phase}</h4>
-                    <p className="text-xs font-medium text-slate-500 leading-relaxed relative z-10">{flow.details}</p>
-                    <div className="mt-4 flex flex-wrap gap-1.5 relative z-10">
-                      {flow.technologies.map((tech, tIdx) => (
-                        <span key={tIdx} className="px-2 py-1 bg-slate-50 dark:bg-slate-950 rounded-md text-[9px] font-bold text-slate-400 uppercase tracking-wider border border-slate-100 dark:border-slate-800">
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <h3 className="text-xl font-display font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Layers size={20} className="text-primary-500" />
-              Strategic Pricing Tiers
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(['basic', 'standard', 'premium'] as const).map((tier) => (
-                <button
-                  key={tier}
-                  onClick={() => setActiveTier(tier)}
-                  className={cn(
-                    "p-6 rounded-[2rem] border-2 transition-all text-left relative overflow-hidden group",
-                    activeTier === tier 
-                      ? "border-primary-500 bg-primary-50/50 dark:bg-primary-950/20 shadow-xl shadow-primary-500/10" 
-                      : "border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary-200"
-                  )}
-                >
-                  <div className="flex flex-col h-full">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary-500 transition-colors">
-                      {tier}
+          {/* 2. DOMAIN ARCHITECTURE */}
+          <SectionHeader icon={Layers} title="Domain Architecture & Systems" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {quotation.architectureFlow.map((flow, idx) => (
+              <motion.div 
+                key={idx}
+                whileHover={{ y: -5 }}
+                className="p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden group"
+              >
+                <div className="absolute top-0 right-0 p-10 -mr-10 -mt-10 bg-slate-50 dark:bg-slate-800/30 rounded-full group-hover:bg-primary-500/10 transition-colors" />
+                <span className="text-[11px] font-black tracking-[0.2em] text-primary-500 uppercase mb-4 block">Engine 0{idx + 1}</span>
+                <h4 className="text-lg font-black text-slate-900 dark:text-white mb-3">{flow.phase}</h4>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-6">{flow.details}</p>
+                <div className="flex flex-wrap gap-2">
+                  {flow.technologies.map((tech, tIdx) => (
+                    <span key={tIdx} className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider border border-white dark:border-slate-700">
+                      {tech}
                     </span>
-                    <div className="text-xl font-black text-slate-900 dark:text-white my-2">
-                      {quotation.pricing[market].currency} {market === 'indianMarket' ? quotation.pricingOptions[tier].priceINR.toLocaleString() : quotation.pricingOptions[tier].priceUSD.toLocaleString()}
-                    </div>
-                    <ul className="mt-4 space-y-2 flex-grow">
-                      {quotation.pricingOptions[tier].features.slice(0, 4).map((f, i) => (
-                        <li key={i} className="text-[10px] font-bold text-slate-500 flex items-start gap-2">
-                          <CheckCircle2 size={12} className="text-primary-500 shrink-0 mt-0.5" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  {activeTier === tier && (
-                    <motion.div layoutId="tier-active" className="absolute top-4 right-4 h-2 w-2 rounded-full bg-primary-500" />
-                  )}
-                </button>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
           </div>
 
-          {/* TASK BREAKDOWN */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-display font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Briefcase size={20} className="text-primary-500" />
-              Detailed Execution Roadmap
-            </h3>
-            <div className="premium-card p-0 overflow-hidden border-slate-100 dark:border-slate-800">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
-                  <tr>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Task / Phase</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Hours</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Estimate</th>
+          {/* 3. STRATEGIC PRICING TIERS */}
+          <SectionHeader icon={BarChart3} title="Strategic Investment Tiers" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {(['basic', 'standard', 'premium'] as const).map((tier) => (
+              <button
+                key={tier}
+                onClick={() => setActiveTier(tier)}
+                className={cn(
+                  "p-8 rounded-[3rem] border-2 transition-all text-left relative overflow-hidden group flex flex-col h-full",
+                  activeTier === tier 
+                    ? "border-primary-500 bg-primary-50/50 dark:bg-primary-950/20 shadow-2xl shadow-primary-500/20 scale-[1.02]" 
+                    : "border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary-200"
+                )}
+              >
+                <div className="space-y-4 flex-grow">
+                  <div className="flex items-center justify-between">
+                    <span className={cn("text-xs font-black uppercase tracking-[0.2em]", activeTier === tier ? "text-primary-600" : "text-slate-400")}>
+                      {tier}
+                    </span>
+                    {activeTier === tier && <div className="h-3 w-3 rounded-full bg-primary-500 animate-pulse" />}
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    {quotation.pricing[market].currency} {market === 'indianMarket' ? quotation.pricingOptions[tier].priceINR.toLocaleString() : quotation.pricingOptions[tier].priceUSD.toLocaleString()}
+                  </div>
+                  <ul className="space-y-3 pt-4">
+                    {quotation.pricingOptions[tier].features.map((f, i) => (
+                      <li key={i} className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-start gap-2.5">
+                        <CheckCircle2 size={14} className="text-primary-500 shrink-0 mt-0.5" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className={cn("mt-8 h-12 w-full rounded-2xl flex items-center justify-center font-black text-[10px] uppercase tracking-widest transition-all", activeTier === tier ? "bg-primary-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500")}>
+                  {activeTier === tier ? 'Selected Tier' : 'Select Tier'}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* 4. EXECUTION ROADMAP */}
+          <SectionHeader icon={Briefcase} title="Precision Execution Roadmap" />
+          <div className="premium-glass p-0 rounded-[2.5rem] border-slate-100 dark:border-slate-800 overflow-hidden shadow-2xl">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                <tr>
+                  <th className="px-8 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Execution Block</th>
+                  <th className="px-8 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Quantum</th>
+                  <th className="px-8 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 text-right">Valuation</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {quotation.tasks.map((task, i) => (
+                  <tr key={i} className="group hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-8 py-6">
+                      <div className="font-black text-slate-900 dark:text-white text-base mb-1">{task.name}</div>
+                      <div className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">{task.description}</div>
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-600 dark:text-slate-400">
+                        {task.hours} Hours
+                      </span>
+                    </td>
+                    <td className="px-8 py-6 text-right font-black text-slate-900 dark:text-white">
+                      {quotation.pricing[market].currency} {(market === 'indianMarket' ? task.costINR : task.costUSD).toLocaleString()}
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-400">
-                  {quotation.tasks.map((task, i) => (
-                    <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="font-bold text-slate-900 dark:text-white text-sm">{task.name}</div>
-                        <div className="text-[10px] font-medium leading-relaxed">{task.description}</div>
-                      </td>
-                      <td className="px-6 py-4 text-xs font-bold">{task.hours}h</td>
-                      <td className="px-6 py-4 text-right text-xs font-black text-slate-900 dark:text-white">
-                        {quotation.pricing[market].currency} {(market === 'indianMarket' ? task.costINR : task.costUSD).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: INSIGHTS & RISKS */}
-        <div className="space-y-8">
-          {/* MARKET INSIGHTS */}
-          <div className="p-8 rounded-[2.5rem] bg-slate-900 dark:bg-slate-950 text-white shadow-2xl relative overflow-hidden">
-            <div className="absolute bottom-0 right-0 p-10 -mr-10 -mb-10 bg-primary-600/20 blur-2xl rounded-full" />
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-6">Market Dynamics</h4>
-            <div className="space-y-6 relative z-10">
-              <InsightRow label="Domain Strategy Analysis" value={quotation.marketInsights.analysis} highlight />
-              <InsightRow label="Project Demand & Market Fit" value={quotation.marketInsights.demand} />
-              <InsightRow label="Sector Competition" value={quotation.marketInsights.competition} />
-            </div>
-            
-            <div className="mt-8 pt-8 border-t border-slate-800 relative z-10">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 block">Expertise Requirements</span>
-              <div className="flex flex-wrap gap-2">
-                {quotation.skills.map((skill, i) => (
-                  <span key={i} className="px-3 py-1 rounded-lg bg-slate-800 text-[10px] font-bold text-slate-300">
-                    {skill}
-                  </span>
-                ))}
+        {/* RIGHT COLUMN (4 cols) */}
+        <div className="lg:col-span-4 space-y-10">
+          
+          {/* 5. MARKET INTELLIGENCE */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-br from-primary-600 to-indigo-600 rounded-[3rem] blur opacity-10 group-hover:opacity-20 transition duration-500" />
+            <div className="relative p-10 rounded-[2.5rem] bg-slate-900 dark:bg-slate-950 text-white shadow-2xl overflow-hidden min-h-[500px] flex flex-col">
+              <div className="absolute bottom-0 right-0 p-32 -mr-32 -mb-32 bg-primary-600/30 blur-[80px] rounded-full" />
+              
+              <div className="flex items-center gap-3 mb-10">
+                <div className="p-3 bg-white/10 rounded-2xl">
+                  <TrendingUp size={22} className="text-primary-400" />
+                </div>
+                <h4 className="text-base font-black uppercase tracking-widest">Market Intelligence</h4>
+              </div>
+
+              <div className="space-y-10 flex-grow relative z-10">
+                <IntelligenceBlock label="Strategy Dynamics" value={quotation.marketInsights.analysis} />
+                <IntelligenceBlock label="Yield Potential" value={quotation.marketInsights.demand} />
+                <IntelligenceBlock label="Competitive Landscape" value={quotation.marketInsights.competition} />
+              </div>
+              
+              <div className="mt-12 pt-8 border-t border-white/10 relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <Cpu size={14} className="text-primary-400" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Elite Talent Matrix</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {quotation.skills.map((skill, i) => (
+                    <span key={i} className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 hover:bg-white/10 transition-colors">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* RISK ANALYSIS */}
-          <div className="p-8 rounded-[2.5rem] bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-rose-600 mb-6 flex items-center gap-2">
-              <AlertTriangle size={16} />
-              Risk Mitigation
+          {/* 6. RISK MITIGATION RIGOR */}
+          <div className="p-10 rounded-[2.5rem] bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 shadow-xl shadow-rose-500/5">
+            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-rose-600 mb-8 flex items-center gap-2">
+              <AlertTriangle size={18} />
+              Tactical Risk Mitigation
             </h4>
-            <div className="space-y-4">
+            <div className="space-y-8">
               {quotation.risks.map((risk, i) => (
-                <div key={i} className="space-y-1">
-                  <div className="text-[10px] font-black text-slate-900 dark:text-white uppercase leading-tight">{risk.risk}</div>
-                  <div className="text-[10px] font-medium text-slate-500 italic">Mitigation: {risk.mitigation}</div>
+                <div key={i} className="space-y-2 group">
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                    <div className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-wider">{risk.risk}</div>
+                  </div>
+                  <div className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed border-l-2 border-rose-200 dark:border-rose-900 pl-4 py-1 italic">
+                    {risk.mitigation}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* REAL TIME INDICATOR */}
+          <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30">
+            <div className="flex items-center gap-1.5">
+              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+              <div className="h-2 w-2 rounded-full bg-emerald-500 absolute" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Real-Time Market Rate Active</span>
+          </div>
+
         </div>
 
       </div>
@@ -433,25 +352,83 @@ export function ProjectQuotation({ outcome }: { outcome: string }) {
   );
 }
 
-function StatBox({ label, value, icon: Icon, color }: any) {
+function BentoStat({ label, value, icon: Icon, color }: any) {
+  const colors: any = {
+    primary: "text-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-primary-500/10",
+    emerald: "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 shadow-emerald-500/10",
+    indigo: "text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 shadow-indigo-500/10",
+    amber: "text-amber-500 bg-amber-50 dark:bg-amber-900/20 shadow-amber-500/10"
+  };
+
   return (
-    <div className="p-5 rounded-2xl bg-white dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 flex items-center gap-4 group hover:border-primary-500/30 transition-all">
-      <div className={cn("p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 group-hover:scale-110 transition-transform", color)}>
-        <Icon size={20} />
+    <div className="p-6 rounded-3xl bg-white dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/50 flex items-center gap-5 group hover:border-primary-500/20 transition-all shadow-lg hover:shadow-xl">
+      <div className={cn("p-4 rounded-2xl group-hover:scale-110 transition-transform shadow-lg", colors[color])}>
+        <Icon size={24} />
       </div>
       <div>
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
-        <p className="text-sm font-black text-slate-900 dark:text-white">{value}</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
+        <p className="text-lg font-black text-slate-900 dark:text-white leading-tight">{value}</p>
       </div>
     </div>
   );
 }
 
-function InsightRow({ label, value, highlight }: { label: string, value: string, highlight?: boolean }) {
+function Badge({ icon: Icon, text, color }: { icon: any, text: string, color: 'rose' | 'emerald' | 'amber' }) {
+  const colors = {
+    rose: "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900/50",
+    emerald: "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50",
+    amber: "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/50"
+  };
+
   return (
-    <div className="flex justify-between items-center text-xs">
-      <span className="font-bold text-slate-400 lowercase italic">{label}</span>
-      <span className={cn("font-black", highlight ? "text-primary-400" : "text-white")}>{value}</span>
+    <div className={cn("inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest shadow-sm", colors[color])}>
+      <Icon size={14} />
+      {text}
+    </div>
+  );
+}
+
+function MarketToggle({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-2 px-6 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] transition-all", 
+        active 
+          ? "bg-white dark:bg-slate-700 shadow-xl text-slate-900 dark:text-white scale-105" 
+          : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+function SectionHeader({ icon: Icon, title }: { icon: any, title: string }) {
+  return (
+    <div className="flex items-center gap-3 mb-6">
+      <div className="h-10 w-10 flex items-center justify-center rounded-2xl bg-primary-50 dark:bg-primary-950/30 text-primary-600">
+        <Icon size={22} />
+      </div>
+      <h3 className="text-2xl font-display font-black text-slate-900 dark:text-white uppercase tracking-tight">
+        {title}
+      </h3>
+      <div className="flex-grow h-px bg-gradient-to-r from-slate-200 dark:from-slate-800 to-transparent ml-4" />
+    </div>
+  );
+}
+
+function IntelligenceBlock({ label, value }: { label: string, value: string }) {
+  return (
+    <div className="space-y-3 group/intel">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover/intel:text-primary-400 transition-colors">{label}</span>
+        <ArrowUpRight size={14} className="text-slate-600 group-hover/intel:text-primary-400 transition-transform group-hover/intel:translate-x-0.5 group-hover/intel:-translate-y-0.5" />
+      </div>
+      <p className="text-sm font-medium text-slate-300 leading-relaxed italic">
+        "{value}"
+      </p>
     </div>
   );
 }

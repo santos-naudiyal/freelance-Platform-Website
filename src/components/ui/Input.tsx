@@ -13,22 +13,22 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full flex flex-col gap-1.5">
         {label && (
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">
             {label}
           </label>
         )}
-        <div className="relative">
+        <div className="relative group">
           {icon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors">
               {icon}
             </div>
           )}
           <input
             ref={ref}
             className={cn(
-              "flex w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-primary-400",
-              icon && "pl-10",
-              error && "border-red-500 focus:ring-red-500",
+              "flex w-full rounded-2xl border-2 border-slate-100 bg-slate-50/50 px-5 py-3.5 text-sm font-medium text-slate-900 shadow-sm transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/50 focus:bg-white disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:bg-slate-900",
+              icon && "pl-12",
+              error && "border-red-500/50 focus:ring-red-500/10 focus:border-red-500",
               className
             )}
             {...props}

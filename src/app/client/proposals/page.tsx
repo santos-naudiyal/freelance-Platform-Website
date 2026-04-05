@@ -130,106 +130,67 @@ export default function ClientProposalsPage() {
                  <p className="text-slate-500 font-medium">When freelancers bid on your projects, they will appear here.</p>
                </div>
             ) : (
-               <div className="grid grid-cols-1 gap-6">
-                 {proposals.map((proposal) => (
-                   <Card key={proposal.id} className="group border-transparent hover:border-indigo-200 dark:hover:border-indigo-900 transition-all duration-300 overflow-hidden relative">
-                     {/* Color band indicator based on status */}
-                     <div className={cn(
-                       "absolute top-0 left-0 bottom-0 w-1.5",
-                       proposal.status === 'pending' ? 'bg-amber-400' :
-                       proposal.status === 'accepted' ? 'bg-emerald-500' : 'bg-rose-500'
-                     )} />
-                     
-                     <CardContent className="p-8 sm:p-10 pl-12 flex flex-col lg:flex-row gap-8">
-                       {/* Left Content Area */}
-                       <div className="flex-1 space-y-5">
-                          <div className="flex items-center justify-between lg:justify-start gap-4 flex-wrap">
-                            <h4 className="text-2xl font-black text-slate-950 dark:text-white leading-tight">
-                              {proposal.projectTitle}
-                            </h4>
-                            <Badge className={cn(
-                              "font-black tracking-widest uppercase text-[10px] px-3 py-1 rounded-full",
-                              proposal.status === 'pending' ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200" :
-                              proposal.status === 'accepted' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200" :
-                              "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border-rose-200"
-                            )}>
-                              {proposal.status}
-                            </Badge>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {proposals.map((proposal) => (
+                    <Link key={proposal.id} href={`/client/proposals/${proposal.id}`} className="group">
+                      <Card className="h-full border-slate-100 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-500 overflow-hidden relative flex flex-col">
+                        {/* Decorative status indicator */}
+                        <div className={cn(
+                          "absolute top-0 right-0 w-24 h-24 -mr-12 -mt-12 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-110",
+                          proposal.status === 'pending' ? 'bg-amber-500' :
+                          proposal.status === 'accepted' ? 'bg-emerald-500' : 'bg-rose-500'
+                        )} />
+                        
+                        <CardContent className="p-8 pb-6 flex-1 flex flex-col justify-between space-y-6">
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                               <Badge className={cn(
+                                 "font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-widest border",
+                                 proposal.status === 'pending' ? "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800" :
+                                 proposal.status === 'accepted' ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800" :
+                                 "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:border-rose-800"
+                               )}>
+                                 {proposal.status}
+                               </Badge>
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                 {new Date(proposal.createdAt).toLocaleDateString()}
+                               </p>
+                            </div>
+
+                            <div className="space-y-2">
+                               <h4 className="text-xl font-black text-slate-950 dark:text-white leading-tight group-hover:text-indigo-600 transition-colors">
+                                 {proposal.projectTitle}
+                               </h4>
+                               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                 By {proposal.freelancerName || 'Elite Freelancer'}
+                               </p>
+                            </div>
                           </div>
                           
-                          <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                             <div className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-3 flex items-center gap-2">
-                               <FileText size={14} /> 
-                               Cover Letter
+                          <div className="grid grid-cols-2 gap-4 pt-6 mt-auto border-t border-slate-100 dark:border-slate-800/50">
+                             <div className="space-y-1">
+                               <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">Total Bid</p>
+                               <p className="text-2xl font-black text-slate-950 dark:text-white">
+                                 ${(proposal.bidAmount || 0).toLocaleString()}
+                               </p>
                              </div>
-                             <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
-                               {proposal.coverLetter}
-                             </p>
-                          </div>
-                          
-                          <div className="flex items-center gap-6 text-sm">
-                             <div className="flex items-center gap-2 text-slate-500 font-bold">
-                               <Clock size={16} className="text-slate-400" />
-                               Received {new Date(proposal.createdAt).toLocaleDateString()}
+                             <div className="space-y-1 text-right">
+                               <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">Timeline</p>
+                               <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                 {proposal.deliveryTime || 'TBD'}
+                               </p>
                              </div>
-                             {proposal.deliveryTime && (
-                               <div className="flex items-center gap-2 text-slate-500 font-bold">
-                                 <Clock size={16} className="text-slate-400" />
-                                 Est. Delivery: {proposal.deliveryTime}
-                               </div>
-                             )}
                           </div>
-                          
-                          <div className="pt-4">
-                             <Link href={`/freelancers/${proposal.freelancerId}`}>
-                                <Button variant="outline" className="rounded-xl h-10 font-bold border-indigo-200 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-900/50 dark:text-indigo-400 dark:hover:bg-indigo-900/20">
-                                  View Freelancer Profile
-                                </Button>
-                             </Link>
-                          </div>
-                       </div>
-                       
-                       {/* Right Action Area */}
-                       <div className="flex flex-col lg:items-end justify-between min-w-[240px] gap-6 border-t lg:border-t-0 lg:border-l border-slate-100 dark:border-slate-800 pt-6 lg:pt-0 lg:pl-8">
-                          <div className="text-left lg:text-right">
-                             <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1">Bid Amount</p>
-                             <p className="text-4xl font-black text-slate-950 dark:text-white">
-                               ${(proposal.bidAmount || 0).toLocaleString()}
-                             </p>
-                          </div>
-                          
-                          {proposal.status === 'pending' ? (
-                             <div className="flex flex-col gap-3 w-full">
-                               <Button 
-                                 onClick={() => handleStatusUpdate(proposal.id, 'accepted')}
-                                 disabled={actionLoading === proposal.id}
-                                 className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2 font-black shadow-lg shadow-emerald-500/20"
-                               >
-                                 <CheckCircle2 size={18} />
-                                 Accept Proposal
-                               </Button>
-                               <Button 
-                                 onClick={() => handleStatusUpdate(proposal.id, 'rejected')}
-                                 disabled={actionLoading === proposal.id}
-                                 variant="outline"
-                                 className="w-full h-12 rounded-xl gap-2 font-bold hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 hover:border-rose-200 dark:hover:border-rose-800"
-                               >
-                                 <XCircle size={18} />
-                                 Decline
-                               </Button>
-                             </div>
-                          ) : (
-                             <div className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-4 text-center">
-                                <p className="text-xs font-bold text-slate-500">
-                                  Action taken on this bid.
-                                </p>
-                             </div>
-                          )}
-                       </div>
-                     </CardContent>
-                   </Card>
-                 ))}
-               </div>
+                        </CardContent>
+                        
+                        <div className="px-8 py-4 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between group-hover:bg-indigo-50/50 transition-colors">
+                           <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">View Proposal</span>
+                           <Search size={14} className="text-indigo-600" />
+                        </div>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
             )}
           </div>
         </div>

@@ -29,6 +29,7 @@ import { Project } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ChatInterface } from '@/components/chat/ChatInterface';
+import { useSocket } from '@/components/providers/SocketProvider';
 
 const clientSidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
@@ -52,6 +53,7 @@ const freelancerSidebarItems = [
 
 export default function MessagesPage() {
   const { user } = useAuthStore();
+  const { unreadCounts, clearUnread } = useSocket();
   const [activeProjects, setActiveProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,15 +63,19 @@ export default function MessagesPage() {
     const fetchActiveProjects = async () => {
       try {
         const projects = await callBackend('projects/my');
-        // Show projects that are in progress. For freelancers, show all returned projects since backend pre-filtered by accepted bids.
-        const inProgress = (projects || []).filter((p: Project) => 
-          user?.role === 'freelancer' || ['in_progress', 'completed'].includes(p.status)
+        // Show projects that are in progress OR open (for clients to discuss bids)
+        const filtered = (projects || []).filter((p: Project) => 
+          user?.role === 'freelancer' || ['open', 'in_progress', 'completed'].includes(p.status)
         );
-        setActiveProjects(inProgress);
+        // Sort by last message time (WhatsApp style)
+        const sorted = (filtered || []).sort((a: any, b: any) => 
+          (b.lastMessageAt || b.createdAt) - (a.lastMessageAt || a.createdAt)
+        );
+        setActiveProjects(sorted);
         
         // Auto-select first project if available
-        if (inProgress.length > 0 && !selectedProject) {
-          setSelectedProject(inProgress[0]);
+        if (sorted.length > 0 && !selectedProject) {
+          setSelectedProject(sorted[0]);
         }
       } catch (err) {
         console.error("Failed to fetch conversations:", err);
@@ -82,7 +88,8 @@ export default function MessagesPage() {
   }, [user, selectedProject]);
 
   const filteredProjects = activeProjects.filter(p => 
-    p.title.toLowerCase().includes(searchQuery.toLowerCase())
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.otherPersonName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const activeSidebar = user?.role === 'freelancer' ? freelancerSidebarItems : clientSidebarItems;
@@ -103,7 +110,7 @@ export default function MessagesPage() {
                   <SearchIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
                   <input 
                     type="text" 
-                    placeholder="Search chats..."
+                    placeholder="Search people or projects..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full h-12 pl-12 pr-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all outline-none"
@@ -124,41 +131,54 @@ export default function MessagesPage() {
                   filteredProjects.map((project) => (
                     <button
                       key={project.id}
-                      onClick={() => setSelectedProject(project)}
+                      onClick={() => {
+                        setSelectedProject(project);
+                        clearUnread(project.id);
+                      }}
                       className={cn(
-                        "w-full p-5 rounded-2xl border transition-all text-left group relative overflow-hidden",
+                        "w-full p-5 rounded-3xl border transition-all text-left group relative overflow-hidden",
                         selectedProject?.id === project.id
-                          ? "bg-primary-600 border-primary-600 shadow-xl shadow-primary-600/20"
+                          ? "bg-slate-950 dark:bg-white border-slate-950 dark:border-white shadow-2xl"
                           : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-primary-200 dark:hover:border-primary-800"
                       )}
                     >
                       <div className="flex items-center gap-4 relative z-10">
                         <div className={cn(
-                          "h-12 w-12 rounded-xl flex items-center justify-center shrink-0",
+                          "h-14 w-14 rounded-2xl flex items-center justify-center shrink-0 relative transition-transform duration-500 group-hover:scale-110",
                           selectedProject?.id === project.id 
-                            ? "bg-white/20 text-white" 
+                            ? "bg-white/10 dark:bg-slate-900/10 text-white dark:text-slate-900" 
                             : "bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-primary-500 transition-colors"
                         )}>
-                          <Briefcase size={22} />
+                          <User size={24} />
+                          {unreadCounts[project.id] > 0 && selectedProject?.id !== project.id && (
+                            <div className="absolute -top-1.5 -right-1.5 h-6 w-6 bg-primary-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-4 border-white dark:border-slate-900 animate-bounce shadow-lg">
+                              {unreadCounts[project.id]}
+                            </div>
+                          )}
                         </div>
-                        <div className="overflow-hidden">
+                        <div className="overflow-hidden space-y-0.5">
                           <h5 className={cn(
-                            "text-sm font-black truncate",
-                            selectedProject?.id === project.id ? "text-white" : "text-slate-900 dark:text-white"
+                            "text-base font-black truncate tracking-tight",
+                            selectedProject?.id === project.id ? "text-white dark:text-slate-900" : "text-slate-900 dark:text-white"
                           )}>
-                            {project.title}
+                             {project.otherPersonName || (user?.role === 'client' ? 'Assigned Freelancer' : 'Project Client')}
+                             {project.otherPersonCompany && (
+                               <span className={cn(
+                                 "ml-2 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest",
+                                 selectedProject?.id === project.id ? "bg-white/10 text-white/80" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                               )}>
+                                 {project.otherPersonCompany}
+                               </span>
+                             )}
                           </h5>
                           <p className={cn(
-                            "text-[10px] font-bold uppercase tracking-widest mt-0.5",
-                            selectedProject?.id === project.id ? "text-white/60" : "text-slate-400"
+                            "text-xs font-bold truncate opacity-80",
+                            selectedProject?.id === project.id ? "text-white/60 dark:text-slate-950/60" : "text-slate-500"
                           )}>
-                            {project.status.replace('_', ' ')}
+                            {project.title}
                           </p>
                         </div>
                       </div>
-                      {selectedProject?.id === project.id && (
-                        <motion.div layoutId="active-chat" className="absolute left-0 top-0 h-full w-1 bg-white" />
-                      )}
                     </button>
                   ))
                 ) : (
@@ -174,11 +194,11 @@ export default function MessagesPage() {
             </div>
 
             {/* CHAT INTERFACE (RIGHT PANE) */}
-            <div className="flex-grow h-full bg-slate-50 dark:bg-slate-900/30 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/50 p-2 overflow-hidden shadow-inner flex flex-col">
+            <div className="flex-grow h-full bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border border-slate-100 dark:border-slate-800/50 p-2 overflow-hidden shadow-inner flex flex-col">
               {selectedProject ? (
                 <ChatInterface 
                   projectId={selectedProject.id} 
-                  recipientName={user?.role === 'client' ? 'Assigned Freelancer' : 'Project Client'}
+                  recipientName={selectedProject.otherPersonName || (user?.role === 'client' ? 'Assigned Freelancer' : 'Project Client')}
                 />
               ) : (
                 <div className="flex-grow flex flex-col items-center justify-center space-y-6 text-center">

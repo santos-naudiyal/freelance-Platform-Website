@@ -45,7 +45,7 @@ export function Payments({ workspaceId }: PaymentsProps) {
             <ShieldCheck className="text-emerald-500" size={24} />
             <div>
               <div className="text-sm font-bold text-slate-900 dark:text-white">Smart Escrow Active</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">Funds secured by Freelace Shield</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">Funds secured by FreelanceHub Shield</div>
             </div>
           </div>
           <div className="text-right">

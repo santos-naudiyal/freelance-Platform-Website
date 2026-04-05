@@ -4,28 +4,28 @@ import Link from 'next/link';
 import { ArrowRight, Star, ShieldCheck, Globe, Sparkles } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function HeroSection() {
+  const { user } = useAuthStore();
   return (
-   <section className="relative pt-24 pb-20 overflow-hidden md:pt-40 md:pb-32 
-    bg-gradient-to-b from-white via-slate-50 to-slate-100 
-      dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <section className="relative pt-32 pb-24 overflow-hidden md:pt-52 md:pb-40 bg-[var(--background)]">
       {/* Background Decorative Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <motion.div 
-          animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.6, 0.4] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary-400/30 blur-[130px] dark:bg-primary-600/20 mix-blend-multiply dark:mix-blend-screen" 
+          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3], x: [0, 20, 0], y: [0, -20, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] rounded-full bg-primary-500/20 blur-[130px] dark:bg-primary-600/10 mix-blend-multiply dark:mix-blend-screen" 
         />
         <motion.div 
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-400/30 blur-[130px] dark:bg-indigo-600/20 mix-blend-multiply dark:mix-blend-screen" 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2], x: [0, -30, 0], y: [0, 30, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] rounded-full bg-indigo-500/20 blur-[130px] dark:bg-indigo-600/10 mix-blend-multiply dark:mix-blend-screen" 
         />
         <motion.div 
-          animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
-          className="absolute top-[20%] left-[60%] w-[30%] h-[30%] rounded-full bg-violet-400/20 blur-[100px] dark:bg-violet-600/20 mix-blend-multiply dark:mix-blend-screen" 
+          animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.3, 0.1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+          className="absolute top-[20%] left-[50%] w-[40%] h-[40%] rounded-full bg-violet-400/10 blur-[100px] dark:bg-violet-600/10 mix-blend-multiply dark:mix-blend-screen" 
         />
       </div>
 
@@ -46,10 +46,10 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tighter text-slate-950 dark:text-white leading-[1.1] md:leading-[1.05]"
+            className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight text-slate-950 dark:text-white leading-[1.05] md:leading-[0.95]"
           >
-            Build anything with <br className="hidden sm:block" />
-            <span className="text-gradient font-black filter drop-shadow-sm">experts in hours</span>
+            Build anything with<br className="hidden sm:block" />
+            <span className="text-gradient filter drop-shadow-sm"> experts in hours</span>
           </motion.h1>
 
           <motion.p 
@@ -66,28 +66,27 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-2xl relative group mt-8"
+            className="w-full max-w-3xl relative group mt-12"
           >
-            <div className="absolute -inset-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-violet-500 rounded-[2.5rem] blur-md opacity-30 group-hover:opacity-60 transition duration-700 animate-pulse"></div>
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-400 to-indigo-400 rounded-[2.5rem] blur-[2px] opacity-0 group-hover:opacity-40 transition duration-500"></div>
-            <div className="relative premium-glass rounded-3xl sm:rounded-[2.3rem] p-1.5 sm:p-2.5 flex flex-col sm:flex-row items-stretch sm:items-center shadow-2xl bg-white/80 dark:bg-slate-900/80 gap-2">
-              <div className="flex-1 px-4 sm:px-6 py-2 sm:py-0">
-                <label htmlFor="project-creator" className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-primary-600 mb-1">
+            <div className="absolute -inset-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-violet-500 rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-700"></div>
+            <div className="relative premium-glass rounded-[2.5rem] p-2 sm:p-3 flex flex-col sm:flex-row items-stretch sm:items-center shadow-2xl bg-white/90 dark:bg-slate-900/90 gap-3 border-2 border-white dark:border-white/5">
+              <div className="flex-1 px-6 sm:px-8 py-3 sm:py-0 border-b sm:border-b-0 sm:border-r border-slate-100 dark:border-white/10 group-focus-within:border-primary-500/50 transition-colors">
+                <label htmlFor="project-creator" className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary-600 mb-1.5">
                   What do you want to build?
                 </label>
                 <input 
                   id="project-creator"
                   type="text" 
-                  placeholder="e.g. Build a Flutter app..."
-                  className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 font-medium text-base sm:text-lg p-0"
+                  placeholder="e.g. Build a mobile app..."
+                  className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 font-bold text-lg sm:text-xl p-0"
                 />
               </div>
               <button 
-                onClick={() => window.location.href = '/create-project'}
-                className="h-12 sm:h-[4.5rem] px-6 sm:px-10 rounded-2xl sm:rounded-2xl bg-primary-600 text-white font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary-500/30 flex items-center justify-center gap-2 group"
+                onClick={() => window.location.href = user ? (user.role === 'client' ? '/create-project' : '/freelancer/dashboard') : '/auth/register'}
+                className="h-14 sm:h-[4.5rem] px-8 sm:px-12 rounded-[1.75rem] bg-primary-600 text-white font-black uppercase tracking-widest text-sm hover:bg-primary-700 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary-500/30 flex items-center justify-center gap-3 group shrink-0"
               >
-                <span>Continue</span>
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                <span>{user ? (user.role === 'client' ? 'Continue' : 'Dashboard') : 'Get Started'}</span>
+                <ArrowRight size={20} className="group-hover:translate-x-1.5 transition-transform" />
               </button>
             </div>
             

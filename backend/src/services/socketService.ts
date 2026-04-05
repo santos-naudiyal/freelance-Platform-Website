@@ -20,6 +20,11 @@ export const initSocket = (server: any) => {
       socket.join(projectId);
     });
 
+    socket.on('join-user-room', (userId: string) => {
+      console.log(`👤 Socket ${socket.id} joined user room user_${userId}`);
+      socket.join(`user_${userId}`);
+    });
+
     socket.on('disconnect', () => {
       console.log("❌ User disconnected:", socket.id);
     });
@@ -61,4 +66,10 @@ export const emitTaskUpdate = (projectId: string, task: any) => {
 
 export const emitMilestoneUpdate = (projectId: string, milestone: any) => {
   emitToProjectChat(projectId, 'milestone-updated', milestone);
+};
+
+export const emitNotification = (userId: string, data: any) => {
+  if (!io) return;
+  console.log(`🔔 Sending notification to user user_${userId}`);
+  io.to(`user_${userId}`).emit('notification', data);
 };

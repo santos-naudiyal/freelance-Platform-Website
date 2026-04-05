@@ -23,6 +23,7 @@ export default function CreateProjectPage() {
   const [step, setStep] = useState(1);
   const [outcome, setOutcome] = useState("Build a high-performance Flutter mobile app for a fintech startup");
   const [aiData, setAiData] = useState<any>(null);
+  const [targetBudget, setTargetBudget] = useState<{ amount: string; currency: 'INR' | 'USD' }>({ amount: '', currency: 'INR' });
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
 
@@ -42,13 +43,35 @@ export default function CreateProjectPage() {
     
     setIsPublishing(true);
     try {
-      // Extract data from AI analysis
+      // 1. Determine the budget
+      let minBudget = 1000;
+      let maxBudget = 5000;
+      let currency = 'INR';
+
+      if (targetBudget.amount && !isNaN(parseInt(targetBudget.amount))) {
+        // Use client's target budget
+        const amount = parseInt(targetBudget.amount);
+        minBudget = Math.floor(amount * 0.8);
+        maxBudget = Math.ceil(amount * 1.2);
+        currency = targetBudget.currency;
+      } else if (aiData.analysis?.investment) {
+        // Fallback to AI investment parsing
+        const parts = aiData.analysis.investment.split('-').map((p: string) => parseInt(p.replace(/[^0-9]/g, '')));
+        if (parts.length >= 1 && !isNaN(parts[0])) minBudget = parts[0];
+        if (parts.length >= 2 && !isNaN(parts[1])) maxBudget = parts[1];
+        
+        // Check if investment string contains $ or ₹
+        if (aiData.analysis.investment.includes('$')) currency = 'USD';
+      }
+
+      // 2. Extract data from AI analysis
       const projectData = {
         title: outcome.split('.')[0].slice(0, 50), // Simple title extraction
         description: aiData.analysis?.description || outcome,
         budget: {
-          min: parseInt(aiData.analysis?.investment?.split('-')[0].replace(/[^0-9]/g, '')) || 1000,
-          max: parseInt(aiData.analysis?.investment?.split('-')[1]?.replace(/[^0-9]/g, '')) || 5000,
+          min: minBudget,
+          max: maxBudget,
+          currency: currency,
           type: 'fixed'
         },
         skillsRequired: aiData.analysis?.skills || [],
@@ -169,7 +192,44 @@ export default function CreateProjectPage() {
                   )}
                   
                   {/* Smart Pricing Engine Integration */}
-                  <SmartPricingWidget outcome={outcome} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Budget</label>
+                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                          <button 
+                            onClick={() => setTargetBudget(prev => ({ ...prev, currency: 'INR' }))}
+                            className={cn("px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-md transition-all", targetBudget.currency === 'INR' ? "bg-white dark:bg-slate-700 shadow-sm text-primary-600" : "text-slate-500")}
+                          >
+                            INR
+                          </button>
+                          <button 
+                            onClick={() => setTargetBudget(prev => ({ ...prev, currency: 'USD' }))}
+                            className={cn("px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-md transition-all", targetBudget.currency === 'USD' ? "bg-white dark:bg-slate-700 shadow-sm text-primary-600" : "text-slate-500")}
+                          >
+                            USD
+                          </button>
+                        </div>
+                      </div>
+                      <div className="relative group">
+                        <div className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-400 group-focus-within:text-primary-500 transition-colors">
+                          {targetBudget.currency === 'INR' ? '₹' : '$'}
+                        </div>
+                        <input
+                          type="number"
+                          value={targetBudget.amount}
+                          onChange={(e) => setTargetBudget(prev => ({ ...prev, amount: e.target.value }))}
+                          placeholder="e.g., 50000"
+                          className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 focus:border-primary-500 outline-none font-bold text-slate-900 dark:text-white transition-all transition-all"
+                        />
+                      </div>
+                      <p className="text-[9px] font-medium text-slate-400">
+                        * Your target budget helps AI align the roadmap with your financial goals.
+                      </p>
+                    </div>
+
+                    <SmartPricingWidget outcome={outcome} />
+                  </div>
                 </div>
                 
                 <div className="flex justify-end pt-6">
@@ -275,7 +335,7 @@ export default function CreateProjectPage() {
 
                 {/* Project Quotation Section */}
                 <div className="w-full mt-12 text-left space-y-10">
-                  <ProjectQuotation outcome={outcome} />
+                  <ProjectQuotation outcome={outcome} targetBudget={targetBudget} />
                   
                   <div className="flex flex-col items-center gap-4 pt-10 border-t border-slate-100 dark:border-slate-800">
                     <p className="text-sm font-medium text-slate-500 max-w-md">

@@ -152,7 +152,7 @@ export default function RegisterPage() {
               <Sparkles size={20} className="text-white" />
             </div>
             <span className="text-3xl font-display font-black tracking-tight text-slate-950 dark:text-white">
-              Freelace<span className="text-primary-600">.</span>
+              FreelanceHub<span className="text-primary-600">.</span>
             </span>
           </Link>
         </div>

@@ -15,6 +15,9 @@ export interface Project extends DocumentData {
   status: 'open' | 'in_progress' | 'completed' | 'cancelled';
   createdAt: number;
   progress: number;
+  lastMessageAt?: number;
+  otherPersonName?: string;
+  otherPersonCompany?: string;
 
   workspaceId?: string;
   clientDetails?: {
@@ -37,11 +40,11 @@ export class ProjectRepository extends BaseRepository<Project> {
   }
 
   async getActiveProjects(): Promise<Project[]> {
-    console.log("Fetching active projects...");
+    console.log("Fetching active projects (status: open)...");
     const allProjects = await this.list();
     console.log(`Total projects in DB: ${allProjects.length}`);
-    const activeProjects = allProjects.filter(p => ['open', 'active', 'in_progress'].includes(p.status || 'open'));
-    console.log(`Active projects fetched: ${activeProjects.length}`);
+    const activeProjects = allProjects.filter(p => (p.status || 'open') === 'open');
+    console.log(`Open projects fetched: ${activeProjects.length}`);
     return activeProjects;
   }
 }

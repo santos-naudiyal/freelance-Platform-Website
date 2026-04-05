@@ -51,9 +51,11 @@ export interface Project {
   skillsRequired: string[];
   status: 'open' | 'in_progress' | 'completed' | 'cancelled';
   createdAt: number;
+  lastMessageAt?: number;
+  otherPersonName?: string;
+  otherPersonCompany?: string;
 
-    workspaceId?: string;
-
+  workspaceId?: string;
 
   clientDetails?: {
     name: string;

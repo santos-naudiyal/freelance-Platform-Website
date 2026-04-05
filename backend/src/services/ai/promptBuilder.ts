@@ -110,14 +110,17 @@ Return EXACTLY this JSON format:
 
   PROJECT_QUOTATION: {
     system: "You are an Elite Solution Architect and Market Analyst. You must generate highly detailed, professional project quotations. Return ONLY valid JSON.",
-    buildUserPrompt: (outcome: string) => `
+    buildUserPrompt: (outcome: string, targetBudget?: { amount: string; currency: string }) => `
 Analyze the following project and generate a complete, structurally deep professional quotation.
 
 CRITICAL INSTRUCTIONS:
 1. Identify the domain (e.g., Tech, Finance, Marketing, Legal).
 2. For the "architectureFlow", generate a domain-specific structural breakdown. If Tech: Detail the Frontend, Backend, Admin Panel, Database schemas, and functional flows. If Finance: Detail the Ledger mapping, Compliance, Audit Trails, and Payment Flows. DO NOT use generic terms like "Planning". Be extremely deep and technical.
-3. For pricing, you MUST provide mathematically sound estimates for BOTH the "indianMarket" (in INR ₹) and "globalMarket" (in USD $).
-4. Do not summarize with basic text. Write like a million-dollar consultancy firm.
+3. FINANCIAL PRECISION:
+   - Generate mathematically sound, precise estimates for BOTH "indianMarket" (INR ₹) and "globalMarket" (USD $).
+   - AVOID round numbers (e.g., 50,000, 1,00,000, 5,000). Use market-accurate precise numbers (e.g., ₹1,24,560, $3,425).
+   - ${targetBudget?.amount ? `The client has a TARGET BUDGET of ${targetBudget.currency} ${targetBudget.amount}. Align your recommendation with this if realistic, or provide a "Market Reality Check" in the summary if it's too low/high.` : 'Estimate based on current elite freelancer market rates.'}
+4. Write like a multi-million dollar consultancy firm (McKinsey/Deloitte style).
 
 Project details:
 "${outcome}"
@@ -126,9 +129,9 @@ Return JSON in this EXACT format:
 {
   "projectTitle": "Clear, premium professional name",
   "summary": { 
-    "text": "A highly professional executive summary.", 
+    "text": "A highly professional executive summary. If the budget was too low, explain why here.", 
     "complexity": "Low/Medium/High/Enterprise", 
-    "confidenceScore": 95 
+    "confidenceScore": 98 
   },
   "architectureFlow": [
     {
@@ -138,34 +141,24 @@ Return JSON in this EXACT format:
     }
   ],
   "pricing": {
-    "indianMarket": {
-      "currency": "INR",
-      "min": 50000,
-      "max": 150000,
-      "recommended": 120000
-    },
-    "globalMarket": {
-      "currency": "USD",
-      "min": 1500,
-      "max": 5000,
-      "recommended": 3500
-    }
+    "indianMarket": { "currency": "INR", "min": 115400, "max": 185600, "recommended": 154200 },
+    "globalMarket": { "currency": "USD", "min": 3240, "max": 5890, "recommended": 4250 }
   },
-  "timeline": { "minDays": 15, "maxDays": 45, "recommended": "30 days" },
+  "timeline": { "minDays": 18, "maxDays": 42, "recommended": "32 days" },
   "tasks": [ 
-    { "name": "...", "description": "...", "hours": 10, "costINR": 5000, "costUSD": 150 } 
+    { "name": "...", "description": "...", "hours": 12, "costINR": 14200, "costUSD": 385 } 
   ],
   "skills": ["Enterprise Architecture", "React", "Audit Compliance"],
   "risks": [ { "risk": "...", "mitigation": "..." } ],
   "marketInsights": { 
     "demand": "High", 
     "competition": "Medium",
-    "analysis": "Professional explanation of market trends for this specific domain."
+    "analysis": "Professional explanation of market trends for this specific domain. Mention current demand-supply gap for required skills."
   },
   "pricingOptions": {
-    "basic": { "priceINR": 50000, "priceUSD": 1500, "features": ["Core MVP"] },
-    "standard": { "priceINR": 100000, "priceUSD": 3000, "features": ["Full Stack Integration"] },
-    "premium": { "priceINR": 150000, "priceUSD": 5000, "features": ["Enterprise Security", "Post-Launch Support"] }
+    "basic": { "priceINR": 95400, "priceUSD": 2850, "features": ["Core MVP"] },
+    "standard": { "priceINR": 154200, "priceUSD": 4250, "features": ["Full Stack Integration"] },
+    "premium": { "priceINR": 245800, "priceUSD": 6890, "features": ["Enterprise Security", "Priority Support"] }
   }
 }
 `

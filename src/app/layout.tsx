@@ -2,12 +2,13 @@ import "./globals.css";
 import { Inter, Outfit } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { SocketProvider } from "@/components/providers/SocketProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata = {
-  title: "Freelace | The Work Operating System",
+  title: "FreelanceHub | The Work Operating System",
   description: "Connect with top-tier freelancers and businesses worldwide. Post projects, hire talent, and scale your vision.",
 };
 
@@ -21,7 +22,9 @@ export default function RootLayout({
       <body className="bg-slate-50 text-slate-900 font-sans selection:bg-primary-100 selection:text-primary-900">
         <Toaster position="top-right" />
         <AuthProvider>
-          {children}
+          <SocketProvider>
+            {children}
+          </SocketProvider>
         </AuthProvider>
       </body>
     </html>

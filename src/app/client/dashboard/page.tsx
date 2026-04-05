@@ -18,6 +18,7 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
 import { cn } from '../../../components/ui/Button';
 import { callBackend } from '@/lib/api';
@@ -39,10 +40,10 @@ export default function ClientDashboard() {
   const [projects, setProjects] = useState<any[]>([]);
   const [recentProposals, setRecentProposals] = useState<any[]>([]);
   const [stats, setStats] = useState([
-    { name: 'Open Projects', value: '0', icon: ClipboardList, color: 'text-primary-600', bg: 'bg-primary-50 dark:bg-primary-900/20' },
-    { name: 'Proposals Received', value: '0', icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
+    { name: 'Open Projects', value: '0', icon: ClipboardList, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
+    { name: 'Proposals Received', value: '0', icon: Users, color: 'text-primary-600', bg: 'bg-primary-50 dark:bg-primary-900/20' },
     { name: 'Active Hires', value: '0', icon: ArrowUpRight, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-    { name: 'Spent This Month', value: '$0', icon: CreditCard, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
+    { name: 'Total Spent', value: '$0', icon: CreditCard, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
   ]);
 
   useEffect(() => {
@@ -51,7 +52,6 @@ export default function ClientDashboard() {
 
       try {
         const data = await callBackend("dashboard/client");
-
         setProjects(data.projects);
         setRecentProposals(data.recentProposals);
 
@@ -65,10 +65,15 @@ export default function ClientDashboard() {
         const updatedStats = data.stats.map((s: any) => ({
           ...s,
           icon: iconMap[s.name] || ClipboardList,
+          color: s.name === 'Open Projects' ? 'text-indigo-600' : 
+                 s.name === 'Proposals Received' ? 'text-primary-600' :
+                 s.name === 'Active Hires' ? 'text-emerald-600' : 'text-rose-600',
+          bg: s.name === 'Open Projects' ? 'bg-indigo-50 dark:bg-indigo-900/20' :
+              s.name === 'Proposals Received' ? 'bg-primary-50 dark:bg-primary-900/20' :
+              s.name === 'Active Hires' ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-rose-50 dark:bg-rose-900/20'
         }));
 
         setStats(updatedStats);
-
       } catch (err) {
         console.error('Failed to fetch client dashboard data:', err);
       } finally {
@@ -81,52 +86,45 @@ export default function ClientDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={['client']}>
-      <DashboardLayout sidebarItems={sidebarItems} title="Client Dashboard">
-
-        {/* Wrapper */}
-        <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 space-y-6 sm:space-y-8 lg:space-y-10 text-slate-900 dark:text-white">
-
-          {/* Welcome */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div className="space-y-1">
-              <h2 className="text-2xl sm:text-3xl font-display font-black tracking-tight text-slate-900 dark:text-white">
-                Hello, {user?.name || 'Partner'}!
-              </h2>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium">
-                {projects.length > 0
-                  ? `You have ${projects.length} active projects running.`
-                  : "Post a project to start collaborating with top freelancers."}
+      <DashboardLayout sidebarItems={sidebarItems} title="Partner Dashboard">
+        <div className="max-w-7xl mx-auto space-y-10 py-4">
+          
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <h1 className="text-4xl font-display font-black tracking-tight text-slate-950 dark:text-white">
+                Welcome back, <span className="text-primary-600">{user?.name?.split(' ')[0] || 'Partner'}</span>!
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 font-medium max-w-xl">
+                Manage your projects, review incoming proposals, and collaborate with top-tier talent all in one place.
               </p>
             </div>
-
-            <Link href="/create-project" className="w-full sm:w-auto">
-              <Button className="w-full h-12 px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-primary-500/20">
-                <PlusSquare size={18} />
-                Post New Project
-              </Button>
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link href="/create-project" className="flex-1 md:flex-none">
+                <Button className="w-full md:w-auto h-12 px-8 rounded-2xl gap-2 font-black shadow-xl shadow-primary-500/25">
+                  <PlusSquare size={18} />
+                  Post a Project
+                </Button>
+              </Link>
+            </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {stats.map((stat) => (
-              <Card key={stat.name} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-                <CardContent className="p-5 sm:p-6">
-                  <div className="flex items-center gap-4">
-                    <div className={cn("p-2.5 sm:p-3 rounded-xl shrink-0", stat.bg)}>
-                      <stat.icon className={cn("w-5 h-5 sm:w-6 sm:h-6", stat.color)} />
+              <Card key={stat.name} className="group border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex flex-col gap-4">
+                    <div className={cn("p-3 rounded-2xl w-fit", stat.bg)}>
+                      <stat.icon className={cn("w-6 h-6", stat.color)} />
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
                         {stat.name}
                       </p>
-                      {isLoading ? (
-                        <Skeleton className="h-6 w-16 mt-1" />
-                      ) : (
-                        <p className="text-xl sm:text-2xl font-black mt-0.5 text-slate-900 dark:text-white">
-                          {stat.value}
-                        </p>
-                      )}
+                      <h3 className="text-2xl font-black text-slate-950 dark:text-white leading-none">
+                        {isLoading ? <Skeleton className="h-8 w-12" /> : stat.value}
+                      </h3>
                     </div>
                   </div>
                 </CardContent>
@@ -134,54 +132,165 @@ export default function ClientDashboard() {
             ))}
           </div>
 
-          {/* Projects */}
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold mb-4 text-slate-900 dark:text-white">
-              Your Open Projects
-            </h3>
-
-            {isLoading ? (
-              <Skeleton className="h-32 w-full" />
-            ) : projects.slice(0, 3).map((project) => (
-              <div
-                key={project.id}
-                className="p-4 sm:p-5 lg:p-6 border border-slate-200 dark:border-slate-800 rounded-2xl mb-3 bg-white dark:bg-slate-900"
-              >
-                <h4 className="font-bold text-slate-900 dark:text-white">
-                  {project.title}
-                </h4>
-                <p className="text-slate-600 dark:text-slate-300 mt-1">
-                  ${project.budget?.max || project.budget?.amount}
-                </p>
+          {/* Main Content Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* Left Column: Ongoing Projects */}
+            <div className="lg:col-span-8 space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-black text-slate-950 dark:text-white flex items-center gap-2">
+                  <ClipboardList className="text-primary-500" />
+                  Your Active Projects
+                </h2>
+                <Link href="/client/manage-projects">
+                  <Button variant="ghost" size="sm" className="text-xs font-bold text-primary-600 hover:text-primary-700">
+                    See All Projects →
+                  </Button>
+                </Link>
               </div>
-            ))}
-          </div>
 
-          {/* Proposals */}
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold mb-4 text-slate-900 dark:text-white">
-              Recent Proposals
-            </h3>
-
-            {isLoading ? (
-              <Skeleton className="h-32 w-full" />
-            ) : recentProposals.map((proposal) => (
-              <div
-                key={proposal.id}
-                className="p-4 border border-slate-200 dark:border-slate-800 rounded-xl mb-3 bg-white dark:bg-slate-900"
-              >
-                <p className="text-slate-900 dark:text-white font-medium">
-                  {proposal.projectTitle}
-                </p>
-                <p className="text-slate-600 dark:text-slate-300">
-                  ${proposal.bidAmount}
-                </p>
+              <div className="space-y-4">
+                {isLoading ? (
+                  Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-3xl" />)
+                ) : projects.length === 0 ? (
+                  <div className="py-20 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[2.5rem] bg-slate-50/50 dark:bg-slate-950/20">
+                    <div className="h-16 w-16 rounded-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center mx-auto mb-4 text-slate-300">
+                      <ClipboardList size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-950 dark:text-white">No active projects</h3>
+                    <p className="text-slate-500 mt-1 max-w-xs mx-auto">Time to start something big! Post your project to find help.</p>
+                  </div>
+                ) : (
+                  projects.slice(0, 3).map((project) => (
+                    <Card key={project.id} className="group overflow-hidden border-slate-100 dark:border-slate-800 hover:shadow-soft transition-all duration-300">
+                      <CardContent className="p-6 md:p-8 flex items-center justify-between gap-6">
+                        <div className="space-y-3 flex-1 min-w-0">
+                          <div className="flex items-center gap-3">
+                            <Badge className="bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border-none font-bold text-[10px] px-2.5 py-0.5 rounded-full">
+                              Active
+                            </Badge>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Created {new Date(project.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <h3 className="text-xl font-black text-slate-950 dark:text-white truncate">
+                            {project.title}
+                          </h3>
+                          <div className="flex items-center gap-6">
+                             <div className="flex items-center gap-2">
+                               <div className="h-2 w-2 rounded-full bg-primary-500" />
+                               <span className="text-xs font-bold text-slate-600 dark:text-slate-400">${project.budget?.max || project.budget?.amount} Budget</span>
+                             </div>
+                             <div className="flex items-center gap-2">
+                               <Users size={14} className="text-slate-400" />
+                               <span className="text-xs font-bold text-slate-600 dark:text-slate-400">0 Applicants</span>
+                             </div>
+                          </div>
+                        </div>
+                        <div className="shrink-0 flex items-center gap-3">
+                          <Link href={`/client/manage-projects`}>
+                            <Button variant="outline" className="rounded-xl h-10 px-5 font-bold border-slate-200 dark:border-slate-800">
+                              Details
+                            </Button>
+                          </Link>
+                          <Link href={`/client/proposals?projectId=${project.id}`}>
+                            <Button className="rounded-xl h-10 px-5 font-bold">
+                              Proposals
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
-            ))}
+            </div>
+
+            {/* Right Column: Quick Actions & Recent Activity */}
+            <div className="lg:col-span-4 space-y-8">
+              
+              {/* Quick Actions Panel */}
+              <Card className="border-none shadow-premium overflow-hidden relative group">
+                <div className="absolute top-0 right-0 p-8 text-slate-200/50 dark:text-white/5 group-hover:scale-125 transition-transform duration-700">
+                  <LayoutDashboard size={120} />
+                </div>
+                <CardContent className="p-8 space-y-6 relative z-10">
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">Quick Actions</h3>
+                  <div className="grid grid-cols-1 gap-3">
+                    <Link href="/create-project">
+                       <button className="w-full flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-950/40 hover:bg-slate-50 dark:hover:bg-slate-900/60 text-slate-900 dark:text-white transition-all text-left group border border-slate-100 dark:border-slate-800/50 shadow-sm">
+                         <div className="flex items-center gap-3">
+                           <div className="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400 transition-colors">
+                              <PlusSquare size={20} />
+                           </div>
+                           <span className="text-sm font-bold">Post a New Job</span>
+                         </div>
+                         <ArrowUpRight size={16} className="text-slate-300 group-hover:text-primary-500 transition-all" />
+                       </button>
+                    </Link>
+                    <Link href="/freelancers/discover">
+                       <button className="w-full flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-950/40 hover:bg-slate-50 dark:hover:bg-slate-900/60 text-slate-900 dark:text-white transition-all text-left group border border-slate-100 dark:border-slate-800/50 shadow-sm">
+                         <div className="flex items-center gap-3">
+                           <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transition-colors">
+                              <Search size={20} />
+                           </div>
+                           <span className="text-sm font-bold">Find Top Freelancers</span>
+                         </div>
+                         <ArrowUpRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition-all" />
+                       </button>
+                    </Link>
+                    <Link href="/client/payments">
+                       <button className="w-full flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-950/40 hover:bg-slate-50 dark:hover:bg-slate-900/60 text-slate-900 dark:text-white transition-all text-left group border border-slate-100 dark:border-slate-800/50 shadow-sm">
+                         <div className="flex items-center gap-3">
+                           <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transition-colors">
+                              <CreditCard size={20} />
+                           </div>
+                           <span className="text-sm font-bold">Transaction History</span>
+                         </div>
+                         <ArrowUpRight size={16} className="text-slate-300 group-hover:text-emerald-500 transition-all" />
+                       </button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recent Proposals Card */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-black text-slate-950 dark:text-white">Recent Proposals</h3>
+                <div className="space-y-3">
+                  {isLoading ? (
+                    Array(2).fill(0).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)
+                  ) : recentProposals.length === 0 ? (
+                    <p className="text-sm text-slate-500 font-medium italic">No recent proposals received.</p>
+                  ) : (
+                    recentProposals.slice(0, 4).map((proposal) => (
+                      <div key={proposal.id} className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950/40 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors group">
+                        <div className="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 group-hover:scale-110 transition-transform">
+                          <Users size={18} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-black text-slate-950 dark:text-white truncate">
+                            {proposal.projectTitle}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-500">
+                             Bid: ${proposal.bidAmount}
+                          </p>
+                        </div>
+                        <Link href="/client/proposals">
+                          <button className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-primary-50 text-slate-400 hover:text-primary-600 transition-colors">
+                            <ArrowUpRight size={16} />
+                          </button>
+                        </Link>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+            </div>
           </div>
 
         </div>
-
       </DashboardLayout>
     </ProtectedRoute>
   );

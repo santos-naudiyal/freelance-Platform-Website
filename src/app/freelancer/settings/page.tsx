@@ -98,21 +98,17 @@ export default function FreelancerSettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Show local preview immediately
     const localUrl = URL.createObjectURL(file);
     setAvatar(localUrl);
-
     setIsUploading(true);
     setError(null);
 
     try {
       const formData = new FormData();
       formData.append('avatar', file);
-
       const data = await callBackend('users/avatar', 'POST', formData);
-
       setAvatar(data.url);
-      setSuccess('Profile picture uploaded!');
+      setSuccess('Profile picture updated');
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
       setError(err.message || 'Upload failed');
@@ -140,14 +136,12 @@ export default function FreelancerSettingsPage() {
       };
       
       const profileData = await callBackend('freelancers/profile', 'PUT', payload);
-
-      // 2. Update User Base Info (Name)
       if (name !== user?.name) {
         await callBackend('users/profile', 'PUT', { name, avatar });
       }
 
       setFreelancerDetails(profileData.data);
-      setSuccess('All changes saved successfully!');
+      setSuccess('All changes saved successfully');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
@@ -158,216 +152,236 @@ export default function FreelancerSettingsPage() {
 
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>
-      <DashboardLayout sidebarItems={sidebarItems} title="Account Settings">
-        <div className="max-w-4xl space-y-8 pb-20">
-          
-          {/* Main Profile & Identity */}
-          <Card className="border-none shadow-xl shadow-slate-200/40 dark:shadow-none dark:ring-1 dark:ring-slate-800 rounded-[2rem] overflow-hidden">
-            <CardHeader className="pt-10 px-8">
-              <div className="flex items-center gap-5">
-                 <div className="h-14 w-14 rounded-2xl bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
-                    <UserIcon size={24} className="text-white" />
-                 </div>
-                 <div>
-                    <CardTitle className="text-2xl font-black italic tracking-tight leading-none mb-1">Professional Identity</CardTitle>
-                    <CardDescription className="text-sm font-medium">Manage your public presence and professional proofs</CardDescription>
-                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="px-8 pb-10">
-              <form onSubmit={handleSaveProfile} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input 
-                    label="Display Name" 
-                    placeholder="Your Name" 
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    icon={<UserIcon size={18} />}
-                    className="rounded-2xl"
-                    required
-                  />
-                  <Input 
-                    label="Professional Title" 
-                    placeholder="e.g. Senior Full Stack Developer" 
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    icon={<Sparkles size={18} />}
-                    className="rounded-2xl"
-                    required
-                  />
-                </div>
+      <DashboardLayout sidebarItems={sidebarItems} title="Settings">
+        <div className="max-w-6xl mx-auto space-y-10 pb-20 px-4 sm:px-6">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <h1 className="text-4xl font-black tracking-tight text-slate-950 dark:text-white mb-2 uppercase italic">
+                Expert <span className="text-primary-600">Profile</span>
+              </h1>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 tracking-widest uppercase">
+                Customize your professional presence on FreelanceHub.
+              </p>
+            </div>
+            <Button 
+              onClick={handleSaveProfile} 
+              isLoading={isLoading} 
+              className="h-14 px-10 rounded-2xl font-black shadow-xl shadow-primary-500/20 bg-gradient-to-r from-primary-600 to-indigo-600 text-white border-none transform hover:scale-[1.02] active:scale-95 transition-all"
+            >
+              Save All Changes
+            </Button>
+          </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                  <Input 
-                    label="Hourly Rate ($)" 
-                    type="number"
-                    min="5"
-                    value={hourlyRate}
-                    onChange={(e) => setHourlyRate(parseInt(e.target.value))}
-                    icon={<DollarSign size={18} />}
-                    className="rounded-2xl"
-                    required
-                  />
-                  <Input 
-                    label="GitHub Profile URL" 
-                    placeholder="github.com/user" 
-                    value={githubUrl}
-                    onChange={(e) => setGithubUrl(e.target.value)}
-                    icon={<Github size={18} />}
-                    className="rounded-2xl"
-                    required
-                  />
-                </div>
-
-                <div className="flex flex-col md:flex-row items-center gap-8 py-4 bg-slate-50/50 dark:bg-slate-900/50 rounded-3xl p-6 border border-slate-100 dark:border-slate-800">
-                  <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                    <div className="h-24 w-24 rounded-[2rem] overflow-hidden bg-slate-200 dark:bg-slate-800 ring-4 ring-white dark:ring-slate-900 shadow-xl transition-transform group-hover:scale-105 duration-500">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column: Personal & Pricing */}
+            <div className="lg:col-span-1 space-y-8">
+              <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-none shadow-2xl overflow-hidden rounded-[2.5rem] ring-1 ring-slate-200/50 dark:ring-slate-800/50">
+                <CardContent className="pt-12 px-8 pb-10 flex flex-col items-center">
+                  <div className="relative group mb-8">
+                    <div className="h-32 w-32 rounded-[2.5rem] overflow-hidden bg-slate-100 dark:bg-slate-800 ring-4 ring-white dark:ring-slate-900 shadow-2xl transition-all duration-500 group-hover:scale-105">
                       {avatar ? (
-                        <img src={avatar} alt="Avatar Preview" className="h-full w-full object-cover" />
+                        <img src={avatar} alt="Avatar" className="h-full w-full object-cover" />
                       ) : (
                         <div className="h-full w-full flex items-center justify-center text-slate-400">
-                          <UserIcon size={32} />
+                          <UserIcon size={48} />
                         </div>
                       )}
-                      
                       {isUploading && (
                         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                          <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="h-6 w-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         </div>
                       )}
-
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <ImageIcon size={20} className="text-white" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-white hover:bg-white/20 rounded-xl"
+                        >
+                          <ImageIcon size={20} />
+                        </Button>
                       </div>
                     </div>
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      onChange={handleAvatarChange} 
-                      accept="image/*" 
-                      className="hidden" 
+                    <input ref={fileInputRef} type="file" onChange={handleAvatarChange} accept="image/*" className="hidden" />
+                  </div>
+                  
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl font-black tracking-tight text-slate-950 dark:text-white uppercase">{name || 'Your Full Name'}</h3>
+                    <p className="text-[10px] font-black text-slate-500 tracking-[0.2em] uppercase">{user?.email}</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-950/30 text-primary-600 rounded-full border border-primary-200/50">
+                      <Sparkles size={14} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">{title || 'Specialist'}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-none shadow-2xl rounded-[2.5rem] overflow-hidden ring-1 ring-slate-200/50 dark:ring-slate-800/50">
+                <CardHeader className="pt-8 px-8 border-b border-slate-100 dark:border-slate-800/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-200/20">
+                        <DollarSign size={18} />
+                      </div>
+                      <CardTitle className="text-sm font-black tracking-widest uppercase">Pricing</CardTitle>
+                    </div>
+                    <span className="text-xl font-black text-slate-950 dark:text-white">${hourlyRate}<span className="text-xs text-slate-400 font-bold">/hr</span></span>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Adjust Hourly Rate</label>
+                    <div className="flex items-center gap-4">
+                      <input 
+                        type="range" 
+                        min="5" 
+                        max="200" 
+                        value={hourlyRate}
+                        onChange={(e) => setHourlyRate(parseInt(e.target.value))}
+                        className="flex-1 accent-primary-600 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50">
+                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Earning Potential</p>
+                    <p className="text-xs font-medium text-slate-500">Your rate is within the top 20% for your specialization.</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-none shadow-2xl rounded-[2.5rem] overflow-hidden ring-1 ring-slate-200/50 dark:ring-slate-800/50">
+                 <CardHeader className="pt-8 px-8 border-b border-slate-100 dark:border-slate-800/50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 border border-indigo-200/20">
+                      <Lock size={18} />
+                    </div>
+                    <CardTitle className="text-sm font-black tracking-widest uppercase">Security</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <Button variant="outline" className="w-full rounded-xl h-12 font-black text-[10px] uppercase tracking-widest border-slate-200/60 dark:border-slate-700">
+                    Reset Account Password
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column: Professional Content */}
+            <div className="lg:col-span-2 space-y-8">
+              <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-none shadow-2xl rounded-[2.5rem] overflow-hidden ring-1 ring-slate-200/50 dark:ring-slate-800/50">
+                <CardHeader className="pt-10 px-8 pb-0">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-primary-500/10 text-primary-600 shadow-sm border border-primary-200/20">
+                      <Briefcase size={24} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-black tracking-tight uppercase italic">Professional Identity</CardTitle>
+                      <CardDescription className="text-xs font-bold uppercase tracking-widest text-slate-400">Manage your skills and public biography</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 pb-10 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Input 
+                      label="Public Display Name" 
+                      placeholder="e.g. Sarah Jenkins" 
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      icon={<UserIcon size={18} />}
+                      className="h-14 rounded-2xl border-slate-200/60 dark:border-slate-800/60 focus:ring-4 focus:ring-primary-500/5 transition-all text-sm font-bold"
+                    />
+                    <Input 
+                      label="Professional Headline" 
+                      placeholder="e.g. Senior Full Stack Engineer" 
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      icon={<Sparkles size={18} />}
+                      className="h-14 rounded-2xl border-slate-200/60 dark:border-slate-800/60 focus:ring-4 focus:ring-primary-500/5 transition-all text-sm font-bold"
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Specialist Skills (Type & Enter)</label>
+                    <div className="relative group">
+                       <Input
+                        placeholder="Add skill..."
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyDown={addSkill}
+                        className="h-14 rounded-2xl border-slate-200/60 dark:border-slate-800/60 pl-12 font-bold text-sm"
+                      />
+                      <PenTool size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-600 transition-colors" />
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                       {skills.map((skill) => (
+                        <Badge key={skill} className="gap-2 px-4 py-2.5 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 border border-slate-100 dark:border-slate-800 shadow-sm hover:border-primary-500/50 transition-all duration-300">
+                          <span className="font-black text-[10px] uppercase tracking-widest">{skill}</span>
+                          <button type="button" onClick={() => removeSkill(skill)} className="text-slate-400 hover:text-red-500 transition-colors">
+                            <X size={14} strokeWidth={3} />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">About Your Expertise</label>
+                    <textarea
+                      className="flex min-h-[160px] w-full rounded-[2rem] border border-slate-200/60 bg-white/50 backdrop-blur-sm px-6 py-4 text-sm text-slate-950 shadow-sm transition-all duration-500 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 dark:border-slate-800/60 dark:bg-slate-900/50 dark:text-slate-100 font-bold leading-relaxed"
+                      placeholder="Describe your expertise and impact..."
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      required
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-none shadow-2xl rounded-[2.5rem] overflow-hidden ring-1 ring-slate-200/50 dark:ring-slate-800/50">
+                <CardHeader className="pt-10 px-8 pb-0">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-600 shadow-sm border border-indigo-200/20">
+                      <Globe size={24} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-black tracking-tight uppercase italic">Professional Proofs</CardTitle>
+                      <CardDescription className="text-xs font-bold uppercase tracking-widest text-slate-400">Links to your work and contributions</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 pb-10 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Input 
+                      label="GitHub Repository Link" 
+                      placeholder="github.com/username" 
+                      value={githubUrl}
+                      onChange={(e) => setGithubUrl(e.target.value)}
+                      icon={<Github size={18} />}
+                      className="h-14 rounded-2xl border-slate-200/60 dark:border-slate-800/60 focus:ring-4 focus:ring-primary-500/5 transition-all text-sm font-bold"
+                    />
+                    <Input 
+                      label="Portfolio / Site URL" 
+                      placeholder="https://mywork.com" 
+                      value={portfolioLink}
+                      onChange={(e) => setPortfolioLink(e.target.value)}
+                      icon={<Layout size={18} />}
+                      className="h-14 rounded-2xl border-slate-200/60 dark:border-slate-800/60 focus:ring-4 focus:ring-primary-500/5 transition-all text-sm font-bold"
                     />
                   </div>
                   
-                  <div className="space-y-2 text-center md:text-left flex-1">
-                    <h4 className="font-black text-slate-900 dark:text-white uppercase tracking-tight">Your Profile Photograph</h4>
-                    <p className="text-xs text-slate-500 font-medium max-w-xs">Upload a professional photo to build trust with clients. Supports JPG, PNG (Max 5MB).</p>
-                    <div className="flex flex-wrap gap-2 pt-1 justify-center md:justify-start">
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => fileInputRef.current?.click()}
-                        className="h-9 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700"
-                      >
-                        Choose New File
-                      </Button>
-                      {avatar && (
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => setAvatar('')}
-                          className="h-9 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-600"
-                        >
-                          Remove
-                        </Button>
-                      )}
+                  <div className="pt-6 border-t border-slate-100 dark:border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global expert ranking: <span className="text-primary-600">Level 4 Elite</span></p>
+                    
+                    <div className="flex gap-4">
+                      {error && <p className="text-xs font-bold text-rose-500 animate-pulse">{error}</p>}
+                      {success && <p className="text-xs font-bold text-emerald-500">{success}</p>}
                     </div>
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 pt-2">
-                  <Input 
-                    label="Portfolio / Website URL" 
-                    placeholder="https://mywork.com" 
-                    value={portfolioLink}
-                    onChange={(e) => setPortfolioLink(e.target.value)}
-                    icon={<Globe size={18} />}
-                    className="rounded-2xl"
-                  />
-                </div>
-
-                <div className="space-y-4 pt-2">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Specialist Skills (Press Enter)</label>
-                   <div className="relative group">
-                    <Input
-                      placeholder="e.g. React, Node.js, Next.js"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyDown={addSkill}
-                      className="h-14 rounded-2xl border-slate-200/60 dark:border-slate-800/60 pl-12 font-medium"
-                    />
-                    <PenTool size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
-                  </div>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {skills.map((skill) => (
-                      <Badge key={skill} className="gap-2 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 border border-slate-200/60 dark:border-slate-800/60 shadow-sm hover:border-primary-500/50 transition-all duration-300">
-                        <span className="font-bold text-xs">{skill}</span>
-                        <button type="button" onClick={() => removeSkill(skill)} className="text-slate-400 hover:text-red-500 transition-colors">
-                          <X size={14} strokeWidth={3} />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Professional Biography</label>
-                  <textarea
-                    className="flex min-h-[160px] w-full rounded-[1.5rem] border border-slate-200/60 bg-white px-6 py-4 text-sm text-slate-950 shadow-sm transition-all duration-500 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 dark:border-slate-800/60 dark:bg-slate-900 dark:text-slate-100 font-medium leading-relaxed"
-                    placeholder="Describe your expertise..."
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <div className="p-4 rounded-xl bg-red-50 text-red-600 text-xs font-bold border border-red-100">
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div className="p-4 rounded-xl bg-green-50 text-green-600 text-xs font-bold border border-green-100 animate-in fade-in slide-in-from-top-1">
-                    {success}
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center pt-8 border-t border-slate-100 dark:border-slate-800">
-                  <p className="text-xs text-slate-400 font-bold max-w-[300px]">Update your professional details to attract elite clients.</p>
-                  <Button type="submit" isLoading={isLoading} className="h-14 px-12 rounded-[1.25rem] font-black shadow-xl shadow-primary-500/20">
-                    Save All Changes
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Security Section (Placeholder) */}
-          <Card className="border-none shadow-xl shadow-slate-200/40 dark:shadow-none dark:ring-1 dark:ring-slate-800 rounded-[2rem] overflow-hidden opacity-80">
-            <CardHeader className="pt-10 px-8">
-              <div className="flex items-center gap-5">
-                 <div className="h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20">
-                    <Lock size={24} className="text-white" />
-                 </div>
-                 <div>
-                    <CardTitle className="text-2xl font-black italic tracking-tight leading-none mb-1">Security & Access</CardTitle>
-                    <CardDescription className="text-sm font-medium">Manage your password and account security</CardDescription>
-                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="px-8 pb-10">
-               <div className="flex items-center justify-between p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                  <div>
-                    <p className="text-sm font-black text-slate-900 dark:text-white">Account Password</p>
-                    <p className="text-xs text-slate-500 mt-1">Last changed: Never</p>
-                  </div>
-                  <Button variant="outline" className="rounded-xl px-6 h-11 font-bold border-slate-200">Reset Password</Button>
-               </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </DashboardLayout>
     </ProtectedRoute>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Phone, Video, Info, MoreHorizontal, User, Paperclip, Smile } from 'lucide-react';
+import { Send, Phone, Video, Info, MoreHorizontal, User, Paperclip, Smile, MessageSquare } from 'lucide-react';
 import { Button, cn } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { MessageBubble } from './MessageBubble';
@@ -62,9 +62,9 @@ export function ChatWindow({ chatId, currentUserId, otherUser }: ChatWindowProps
 
   if (!chatId) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 text-slate-500">
-         <div className="h-24 w-24 bg-white dark:bg-slate-800 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-soft">
-            <MessageSquare size={40} className="text-slate-300" />
+      <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500">
+         <div className="h-24 w-24 bg-white dark:bg-slate-900 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
+            <MessageSquare size={40} className="text-slate-300 dark:text-slate-700" />
          </div>
          <h3 className="text-2xl font-display font-black text-slate-950 dark:text-white mb-2">Select a Conversation</h3>
          <p className="text-sm font-medium text-slate-500">Choose a chat from the sidebar to start messaging.</p>
@@ -125,20 +125,20 @@ export function ChatWindow({ chatId, currentUserId, otherUser }: ChatWindowProps
       </div>
 
       {/* Input area */}
-      <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-xl border-t border-slate-200/50 dark:border-slate-800/50 relative z-10">
-        <form onSubmit={handleSend} className="flex items-end gap-3 max-w-5xl mx-auto">
-          <div className="flex items-center gap-1 mb-1">
-             <Button variant="ghost" size="sm" className="h-11 w-11 p-0 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+      <div className="p-8 bg-white dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-100 dark:border-white/5 relative z-10">
+        <form onSubmit={handleSend} className="flex items-end gap-4 max-w-6xl mx-auto">
+          <div className="flex items-center gap-2 mb-1.5">
+             <Button variant="ghost" size="md" className="h-12 w-12 p-0 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all">
                 <Paperclip size={20} className="text-slate-400" />
              </Button>
-             <Button variant="ghost" size="sm" className="h-11 w-11 p-0 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+             <Button variant="ghost" size="md" className="h-12 w-12 p-0 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all">
                 <Smile size={20} className="text-slate-400" />
              </Button>
           </div>
           <div className="flex-1 relative group">
             <textarea
                rows={1}
-               placeholder="Write a message..."
+               placeholder="Write your message..."
                value={newMessage}
                onChange={(e) => setNewMessage(e.target.value)}
                onKeyDown={(e) => {
@@ -147,15 +147,15 @@ export function ChatWindow({ chatId, currentUserId, otherUser }: ChatWindowProps
                    handleSend(e as any);
                  }
                }}
-               className="w-full min-h-[56px] py-4 px-6 rounded-[2rem] bg-slate-100 dark:bg-slate-800 border-transparent focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-primary-500/10 transition-all text-sm font-medium resize-none overflow-hidden"
+               className="w-full min-h-[56px] py-4 px-8 rounded-[2.5rem] bg-slate-100/50 dark:bg-white/5 border-transparent focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all text-sm font-bold resize-none overflow-hidden placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-inner"
             />
           </div>
           <Button 
             type="submit" 
             disabled={!newMessage.trim()}
             className={cn(
-               "h-14 w-14 rounded-[1.75rem] flex-shrink-0 shadow-xl transition-all active:scale-95",
-               newMessage.trim() ? "bg-primary-600 shadow-primary-500/20" : "bg-slate-200 dark:bg-slate-800 cursor-not-allowed text-slate-400 shadow-none border-0"
+               "h-14 w-14 rounded-2xl flex-shrink-0 shadow-xl transition-all active:scale-95",
+               newMessage.trim() ? "bg-primary-600 shadow-primary-500/30" : "bg-slate-100 dark:bg-white/5 cursor-not-allowed text-slate-300 dark:text-slate-700 shadow-none border-0"
             )}
           >
             <Send size={22} className={cn(newMessage.trim() ? "translate-x-0.5 -translate-y-0.5" : "")} />
@@ -165,5 +165,3 @@ export function ChatWindow({ chatId, currentUserId, otherUser }: ChatWindowProps
     </div>
   );
 }
-
-import { MessageSquare } from 'lucide-react';

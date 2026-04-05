@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { Button } from '../ui/Button';
 import { motion } from 'framer-motion';
 import { ArrowRight, Zap } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function CTASection() {
+  const { user } = useAuthStore();
   return (
     <section className="py-24 relative overflow-hidden bg-white dark:bg-slate-950">
       <div className="container px-6 mx-auto">
@@ -32,13 +34,13 @@ export function CTASection() {
           
           <p className="text-slate-400 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
             Describe your outcome and watch our AI-powered OS assemble your dream team and project workspace in minutes. 
-            Join the elite circle of builders on Freelace.
+            Join the elite circle of builders on FreelanceHub.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center pt-8">
-            <Link href="/auth/register">
-              <Button size="lg" className="h-14 px-10 text-lg font-bold bg-white text-slate-950 hover:bg-white/90 rounded-full group transition-all duration-300">
-                Create a Project <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+            <Link href={user ? '/create-project' : '/auth/register'}>
+              <Button size="lg" className="h-14 px-10 text-lg font-black bg-gradient-to-r from-primary-600 to-indigo-600 text-white hover:scale-105 active:scale-95 rounded-full group transition-all duration-300 shadow-xl shadow-primary-500/20">
+                {user ? 'Create a Project' : 'Join as Client'} <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <Link href="/freelancers/discover">

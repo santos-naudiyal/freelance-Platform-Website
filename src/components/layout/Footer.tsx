@@ -12,7 +12,7 @@ export function Footer() {
                 <LayoutDashboard size={22} className="text-white" />
               </div>
               <span className="text-2xl font-display font-black tracking-tight">
-                Freelace<span className="text-primary-600">.</span>
+                FreelanceHub<span className="text-primary-600">.</span>
               </span>
             </div>
             <p className="text-base lg:text-lg text-slate-400 max-w-sm leading-relaxed font-medium">
@@ -55,7 +55,7 @@ export function Footer() {
         
         <div className="mt-12 lg:mt-20 pt-8 lg:pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <p className="text-xs lg:text-sm text-slate-500 font-medium">
-            &copy; {new Date().getFullYear()} Freelace. The Work OS for the elite global workforce.
+            &copy; {new Date().getFullYear()} FreelanceHub. The Work OS for the elite global workforce.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-6 lg:gap-8 text-xs lg:text-sm text-slate-500 font-medium">
              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>

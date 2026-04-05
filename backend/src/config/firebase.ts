@@ -11,7 +11,7 @@ if (!admin.apps.length) {
     
     admin.initializeApp({
       credential: admin.credential.cert(require(serviceAccountPath)),
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'freelace-website.firebasestorage.app'
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'freelancehub-platform.firebasestorage.app'
     });
     console.log('Firebase Admin Initialized successfully');
   } catch (error) {

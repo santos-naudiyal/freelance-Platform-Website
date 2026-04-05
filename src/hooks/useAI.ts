@@ -47,8 +47,8 @@ export function useAI() {
     return executeAction(() => callBackend('ai/insights', 'POST', { projectId }));
   };
 
-  const generateQuotation = async (outcome: string) => {
-    return executeAction(() => callBackend('ai/generate-quotation', 'POST', { outcome }));
+  const generateQuotation = async (outcome: string, targetBudget?: { amount: string; currency: string }) => {
+    return executeAction(() => callBackend('ai/generate-quotation', 'POST', { outcome, targetBudget }));
   };
 
   return {

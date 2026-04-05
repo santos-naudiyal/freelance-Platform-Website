@@ -112,6 +112,14 @@ export const updateProposalStatus = async (req: AuthRequest, res: Response): Pro
     }
 
     await proposalRef.update({ status });
+
+    // ✨ If proposal is accepted, transition project status to 'in_progress'
+    if (status === 'accepted') {
+        const projectRef = db.collection('Projects').doc(projectId);
+        await projectRef.update({ status: 'in_progress' });
+        console.log(`🚀 Project ${projectId} transitioned to 'in_progress' as proposal ${proposalId} was accepted.`);
+    }
+
     res.status(200).json({ message: `Proposal ${status}`, status });
   } catch (error: any) {
     console.error('Update Proposal Status Error:', error);
@@ -128,8 +136,31 @@ export const getUserProposals = async (req: AuthRequest, res: Response): Promise
     }
 
     const snapshot = await db.collection('Proposals').where('freelancerId', '==', uid).get();
-    const proposals = snapshot.docs.map((doc: any) => doc.data());
-    res.status(200).json(proposals);
+    const proposals = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+
+    const projectIds = Array.from(new Set(proposals.map(p => p.projectId)));
+    if (projectIds.length === 0) {
+      res.status(200).json([]);
+      return;
+    }
+
+    // Fetch titles for these projects in chunks of 10 (Firebase limitation for 'in' query)
+    let projects: any[] = [];
+    for (let i = 0; i < projectIds.length; i += 10) {
+      const chunk = projectIds.slice(i, i + 10);
+      const projectSnapshot = await db.collection('Projects').where('id', 'in', chunk).get();
+      projects = [...projects, ...projectSnapshot.docs.map(doc => doc.data())];
+    }
+
+    const richProposals = proposals.map(p => {
+      const project = projects.find(proj => proj.id === p.projectId);
+      return {
+        ...p,
+        projectTitle: project?.title || 'Unknown Project'
+      };
+    });
+
+    res.status(200).json(richProposals);
   } catch (error: any) {
     console.error('Get User Proposals Error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -184,6 +215,46 @@ export const getClientProposals = async (req: AuthRequest, res: Response): Promi
     res.status(200).json(allProposals);
   } catch (error: any) {
     console.error('Get Client Proposals Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getProposalById = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const uid = req.user?.uid;
+    const { id } = req.params as { id: string };
+
+    if (!uid) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const proposalDoc = await db.collection('Proposals').doc(id).get();
+    if (!proposalDoc.exists) {
+      res.status(404).json({ error: 'Proposal not found' });
+      return;
+    }
+
+    const proposal = proposalDoc.data()!;
+    proposal.id = proposalDoc.id;
+
+    // Fetch related project
+    const projectDoc = await db.collection('Projects').doc(proposal.projectId).get();
+    let projectData = null;
+    if (projectDoc.exists) {
+      projectData = projectDoc.data();
+      proposal.projectTitle = projectData?.title;
+    }
+
+    // Authorization check: User must be either the freelancer or the client who owns the project
+    if (proposal.freelancerId !== uid && projectData?.clientId !== uid) {
+      res.status(403).json({ error: 'You are not authorized to view this proposal' });
+      return;
+    }
+
+    res.status(200).json(proposal);
+  } catch (error: any) {
+    console.error('Get Proposal By ID Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

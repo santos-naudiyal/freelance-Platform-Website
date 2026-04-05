@@ -86,7 +86,7 @@ export function Chat({ workspaceId }: ChatProps) {
         );
 
         if (aiResponse && aiResponse.reply) {
-           await sendMessage(aiResponse.reply, 'ai_copilot_service', 'Freelace AI Co-Pilot', 'ai');
+           await sendMessage(aiResponse.reply, 'ai_copilot_service', 'FreelanceHub AI Co-Pilot', 'ai');
         }
       }
     } catch (err) {
@@ -164,7 +164,7 @@ export function Chat({ workspaceId }: ChatProps) {
                     <div className="p-1.5 rounded-lg bg-primary-600 text-white">
                       <Sparkles size={14} />
                     </div>
-                    <span className="text-xs font-black uppercase tracking-widest text-primary-600">Freelace AI Co-Pilot</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-primary-600">FreelanceHub AI Co-Pilot</span>
                   </div>
                   <div className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-relaxed italic whitespace-pre-wrap">{msg.text}</div>
                 </div>
@@ -195,7 +195,7 @@ export function Chat({ workspaceId }: ChatProps) {
                     <div className="p-1.5 rounded-lg bg-primary-600 text-white">
                       <Sparkles size={14} className="animate-spin" />
                     </div>
-                    <span className="text-xs font-black uppercase tracking-widest text-primary-600">Freelace AI Co-Pilot is thinking...</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-primary-600">FreelanceHub AI Co-Pilot is thinking...</span>
                   </div>
               </div>
             </div>

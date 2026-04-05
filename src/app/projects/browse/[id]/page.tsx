@@ -160,6 +160,9 @@ export default function ProjectDetailsPage() {
                   {/* Header Content */}
                   <div className="space-y-4">
                     <div className="flex flex-wrap gap-2">
+                      <Badge variant={project?.status === 'open' ? 'success' : 'secondary'} className="uppercase tracking-widest text-[10px] font-black px-3 py-1">
+                        {project?.status === 'open' ? 'Accepting Bids' : 'Bidding Closed'}
+                      </Badge>
                       <Badge variant="info" className="uppercase tracking-widest text-[10px] font-black px-3 py-1">Featured</Badge>
                       <Badge variant="success" className="uppercase tracking-widest text-[10px] font-black px-3 py-1">Payment Verified</Badge>
                     </div>
@@ -289,6 +292,27 @@ export default function ProjectDetailsPage() {
                        </Button>
                      </Link>
                    </motion.div>
+                ) : project?.status !== 'open' ? (
+                   <motion.div 
+                     key="closed" 
+                     initial={{ opacity: 0, y: 20 }} 
+                     animate={{ opacity: 1, y: 0 }}
+                     className="p-10 rounded-[40px] bg-slate-900 text-white shadow-2xl border border-slate-800 text-center space-y-6 relative overflow-hidden"
+                   >
+                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-indigo-500" />
+                     <div className="h-16 w-16 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto">
+                        <ShieldCheck size={32} className="text-primary-500" />
+                     </div>
+                     <div className="space-y-2">
+                        <h4 className="text-2xl font-display font-black uppercase tracking-tight">Bidding Closed</h4>
+                        <p className="text-slate-400 text-sm font-medium">The client has already selected a freelancer and started development for this project.</p>
+                     </div>
+                     <Link href="/projects/browse" className="block pt-2">
+                       <Button variant="outline" className="w-full rounded-2xl border-slate-700 hover:bg-slate-800 text-white font-bold transition-all">
+                         Browse Other Projects
+                       </Button>
+                     </Link>
+                   </motion.div>
                 ) : (
                   <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                      <Card className="border-none shadow-2xl shadow-slate-200/60 dark:shadow-none bg-white dark:bg-slate-900/60 backdrop-blur-3xl rounded-[40px] overflow-hidden">
@@ -306,8 +330,8 @@ export default function ProjectDetailsPage() {
                          ) : (
                            <form onSubmit={handleSubmitProposal} className="space-y-6">
                              <AIProposalGenerator 
-                               projectId={id as string} 
-                               onGenerated={handleAIProposal} 
+                                projectId={id as string} 
+                                onGenerated={handleAIProposal} 
                              />
                              <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50 space-y-4">
                                <div className="flex justify-between items-center text-sm font-bold text-slate-500">
@@ -326,7 +350,7 @@ export default function ProjectDetailsPage() {
                                  className="bg-white dark:bg-slate-900 dark:border-slate-700"
                                />
                              </div>
-
+ 
                              <Input
                                type="text"
                                label="Estimated Duration"
@@ -336,7 +360,7 @@ export default function ProjectDetailsPage() {
                                required
                                icon={<Clock size={16} />}
                              />
-
+ 
                              <Textarea
                                label="Cover Letter"
                                placeholder="Sell yourself! Highlight similar projects you've done..."
@@ -344,13 +368,13 @@ export default function ProjectDetailsPage() {
                                onChange={(e) => setCoverLetter(e.target.value)}
                                required
                              />
-
+ 
                              {submitError && (
                                 <div className="p-4 rounded-2xl bg-red-50 text-red-600 text-xs font-bold border border-red-100 flex items-center gap-2">
                                   <Zap size={14} className="fill-red-500" /> {submitError}
                                 </div>
                              )}
-
+ 
                              <Button 
                                type="submit" 
                                className="w-full h-14 rounded-2xl font-black text-lg group"

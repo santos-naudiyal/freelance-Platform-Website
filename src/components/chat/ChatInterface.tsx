@@ -13,9 +13,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSocket } from '@/components/providers/SocketProvider';
 import { callBackend } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import { io, Socket } from 'socket.io-client';
 
 interface Message {
   id?: string;
@@ -35,34 +35,37 @@ interface ChatInterfaceProps {
 
 export function ChatInterface({ projectId, recipientName, className }: ChatInterfaceProps) {
   const { user } = useAuthStore();
+  const { socket, clearUnread } = useSocket();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<Socket | null>(null);
 
   // Initialize Socket.io
   useEffect(() => {
-    if (!projectId) return;
-
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000');
-    socketRef.current = socket;
+    if (!projectId || !socket) return;
 
     socket.emit('join-project-chat', projectId);
+    clearUnread(projectId);
 
-    socket.on('new-message', (message: Message) => {
+    const handleNewMessage = (message: Message) => {
+      if (message.projectId !== projectId) return;
+      
       setMessages(prev => {
         // Prevent duplicates
         if (prev.find(m => m.id === message.id)) return prev;
         return [...prev, message];
       });
-    });
+    };
+
+    socket.on('new-message', handleNewMessage);
 
     return () => {
-      socket.disconnect();
+      socket.off('new-message', handleNewMessage);
+      // socket.emit('leave-project-chat', projectId); // optional
     };
-  }, [projectId]);
+  }, [projectId, socket, clearUnread]);
 
   // Fetch Messages
   useEffect(() => {

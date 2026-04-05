@@ -70,22 +70,22 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
         href={item.href}
         onClick={() => setIsSidebarOpen(false)}
         className={cn(
-          "group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200",
+          "group flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm font-black transition-all duration-300 uppercase tracking-widest",
           isActive
-            ? "bg-primary-600 text-white shadow-lg shadow-primary-500/25"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/60"
+            ? "bg-primary-600 text-white shadow-xl shadow-primary-500/25 border-b-2 border-primary-700 -translate-y-0.5 active:translate-y-0"
+            : "text-slate-500 hover:text-slate-950 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/40"
         )}
       >
         <item.icon
           size={18}
           className={cn(
-            "shrink-0 transition-colors",
-            isActive ? "text-white" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"
+            "shrink-0 transition-all duration-300",
+            isActive ? "text-white scale-110" : "text-slate-400 group-hover:text-primary-500 group-hover:scale-110"
           )}
         />
         <span className="truncate">{item.name}</span>
         {isActive && (
-          <ChevronRight size={14} className="ml-auto text-white/70" />
+          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-white shadow-glow animate-pulse" />
         )}
       </Link>
     );
@@ -108,53 +108,56 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
 
       {/* ─── Sidebar ─── */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out",
-        "lg:translate-x-0",
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        "fixed inset-y-0 left-0 z-[100] w-72 flex flex-col bg-white dark:bg-slate-950 border-r border-slate-100 dark:border-white/5 transition-all duration-500 ease-in-out shadow-2xl lg:shadow-none",
+        "lg:translate-x-0 lg:opacity-100",
+        isSidebarOpen ? "translate-x-0 opacity-100" : "-translate-x-full lg:translate-x-0"
       )}>
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between px-5 border-b border-slate-200 dark:border-slate-800 shrink-0">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-500 to-violet-600 flex items-center justify-center shadow-md shadow-primary-500/30">
-              <Zap size={16} className="text-white" />
+        <div className="flex h-24 items-center justify-between px-8 shrink-0">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/30">
+              <Zap size={20} className="text-white" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white font-display">
-              FreelanceHub
+            <span className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">
+              FreelanceHub<span className="text-primary-600">.</span>
             </span>
           </Link>
           <button
-            className="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="lg:hidden p-2 rounded-2xl text-slate-400 hover:text-slate-950 dark:hover:text-white bg-slate-100 dark:bg-slate-800 transition-all group"
             onClick={() => setIsSidebarOpen(false)}
           >
-            <X size={20} />
+            <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
           </button>
         </div>
 
         {/* User Info */}
-        <div className="px-4 py-4 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
-            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-400 to-violet-500 flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-primary-200 dark:ring-primary-900">
+        <div className="px-6 py-4">
+          <div className="flex items-center gap-4 p-4 rounded-[2rem] bg-slate-50/50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-primary-400 to-indigo-500 flex items-center justify-center overflow-hidden shrink-0 ring-4 ring-white dark:ring-slate-900 shadow-lg shadow-primary-500/10">
               {user?.avatar ? (
                 <img src={user.avatar} alt={user.name || 'User'} className="h-full w-full object-cover" />
               ) : (
-                <UserIcon size={17} className="text-white" />
+                <UserIcon size={18} className="text-white" />
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{user?.name || 'User'}</p>
-              <p className="text-xs text-slate-500 capitalize truncate">{user?.role || 'freelancer'}</p>
+              <p className="text-sm font-black text-slate-950 dark:text-white truncate uppercase tracking-tight">{user?.name || 'User'}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest leading-none">{user?.role || 'freelancer'}</p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <p className="px-4 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Main Menu</p>
+        <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto scrollbar-hide">
+          <p className="px-5 mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600">Main Menu</p>
           {activeSidebarItems.slice(0, -1).map((item) => (
             <SidebarLink key={item.name} item={item} />
           ))}
-          <div className="pt-4">
-            <p className="px-4 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Account</p>
+          <div className="pt-10">
+            <p className="px-5 mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600">Configuration</p>
             {activeSidebarItems.slice(-1).map((item) => (
               <SidebarLink key={item.name} item={item} />
             ))}
@@ -162,59 +165,55 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
         </nav>
 
         {/* Upgrade Banner + Logout */}
-        <div className="px-3 pb-4 space-y-2 shrink-0">
-          <div className="p-4 rounded-xl bg-gradient-to-br from-primary-600 to-violet-700 text-white">
-            <p className="text-xs font-bold uppercase tracking-wider text-primary-200 mb-1">Pro Plan</p>
-            <p className="text-sm font-medium text-white/90 mb-3">Unlock premium features & priority matching.</p>
-            <button className="w-full py-2 bg-white/15 hover:bg-white/25 border border-white/20 rounded-lg text-xs font-bold transition-colors">
-              Upgrade Now →
-            </button>
-          </div>
+        <div className="px-4 pb-8 space-y-4 shrink-0">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 dark:hover:text-rose-400 transition-all"
+            className="flex items-center gap-4 w-full px-6 py-4 rounded-2xl text-sm font-black uppercase tracking-widest text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all border border-transparent hover:border-rose-100 dark:hover:border-rose-900/50"
           >
-            <LogOut size={17} className="shrink-0" />
+            <LogOut size={18} className="shrink-0" />
             Sign Out
           </button>
         </div>
       </aside>
 
-      {/* ─── Main Content ─── */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
+    <div className="flex-1 lg:pl-72 flex flex-col min-h-screen max-w-full overflow-hidden">
         {/* Top Header */}
-        <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-40 flex h-16 sm:h-20 items-center justify-between bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-100 dark:border-white/5 px-6 sm:px-10">
           {/* Mobile menu button */}
           <button
-            className="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="lg:hidden p-2.5 rounded-2xl text-slate-400 hover:text-slate-950 dark:hover:text-white bg-slate-100 dark:bg-slate-900 transition-all"
             onClick={() => setIsSidebarOpen(true)}
           >
             <Menu size={20} />
           </button>
 
           {/* Page Title */}
-          <div className="flex-1 min-w-0">
-              <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-display truncate">
+          <div className="flex-1 min-w-0 pr-4">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white tracking-tight truncate">
                 {title}
               </h1>
           </div>
 
           {/* Right actions */}
-          <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-              <Bell size={19} />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary-500 ring-2 ring-white dark:ring-slate-900" />
+          <div className="flex items-center gap-4">
+            <button className="relative p-2.5 rounded-2xl text-slate-400 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 transition-all group">
+              <Bell size={22} className="group-hover:shake transition-transform" />
+              <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-primary-500 border-2 border-white dark:border-slate-950" />
             </button>
-            <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700 ml-1">
+            
+            <div className="flex items-center gap-3 pl-4 border-l border-slate-100 dark:border-white/10">
               <div className="hidden md:block text-right">
-                <p className="text-sm font-bold text-slate-900 dark:text-white">{user?.name || 'User'}</p>
-                <p className="text-[10px] text-slate-500 font-medium capitalize">{user?.role}</p>
+                <p className="text-sm font-black text-slate-950 dark:text-white uppercase tracking-tight">{user?.name || 'User'}</p>
+                <div className="flex items-center justify-end gap-1.5 mt-0.5">
+                   <span className="h-1 w-1 rounded-full bg-emerald-500" />
+                   <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest leading-none">{user?.role}</p>
+                </div>
               </div>
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-400 to-violet-500 flex items-center justify-center overflow-hidden ring-2 ring-primary-200 dark:ring-primary-900">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-primary-400 to-indigo-500 flex items-center justify-center overflow-hidden ring-4 ring-white dark:ring-slate-900 shadow-lg shadow-primary-500/10">
                 {user?.avatar ? (
                   <img src={user.avatar} alt="avatar" className="h-full w-full object-cover" />
                 ) : (
-                  <UserIcon size={17} className="text-white" />
+                  <UserIcon size={18} className="text-white" />
                 )}
               </div>
             </div>

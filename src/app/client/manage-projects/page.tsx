@@ -25,6 +25,7 @@ import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../../components/ui/Card';
+import { Input } from '../../../components/ui/Input';
 import { Project } from '../../../types';
 import { callBackend } from '../../../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -45,6 +46,7 @@ export default function ManageProjectsPage() {
   const { user } = useAuthStore();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -63,6 +65,11 @@ export default function ManageProjectsPage() {
     if (user?.id) fetchProjects();
   }, [user?.id]);
 
+  const filteredProjects = projects.filter(p => 
+    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.status.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const activeCount = projects.filter(p => p.status === 'in_progress').length;
   const completedCount = projects.filter(p => p.status === 'completed').length;
   const openCount = projects.filter(p => p.status === 'open').length;
@@ -74,34 +81,48 @@ export default function ManageProjectsPage() {
 
           {/* HEADER */}
           <div className="flex justify-between items-center">
-            <h1 className="text-4xl font-bold">My Projects</h1>
+            <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight">My Projects</h1>
 
             <Link href="/create-project">
-              <Button className="h-12 px-6 rounded-xl">
+              <Button className="h-12 px-8 rounded-2xl gap-2 font-black shadow-xl shadow-primary-500/20">
                 <Plus size={18} /> Post Project
               </Button>
             </Link>
           </div>
 
           {/* STATS */}
-          <div className="grid grid-cols-3 gap-6">
-            <StatCard title="Open" value={openCount} icon={Briefcase} />
-            <StatCard title="In Progress" value={activeCount} icon={TrendingUp} />
-            <StatCard title="Completed" value={completedCount} icon={CheckCircle2} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCard title="Open for Bids" value={openCount} icon={Briefcase} color="text-amber-600" bg="bg-amber-50 dark:bg-amber-900/20" />
+            <StatCard title="In Progress" value={activeCount} icon={TrendingUp} color="text-primary-600" bg="bg-primary-50 dark:bg-primary-900/20" />
+            <StatCard title="Completed" value={completedCount} icon={CheckCircle2} color="text-emerald-600" bg="bg-emerald-50 dark:bg-emerald-900/20" />
+          </div>
+
+          {/* SEARCH BAR */}
+          <div className="relative group">
+            <Input 
+              placeholder="Search project by title or status..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              icon={<Search size={22} className="text-slate-400 group-focus-within:text-primary-500 transition-colors" />}
+              className="h-16 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-soft text-lg"
+            />
           </div>
 
           {/* PROJECT LIST */}
           {isLoading ? (
-            <Skeleton className="h-40 w-full" />
-          ) : projects.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <Skeleton className="h-48 w-full rounded-3xl" />
+              <Skeleton className="h-48 w-full rounded-3xl" />
+            </div>
+          ) : filteredProjects.length > 0 ? (
             <motion.div 
               className="grid grid-cols-1 md:grid-cols-2 gap-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               <AnimatePresence>
-                {projects.map((project) => (
-                  <motion.div key={project.id} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+                {filteredProjects.map((project) => (
+                  <motion.div key={project.id} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}>
                     <Card className="group hover:shadow-xl transition-all">
 
                       {/* HEADER */}

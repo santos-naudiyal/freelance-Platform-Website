@@ -85,7 +85,7 @@ export const getAllFreelancers = async (req: AuthRequest, res: Response): Promis
     }
 
     const snapshot = await query.get();
-    const freelancers = snapshot.docs.map((doc: any) => doc.data());
+    const freelancers = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
 
     // We might also want to stitch some user data, but the freelancer doc already has name, email, avatar.
     res.status(200).json(freelancers);

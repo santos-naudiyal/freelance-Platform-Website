@@ -1,4 +1,4 @@
-import { emitToProjectChat } from './socketService';
+import { emitToProjectChat, emitNotification } from './socketService';
 import { db } from '../config/firebase';
 
 export interface Message {
@@ -23,10 +23,50 @@ export class ChatService {
       const docRef = await db.collection('Messages').add(message);
       message.id = docRef.id;
 
+      // ✅ Update project's lastMessageAt for WhatsApp-style sorting
+      await db.collection('Projects').doc(message.projectId).update({ 
+          lastMessageAt: message.createdAt 
+      });
+
       console.log("💬 Message saved:", message.id);
 
       // ✅ emit socket
       emitToProjectChat(message.projectId, 'new-message', message);
+
+      // ✅ notify recipient
+      try {
+          const projectDoc = await db.collection('Projects').doc(message.projectId).get();
+          const projectData = projectDoc.data();
+          
+          if (projectData) {
+              let recipientId = null;
+              if (message.senderId === projectData.clientId) {
+                  // Sender is client -> notify freelancer if accepted
+                  const pSnapshot = await db.collection('Proposals')
+                      .where('projectId', '==', message.projectId)
+                      .where('status', '==', 'accepted')
+                      .get();
+                  if (!pSnapshot.empty) {
+                      recipientId = pSnapshot.docs[0].data().freelancerId;
+                  }
+              } else {
+                  // Sender is freelancer -> notify client
+                  recipientId = projectData.clientId;
+              }
+
+              if (recipientId) {
+                  emitNotification(recipientId, {
+                      type: 'message',
+                      title: projectData.title,
+                      text: message.text,
+                      projectId: message.projectId,
+                      senderName: message.senderName
+                  });
+              }
+          }
+      } catch (notifyErr) {
+          console.error("⚠️ Notification trigger failed (non-critical):", notifyErr);
+      }
 
       return message;
 
