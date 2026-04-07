@@ -19,6 +19,8 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useAI } from '@/hooks/useAI';
 import { callBackend } from '@/lib/api';
 import toast from 'react-hot-toast';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Loader } from '@/components/ui/Loader';
 
 interface ChatProps {
   workspaceId: string;
@@ -148,8 +150,13 @@ export function Chat({ workspaceId }: ChatProps) {
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
         {loading ? (
-          <div className="h-full flex items-center justify-center text-slate-400 font-medium animate-pulse">
-            Establishing Secure Sync...
+          <div className="h-full flex flex-col items-center justify-center gap-6">
+            <Loader size="lg" />
+            <div className="space-y-4 w-full px-4">
+              <Skeleton className="h-12 w-3/4 rounded-2xl" />
+              <Skeleton className="h-12 w-2/3 rounded-2xl self-end" />
+              <Skeleton className="h-12 w-1/2 rounded-2xl" />
+            </div>
           </div>
         ) : (
           <>
@@ -189,13 +196,11 @@ export function Chat({ workspaceId }: ChatProps) {
             </div>
           ))}
           {aiLoading && (
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-start w-full gap-2">
               <div className="max-w-[80%] w-fit bg-gradient-to-br from-primary-50 to-indigo-50 dark:from-primary-950/20 dark:to-indigo-950/20 border border-primary-100 dark:border-primary-900 p-4 rounded-2xl shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 rounded-lg bg-primary-600 text-white">
-                      <Sparkles size={14} className="animate-spin" />
-                    </div>
-                    <span className="text-xs font-black uppercase tracking-widest text-primary-600">FreelanceHub AI Co-Pilot is thinking...</span>
+                  <div className="flex items-center gap-3">
+                    <Loader size="sm" />
+                    <span className="text-xs font-black uppercase tracking-widest text-primary-600 animate-pulse">Co-Pilot Thinking...</span>
                   </div>
               </div>
             </div>

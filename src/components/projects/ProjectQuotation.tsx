@@ -24,6 +24,7 @@ import { useAI } from '@/hooks/useAI';
 import { cn } from '@/lib/utils';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface jsPDFWithAutoTable extends jsPDF {
   lastAutoTable: {
@@ -92,14 +93,14 @@ export function ProjectQuotation({ outcome, targetBudget }: { outcome: string; t
   };
 
   if (loading) return (
-    <div className="w-full space-y-10 animate-pulse py-10">
-      <div className="h-40 bg-slate-100 dark:bg-slate-800 rounded-[3rem]" />
+    <div className="w-full space-y-10 py-10">
+      <Skeleton className="h-[28rem] w-full" />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <div className="h-64 bg-slate-50 dark:bg-slate-900 rounded-[2.5rem]" />
-          <div className="h-96 bg-slate-50 dark:bg-slate-900 rounded-[2.5rem]" />
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-96 w-full" />
         </div>
-        <div className="h-full bg-slate-50 dark:bg-slate-900 rounded-[2.5rem]" />
+        <Skeleton className="h-full w-full min-h-[400px]" />
       </div>
     </div>
   );

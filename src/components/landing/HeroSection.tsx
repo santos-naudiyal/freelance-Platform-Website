@@ -9,23 +9,23 @@ import { useAuthStore } from '@/store/useAuthStore';
 export function HeroSection() {
   const { user } = useAuthStore();
   return (
-    <section className="relative pt-32 pb-24 overflow-hidden md:pt-52 md:pb-40 bg-[var(--background)]">
-      {/* Background Decorative Elements */}
+    <section className="relative pt-32 pb-24 overflow-hidden md:pt-52 md:pb-40 bg-slate-950">
+      {/* Background Decorative Elements - Enhanced Premium Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <motion.div 
-          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3], x: [0, 20, 0], y: [0, -20, 0] }}
+          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2], x: [0, 40, 0], y: [0, -40, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] rounded-full bg-primary-500/20 blur-[130px] dark:bg-primary-600/10 mix-blend-multiply dark:mix-blend-screen" 
+          className="absolute top-[-15%] left-[-15%] w-[70%] h-[70%] rounded-full bg-primary-600/30 blur-[140px] mix-blend-screen" 
         />
         <motion.div 
-          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2], x: [0, -30, 0], y: [0, 30, 0] }}
+          animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.35, 0.15], x: [0, -40, 0], y: [0, 40, 0] }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] rounded-full bg-indigo-500/20 blur-[130px] dark:bg-indigo-600/10 mix-blend-multiply dark:mix-blend-screen" 
+          className="absolute bottom-[-15%] right-[-15%] w-[70%] h-[70%] rounded-full bg-indigo-600/20 blur-[140px] mix-blend-screen" 
         />
         <motion.div 
-          animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.3, 0.1] }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.25, 0.1] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-          className="absolute top-[20%] left-[50%] w-[40%] h-[40%] rounded-full bg-violet-400/10 blur-[100px] dark:bg-violet-600/10 mix-blend-multiply dark:mix-blend-screen" 
+          className="absolute top-[20%] left-[45%] w-[50%] h-[50%] rounded-full bg-violet-500/10 blur-[110px] mix-blend-screen" 
         />
       </div>
 
@@ -36,9 +36,9 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full premium-glass text-primary-700 dark:text-primary-300 text-sm font-medium border border-primary-200/50 dark:border-primary-800/50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md text-primary-300 text-sm font-medium border border-white/10"
           >
-            <Sparkles size={14} className="text-primary-500 animate-pulse" />
+            <Sparkles size={14} className="text-primary-400 animate-pulse" />
             <span className="tracking-tight">Trusted by 50,000+ industry leaders</span>
           </motion.div> 
 
@@ -46,7 +46,7 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight text-slate-950 dark:text-white leading-[1.05] md:leading-[0.95]"
+            className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight text-white leading-[1.05] md:leading-[0.95]"
           >
             Build anything with<br className="hidden sm:block" />
             <span className="text-gradient filter drop-shadow-sm"> experts in hours</span>
@@ -56,9 +56,9 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed px-4 sm:px-0"
+            className="text-base sm:text-lg md:text-2xl text-slate-400 max-w-3xl leading-relaxed px-4 sm:px-0"
           >
-            The world's first <span className="font-bold text-slate-900 dark:text-slate-200">Work Operating System</span>. 
+            The world's first <span className="font-bold text-white">Work Operating System</span>. 
             Describe your outcome, and we'll build the workspace, recommend experts, and track progress for you.
           </motion.p>
 
@@ -69,16 +69,16 @@ export function HeroSection() {
             className="w-full max-w-3xl relative group mt-12"
           >
             <div className="absolute -inset-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-violet-500 rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-700"></div>
-            <div className="relative premium-glass rounded-[2.5rem] p-2 sm:p-3 flex flex-col sm:flex-row items-stretch sm:items-center shadow-2xl bg-white/90 dark:bg-slate-900/90 gap-3 border-2 border-white dark:border-white/5">
-              <div className="flex-1 px-6 sm:px-8 py-3 sm:py-0 border-b sm:border-b-0 sm:border-r border-slate-100 dark:border-white/10 group-focus-within:border-primary-500/50 transition-colors">
-                <label htmlFor="project-creator" className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary-600 mb-1.5">
+            <div className="relative bg-white/5 backdrop-blur-2xl rounded-[2.5rem] p-2 sm:p-3 flex flex-col sm:flex-row items-stretch sm:items-center shadow-2xl gap-3 border border-white/10">
+              <div className="flex-1 px-6 sm:px-8 py-3 sm:py-0 border-b sm:border-b-0 sm:border-r border-white/10 group-focus-within:border-primary-500/50 transition-colors">
+                <label htmlFor="project-creator" className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary-400 mb-1.5">
                   What do you want to build?
                 </label>
                 <input 
                   id="project-creator"
                   type="text" 
                   placeholder="e.g. Build a mobile app..."
-                  className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 font-bold text-lg sm:text-xl p-0"
+                  className="w-full bg-transparent border-none focus:ring-0 text-white placeholder:text-slate-500 font-bold text-lg sm:text-xl p-0"
                 />
               </div>
               <button 

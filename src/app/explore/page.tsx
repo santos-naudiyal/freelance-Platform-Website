@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { useExperts } from '@/hooks/useExperts';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function ExplorePage() {
   const { experts, loading } = useExperts();
@@ -61,8 +62,26 @@ export default function ExplorePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-[500px] rounded-[3rem] bg-white dark:bg-slate-900 animate-pulse border border-slate-100 dark:border-slate-800" />
+             Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="space-y-6">
+                <Skeleton className="h-48 w-full rounded-[2.5rem]" />
+                <div className="space-y-4 px-4">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-8 w-2/3" />
+                    <Skeleton className="h-6 w-12" />
+                  </div>
+                  <Skeleton className="h-4 w-1/4" />
+                  <div className="space-y-2 py-4">
+                    <Skeleton className="h-2 w-full" />
+                    <Skeleton className="h-2 w-full" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Skeleton className="h-6 w-16" />
+                    <Skeleton className="h-6 w-16" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                </div>
+              </div>
             ))
           ) : (
             experts.map((expert) => (
@@ -113,7 +132,7 @@ export default function ExplorePage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-8">
-                    {expert.profile?.skills.slice(0, 3).map((skill) => (
+                    {(expert.profile as any)?.skills.slice(0, 3).map((skill: any) => (
                       <span key={skill} className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-[10px] font-bold text-slate-500 uppercase tracking-tight border border-slate-100 dark:border-slate-700">
                         {skill}
                       </span>

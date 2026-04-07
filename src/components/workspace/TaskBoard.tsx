@@ -4,6 +4,8 @@ import { Plus, MoreHorizontal, User, Clock, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTasks } from '@/hooks/useTasks';
 import { Task } from '@/types';
+import { Loader } from '@/components/ui/Loader';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface TaskBoardProps {
   workspaceId: string;
@@ -24,8 +26,17 @@ export function TaskBoard({ workspaceId }: TaskBoardProps) {
   return (
     <div className="flex gap-6 h-[calc(100vh-14rem)] overflow-x-auto pb-4 scrollbar-hide">
       {loading ? (
-        <div className="flex-1 flex items-center justify-center text-slate-400 font-medium animate-pulse">
-           Initializing Workspace Board...
+        <div className="flex-1 flex flex-col items-center justify-center min-h-[400px]">
+           <Loader size="xl" withText />
+           <div className="mt-12 flex gap-6 w-full overflow-hidden opacity-50 pointer-events-none">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="flex-shrink-0 w-80 space-y-4">
+                  <Skeleton className="h-8 w-32" />
+                  <Skeleton className="h-40 w-full" />
+                  <Skeleton className="h-40 w-full" />
+                </div>
+              ))}
+           </div>
         </div>
       ) : (
         columnConfig.map((column) => {

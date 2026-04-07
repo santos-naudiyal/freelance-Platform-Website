@@ -17,6 +17,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/useAuthStore';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const iconMap: Record<string, React.ReactNode> = {
   upload: <ImageIcon className="text-blue-500" size={16} />,
@@ -90,9 +91,10 @@ export function ActivityFeed({ workspaceId }: { workspaceId: string }) {
 
       <div className="space-y-4">
         {loading ? (
-             <div className="space-y-4 animate-pulse">
-                <div className="h-16 w-full bg-slate-100 dark:bg-slate-800 rounded-2xl" />
-                <div className="h-16 w-full bg-slate-100 dark:bg-slate-800 rounded-2xl" />
+             <div className="space-y-4">
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
              </div>
         ) : activities.length === 0 ? (
              <div className="p-8 text-center text-slate-500 border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl text-sm">
