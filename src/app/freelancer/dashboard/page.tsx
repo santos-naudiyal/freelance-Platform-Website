@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { 
   LayoutDashboard, 
@@ -13,12 +13,10 @@ import {
   MessageSquare, 
   DollarSign, 
   Settings,
-  Plus,
   ArrowUpRight,
   Clock,
   CheckCircle2,
   Sparkles,
-  TrendingUp,
   ChevronRight,
   Zap
 } from 'lucide-react';
@@ -27,7 +25,28 @@ import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { callBackend } from '@/lib/api';
-import { motion } from 'framer-motion';
+import type { LucideIcon } from 'lucide-react';
+
+type ActiveProject = {
+  id: string;
+  title: string;
+  description?: string;
+  deadline?: string | number | Date;
+  budget?: {
+    max?: number;
+  };
+};
+
+type ProposalActivity = {
+  status: string;
+  createdAt: string | number | Date;
+  projectTitle?: string;
+};
+
+type ApiStat = {
+  name: string;
+  value: string;
+};
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/freelancer/dashboard', icon: LayoutDashboard },
@@ -42,8 +61,8 @@ const sidebarItems = [
 export default function FreelancerDashboard() {
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [activeProjects, setActiveProjects] = useState<any[]>([]);
-  const [recentProposals, setRecentProposals] = useState<any[]>([]);
+  const [activeProjects, setActiveProjects] = useState<ActiveProject[]>([]);
+  const [recentProposals, setRecentProposals] = useState<ProposalActivity[]>([]);
   const [stats, setStats] = useState([
     { name: 'Active Projects', value: '0', icon: Briefcase, color: 'text-primary-600', bg: 'bg-primary-50 dark:bg-primary-900/20' },
     { name: 'Proposals Sent', value: '0', icon: FileText, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
@@ -58,17 +77,23 @@ export default function FreelancerDashboard() {
       try {
         const data = await callBackend("dashboard/freelancer");
         
-        setActiveProjects(data.activeProjects || []);
-        setRecentProposals(data.proposals || []);
+        const dashboardData = data as {
+          activeProjects?: ActiveProject[];
+          proposals?: ProposalActivity[];
+          stats?: ApiStat[];
+        };
 
-        const iconMap: Record<string, any> = {
+        setActiveProjects(dashboardData.activeProjects || []);
+        setRecentProposals(dashboardData.proposals || []);
+
+        const iconMap: Record<string, LucideIcon> = {
           'Active Projects': Briefcase,
           'Proposals Sent': FileText,
           'Total Earnings': DollarSign,
           'Avg. Rating': CheckCircle2
         };
 
-        const updatedStats = data.stats?.map((s: any) => ({
+        const updatedStats = dashboardData.stats?.map((s) => ({
           ...s,
           icon: iconMap[s.name] || Briefcase,
           color: s.name === 'Total Earnings' ? 'text-emerald-600' : 'text-primary-600',
@@ -84,17 +109,18 @@ export default function FreelancerDashboard() {
     };
 
     if (user?.id) fetchDashboardData();
-  }, [user?.id]);
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['freelancer']}>
       <DashboardLayout sidebarItems={sidebarItems} title="Freelancer Dashboard">
-        <div className="max-w-7xl mx-auto space-y-10 py-6">
+        <div className="space-y-8 py-3 sm:space-y-10 sm:py-6">
           
           {/* WELCOME HEADER */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-slate-900 text-white relative overflow-hidden shadow-2xl">
+          <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 p-5 text-white shadow-2xl sm:rounded-[3rem] sm:p-8 lg:p-10">
             <div className="absolute top-0 right-0 p-24 -mr-24 -mt-24 bg-primary-600/20 blur-3xl rounded-full" />
-            <div className="space-y-2 relative z-10 w-full md:w-auto">
+            <div className="relative z-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2 w-full md:w-auto">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-500/10 text-primary-400 text-[10px] font-black uppercase tracking-[0.2em] border border-primary-500/20 mb-2">
                 <Sparkles size={12} />
                 Global Freelancer Partner
@@ -106,13 +132,14 @@ export default function FreelancerDashboard() {
                 Your portfolio is gaining traction. You have {activeProjects.length} projects in development.
               </p>
             </div>
-            <Link href="/projects/browse" className="relative z-10 shrink-0 w-full sm:w-auto">
-              <Button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-white text-slate-900 hover:bg-white/90 font-black text-sm gap-3 shadow-xl transition-all">
+            <Link href="/projects/browse" className="relative z-10 shrink-0 w-full md:w-auto">
+              <Button className="h-14 w-full rounded-2xl bg-white px-6 text-sm font-black text-slate-900 shadow-xl transition-all hover:bg-white/90 sm:px-8 md:w-auto gap-3">
                 <Briefcase size={20} />
                 Explore Marketplace
                 <ChevronRight size={18} className="hidden sm:block" />
               </Button>
             </Link>
+            </div>
           </div>
 
           {/* STATS GRID */}
@@ -124,13 +151,13 @@ export default function FreelancerDashboard() {
                     <Badge className="bg-primary-500/10 text-primary-600 text-[8px] font-black uppercase tracking-widest border-none">Coming Soon</Badge>
                   </div>
                 )}
-                <CardContent className="p-8">
+                <CardContent className="p-6 sm:p-8">
                   <div className="flex justify-between items-start">
                     <div className={cn("p-4 rounded-2xl group-hover:scale-110 transition-transform", stat.bg)}>
                       <stat.icon className={cn("h-6 w-6", stat.color)} />
                     </div>
                   </div>
-                  <div className="mt-6">
+                  <div className="mt-5 sm:mt-6">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{stat.name}</p>
                     <p className="text-3xl font-black text-slate-950 dark:text-white mt-1">
                       {i === 2 ? "Nexus" : stat.value}
@@ -145,7 +172,7 @@ export default function FreelancerDashboard() {
             
             {/* ACTIVE PROJECTS (2/3) */}
             <div className="lg:col-span-2 space-y-6">
-               <div className="flex items-center justify-between px-2">
+               <div className="flex flex-col gap-2 px-2 sm:flex-row sm:items-center sm:justify-between">
                   <h3 className="text-xl font-black text-slate-950 dark:text-white flex items-center gap-3">
                      <Zap size={20} className="text-primary-500" />
                      Active Assignments
@@ -180,7 +207,7 @@ export default function FreelancerDashboard() {
                                      </div>
                                   </div>
                                </div>
-                               <div className="sm:w-48 bg-slate-50 dark:bg-slate-900/50 p-6 sm:p-8 flex items-center justify-center border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-slate-800">
+                               <div className="sm:w-48 bg-slate-50 dark:bg-slate-900/50 p-5 sm:p-8 flex items-center justify-center border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-slate-800">
                                   <Link href={`/freelancer/projects/${project.id}`} className="w-full">
                                      <Button variant="outline" className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all">Open</Button>
                                   </Link>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
-import { Bell, Search, Settings, MoreHorizontal, ShieldCheck, Activity } from 'lucide-react';
+import { Bell, Search, MoreHorizontal, Activity, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import { AuthGuard } from '@/components/auth/AuthGuard';
@@ -17,21 +17,43 @@ export function WorkspaceLayout({
 }) {
   const { workspace, loading } = useWorkspace(projectSlug);
   const { user } = useAuthStore();
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   
   return (
     <AuthGuard>
       <div className="flex min-h-screen bg-white dark:bg-slate-950">
-        <WorkspaceSidebar projectSlug={projectSlug} />
+        {isSidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close workspace navigation"
+            className="fixed inset-0 z-30 bg-slate-950/40 backdrop-blur-sm lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        <WorkspaceSidebar
+          projectSlug={projectSlug}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
       
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Workspace Header */}
-        <header className="h-20 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-display font-black tracking-tight text-slate-900 dark:text-white uppercase">
+        <header className="sticky top-0 z-20 flex min-h-18 items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 px-4 sm:px-6 lg:px-8 py-3 backdrop-blur-md">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <button
+              type="button"
+              className="rounded-xl bg-slate-100 p-2.5 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white lg:hidden"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={18} />
+            </button>
+            <div className="min-w-0">
+            <h1 className="truncate text-base sm:text-xl font-display font-black tracking-tight text-slate-900 dark:text-white uppercase">
               {workspace?.title || projectSlug.replace(/-/g, ' ')}
             </h1>
             <div className={cn(
-              "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 transition-colors",
+              "mt-2 inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-colors",
               loading ? "bg-slate-100 text-slate-400" : "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
             )}>
               {loading ? (
@@ -40,10 +62,11 @@ export function WorkspaceLayout({
                 <><Activity size={12} className="animate-pulse" /> Live OS Active</>
               )}
             </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+            <div className="relative hidden xl:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input 
                 type="text" 
@@ -54,7 +77,7 @@ export function WorkspaceLayout({
             <button className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 transition-colors">
               <Bell size={20} />
             </button>
-            <button className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 transition-colors">
+            <button className="hidden sm:block p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 transition-colors">
               <MoreHorizontal size={20} />
             </button>
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 p-[2px]">
@@ -66,7 +89,7 @@ export function WorkspaceLayout({
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {children}
         </div>
       </main>

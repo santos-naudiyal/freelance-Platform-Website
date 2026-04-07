@@ -3,11 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/Card';
 import { 
   Compass, 
-  Sparkles, 
-  TrendingUp, 
   Users,
   LayoutDashboard,
   PlusSquare,
@@ -17,15 +15,27 @@ import {
   CreditCard,
   Settings,
   Star,
-  MapPin,
-  Briefcase
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
-import { Badge } from '../../../components/ui/Badge';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { callBackend } from '../../../lib/api';
 import { cn } from '../../../lib/utils';
 import Link from 'next/link';
+
+type FreelancerProfile = {
+  avatar?: string;
+  title?: string;
+  department?: string;
+  bio?: string;
+  skills?: string[];
+};
+
+type FreelancerCard = {
+  id: string;
+  name: string;
+  rating?: number;
+  profile?: FreelancerProfile;
+};
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
@@ -49,8 +59,8 @@ const DEPARTMENTS = [
 ];
 
 export default function DiscoverFreelancersPage() {
-  const [freelancers, setFreelancers] = useState<any[]>([]);
-  const [filtered, setFiltered] = useState<any[]>([]);
+  const [freelancers, setFreelancers] = useState<FreelancerCard[]>([]);
+  const [filtered, setFiltered] = useState<FreelancerCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeDepartment, setActiveDepartment] = useState('All Profiles');
 
@@ -80,24 +90,24 @@ export default function DiscoverFreelancersPage() {
   return (
     <ProtectedRoute allowedRoles={['client']}>
     <DashboardLayout sidebarItems={sidebarItems} title="Find Freelancers">
-      <div className="max-w-7xl mx-auto space-y-10 py-6">
+      <div className="space-y-8 py-3 sm:space-y-10 sm:py-6">
         <div>
-          <h2 className="text-4xl font-display font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+          <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight text-slate-900 dark:text-white leading-tight">
              Discover <span className="text-primary-600">Talent</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">
-             Explore top-rated freelancers perfectly categorized for your project's needs.
+             Explore top-rated freelancers perfectly categorized for your project&apos;s needs.
           </p>
         </div>
 
         {/* Filter Chips */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
            {DEPARTMENTS.map(dept => (
               <button
                 key={dept}
                 onClick={() => setActiveDepartment(dept)}
                 className={cn(
-                  "px-5 py-2.5 rounded-full text-xs font-black tracking-widest uppercase border transition-all duration-300",
+                  "px-4 sm:px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-black tracking-widest uppercase border transition-all duration-300",
                   activeDepartment === dept 
                      ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white shadow-xl shadow-slate-900/10" 
                      : "bg-white text-slate-500 border-slate-200 hover:border-slate-400 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-white"
@@ -108,7 +118,7 @@ export default function DiscoverFreelancersPage() {
            ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
           {isLoading ? (
              [1, 2, 3, 4, 5, 6].map(i => (
                 <Card key={i} className="border-transparent p-6 space-y-4">
@@ -129,10 +139,13 @@ export default function DiscoverFreelancersPage() {
                    <Compass size={32} className="text-slate-400" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-950 dark:text-white mb-2">No Freelancers Found</h3>
-                <p className="text-slate-500">There are currently no listed freelancers available in the "{activeDepartment}" department.</p>
+                <p className="text-slate-500">There are currently no listed freelancers available in the &quot;{activeDepartment}&quot; department.</p>
              </div>
           ) : (
-             filtered.map((freelancer) => (
+             filtered.map((freelancer) => {
+               const skills = freelancer.profile?.skills ?? [];
+
+               return (
                <Card key={freelancer.id} className="group border-transparent hover:border-primary-200 dark:hover:border-primary-900 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col items-start text-left p-6 sm:p-8">
                  <div className="w-full flex items-start flex-col gap-6">
                     <div className="w-full flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
@@ -165,14 +178,14 @@ export default function DiscoverFreelancersPage() {
                        </p>
 
                        <div className="flex flex-wrap gap-2 pt-2">
-                         {freelancer.profile?.skills?.slice(0, 3).map((skill: string, idx: number) => (
+                         {skills.slice(0, 3).map((skill: string, idx: number) => (
                             <span key={idx} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase tracking-wider rounded-lg">
                                {skill}
                             </span>
                          ))}
-                         {freelancer.profile?.skills?.length > 3 && (
+                         {skills.length > 3 && (
                             <span className="px-3 py-1 bg-slate-50 dark:bg-slate-900 text-slate-400 text-[10px] font-black uppercase tracking-wider rounded-lg">
-                               +{freelancer.profile.skills.length - 3} more
+                               +{skills.length - 3} more
                             </span>
                          )}
                        </div>
@@ -187,7 +200,7 @@ export default function DiscoverFreelancersPage() {
                     </div>
                  </div>
                </Card>
-             ))
+             )})
           )}
         </div>
       </div>

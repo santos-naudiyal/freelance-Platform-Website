@@ -22,6 +22,28 @@ import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
 import { cn } from '../../../components/ui/Button';
 import { callBackend } from '@/lib/api';
+import type { LucideIcon } from 'lucide-react';
+
+type DashboardProject = {
+  id: string;
+  title: string;
+  createdAt: string | number | Date;
+  budget?: {
+    max?: number;
+    amount?: number;
+  };
+};
+
+type DashboardProposal = {
+  id: string;
+  projectTitle?: string;
+  bidAmount?: number | string;
+};
+
+type ApiStat = {
+  name: string;
+  value: string;
+};
 
 const sidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
@@ -37,8 +59,8 @@ const sidebarItems = [
 export default function ClientDashboard() {
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [recentProposals, setRecentProposals] = useState<any[]>([]);
+  const [projects, setProjects] = useState<DashboardProject[]>([]);
+  const [recentProposals, setRecentProposals] = useState<DashboardProposal[]>([]);
   const [stats, setStats] = useState([
     { name: 'Open Projects', value: '0', icon: ClipboardList, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
     { name: 'Proposals Received', value: '0', icon: Users, color: 'text-primary-600', bg: 'bg-primary-50 dark:bg-primary-900/20' },
@@ -52,17 +74,23 @@ export default function ClientDashboard() {
 
       try {
         const data = await callBackend("dashboard/client");
-        setProjects(data.projects);
-        setRecentProposals(data.recentProposals);
+        const dashboardData = data as {
+          projects?: DashboardProject[];
+          recentProposals?: DashboardProposal[];
+          stats?: ApiStat[];
+        };
 
-        const iconMap: Record<string, any> = {
+        setProjects(dashboardData.projects || []);
+        setRecentProposals(dashboardData.recentProposals || []);
+
+        const iconMap: Record<string, LucideIcon> = {
           'Open Projects': ClipboardList,
           'Proposals Received': Users,
           'Active Hires': ArrowUpRight,
           'Total Spent': CreditCard
         };
 
-        const updatedStats = data.stats.map((s: any) => ({
+        const updatedStats = (dashboardData.stats || []).map((s) => ({
           ...s,
           icon: iconMap[s.name] || ClipboardList,
           color: s.name === 'Open Projects' ? 'text-indigo-600' : 
@@ -82,17 +110,17 @@ export default function ClientDashboard() {
     };
 
     if (user?.id) fetchDashboardData();
-  }, [user?.id]);
+  }, [user]);
 
   return (
     <ProtectedRoute allowedRoles={['client']}>
       <DashboardLayout sidebarItems={sidebarItems} title="Partner Dashboard">
-        <div className="max-w-7xl mx-auto space-y-10 py-4">
+        <div className="space-y-8 py-2 sm:space-y-10 sm:py-4">
           
           {/* Header Section */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
             <div className="space-y-2">
-              <h1 className="text-4xl font-display font-black tracking-tight text-slate-950 dark:text-white">
+              <h1 className="text-3xl sm:text-4xl font-display font-black tracking-tight text-slate-950 dark:text-white">
                 Welcome back, <span className="text-primary-600">{user?.name?.split(' ')[0] || 'Partner'}</span>!
               </h1>
               <p className="text-slate-500 dark:text-slate-400 font-medium max-w-xl">
@@ -110,7 +138,7 @@ export default function ClientDashboard() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
             {stats.map((stat) => (
               <Card key={stat.name} className="group border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-all duration-300">
                 <CardContent className="p-6">
@@ -122,7 +150,7 @@ export default function ClientDashboard() {
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
                         {stat.name}
                       </p>
-                      <h3 className="text-2xl font-black text-slate-950 dark:text-white leading-none">
+                      <h3 className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white leading-none">
                         {isLoading ? <Skeleton className="h-8 w-12" /> : stat.value}
                       </h3>
                     </div>
@@ -137,8 +165,8 @@ export default function ClientDashboard() {
             
             {/* Left Column: Ongoing Projects */}
             <div className="lg:col-span-8 space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-black text-slate-950 dark:text-white flex items-center gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white flex items-center gap-2">
                   <ClipboardList className="text-primary-500" />
                   Your Active Projects
                 </h2>
@@ -163,9 +191,9 @@ export default function ClientDashboard() {
                 ) : (
                   projects.slice(0, 3).map((project) => (
                     <Card key={project.id} className="group overflow-hidden border-slate-100 dark:border-slate-800 hover:shadow-soft transition-all duration-300">
-                      <CardContent className="p-6 md:p-8 flex items-center justify-between gap-6">
+                      <CardContent className="flex flex-col gap-6 p-5 sm:p-6 md:flex-row md:items-center md:justify-between md:p-8">
                         <div className="space-y-3 flex-1 min-w-0">
-                          <div className="flex items-center gap-3">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                             <Badge className="bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border-none font-bold text-[10px] px-2.5 py-0.5 rounded-full">
                               Active
                             </Badge>
@@ -176,7 +204,7 @@ export default function ClientDashboard() {
                           <h3 className="text-xl font-black text-slate-950 dark:text-white truncate">
                             {project.title}
                           </h3>
-                          <div className="flex items-center gap-6">
+                          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                              <div className="flex items-center gap-2">
                                <div className="h-2 w-2 rounded-full bg-primary-500" />
                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400">${project.budget?.max || project.budget?.amount} Budget</span>
@@ -187,14 +215,14 @@ export default function ClientDashboard() {
                              </div>
                           </div>
                         </div>
-                        <div className="shrink-0 flex items-center gap-3">
-                          <Link href={`/client/manage-projects`}>
-                            <Button variant="outline" className="rounded-xl h-10 px-5 font-bold border-slate-200 dark:border-slate-800">
+                        <div className="grid w-full shrink-0 gap-3 sm:flex sm:w-auto sm:items-center">
+                          <Link href={`/client/manage-projects`} className="w-full sm:w-auto">
+                            <Button variant="outline" className="h-10 w-full rounded-xl px-5 font-bold border-slate-200 dark:border-slate-800 sm:w-auto">
                               Details
                             </Button>
                           </Link>
-                          <Link href={`/client/proposals?projectId=${project.id}`}>
-                            <Button className="rounded-xl h-10 px-5 font-bold">
+                          <Link href={`/client/proposals?projectId=${project.id}`} className="w-full sm:w-auto">
+                            <Button className="h-10 w-full rounded-xl px-5 font-bold sm:w-auto">
                               Proposals
                             </Button>
                           </Link>
@@ -214,7 +242,7 @@ export default function ClientDashboard() {
                 <div className="absolute top-0 right-0 p-8 text-slate-200/50 dark:text-white/5 group-hover:scale-125 transition-transform duration-700">
                   <LayoutDashboard size={120} />
                 </div>
-                <CardContent className="p-8 space-y-6 relative z-10">
+                <CardContent className="relative z-10 space-y-6 p-6 sm:p-8">
                   <h3 className="text-xl font-black text-slate-900 dark:text-white">Quick Actions</h3>
                   <div className="grid grid-cols-1 gap-3">
                     <Link href="/create-project">

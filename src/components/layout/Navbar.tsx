@@ -35,23 +35,23 @@ export function Navbar() {
 
   return (
     <>
-      <header className="fixed top-2 sm:top-6 left-1/2 -translate-x-1/2 z-[100] w-[94%] max-w-7xl premium-glass rounded-[2rem] border border-white/20 shadow-2xl dark:border-slate-800/50 transition-all duration-500 overflow-hidden">
-        <div className="px-4 sm:px-8">
-          <div className="flex h-[4.5rem] items-center justify-between">
-            <div className="flex items-center gap-6 xl:gap-10">
+      <header className="fixed top-2 sm:top-4 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-1rem)] sm:w-[94%] max-w-7xl premium-glass rounded-[1.75rem] sm:rounded-[2rem] border border-white/20 shadow-2xl dark:border-slate-800/50 transition-all duration-500 overflow-hidden">
+        <div className="px-3 sm:px-6 lg:px-8">
+          <div className="flex h-[4.25rem] sm:h-[4.5rem] items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3 sm:gap-6 xl:gap-10">
               {/* Mobile Menu Toggle */}
               <button 
-                className="xl:hidden p-2.5 -ml-2 text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-white bg-slate-100/50 dark:bg-slate-800/50 rounded-xl transition-all"
+                className="xl:hidden p-2.5 -ml-1 text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-white bg-slate-100/50 dark:bg-slate-800/50 rounded-xl transition-all shrink-0"
                 onClick={() => setIsMobileMenuOpen(true)}
               >
                 <Menu size={22} />
               </button>
 
-              <Link href={user ? dashboardHref : "/"} className="flex items-center gap-3 group">
-                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                  <LayoutDashboard size={20} className="text-white" />
+              <Link href={user ? dashboardHref : "/"} className="flex min-w-0 items-center gap-2 sm:gap-3 group">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shrink-0">
+                  <LayoutDashboard size={18} className="text-white sm:h-5 sm:w-5" />
                 </div>
-                <span className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">
+                <span className="truncate text-lg sm:text-2xl font-black tracking-tight text-slate-950 dark:text-white">
                   FreelanceHub<span className="text-primary-600">.</span>
                 </span>
               </Link>
@@ -69,7 +69,7 @@ export function Navbar() {
               </nav>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-4">
               {user ? (
                 <>
                   <Link href="/notifications" className="relative hidden sm:block">
@@ -88,7 +88,7 @@ export function Navbar() {
                     variant="secondary" 
                     size="md" 
                     onClick={handleLogout}
-                    className="rounded-2xl border-rose-100 dark:border-rose-900/30 hover:bg-rose-50 hover:text-rose-600"
+                    className="rounded-2xl border-rose-100 px-3 sm:px-5 dark:border-rose-900/30 hover:bg-rose-50 hover:text-rose-600"
                   >
                     <LogOut size={18} />
                     <span className="hidden sm:inline">Logout</span>
@@ -102,8 +102,9 @@ export function Navbar() {
                     </Button>
                   </Link>
                   <Link href="/auth/register">
-                    <Button size="md" className="rounded-2xl px-8">
-                      Join Platform
+                    <Button size="md" className="rounded-2xl px-4 sm:px-8 text-xs sm:text-sm">
+                      <span className="hidden sm:inline">Join Platform</span>
+                      <span className="sm:hidden">Join</span>
                     </Button>
                   </Link>
                 </>
@@ -127,10 +128,10 @@ export function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="absolute top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white dark:bg-slate-900 shadow-2xl border-r border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden"
+              className="absolute top-0 left-0 bottom-0 w-[88%] max-w-sm bg-white dark:bg-slate-900 shadow-2xl border-r border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden"
             >
-              <div className="flex items-center justify-between p-8 border-b border-slate-50 dark:border-slate-800/50">
-                <span className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">
+              <div className="flex items-center justify-between p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800/50">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-950 dark:text-white">
                   FreelanceHub<span className="text-primary-600">.</span>
                 </span>
                 <button 
@@ -141,13 +142,13 @@ export function Navbar() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto py-8 px-4 space-y-2">
+              <div className="flex-1 overflow-y-auto py-6 sm:py-8 px-4 space-y-2">
                 {navLinks.map((link) => (
                   <Link
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-6 py-4 text-lg font-black text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-all uppercase tracking-widest"
+                    className="block px-5 sm:px-6 py-4 text-base sm:text-lg font-black text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-all uppercase tracking-widest"
                   >
                     {link.name}
                   </Link>
@@ -155,7 +156,7 @@ export function Navbar() {
               </div>
 
               {!user && (
-                <div className="p-8 border-t border-slate-50 dark:border-slate-800/50 space-y-4 bg-slate-50/50 dark:bg-slate-900/50">
+                <div className="p-6 sm:p-8 border-t border-slate-50 dark:border-slate-800/50 space-y-4 bg-slate-50/50 dark:bg-slate-900/50">
                   <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="outline" size="md" className="w-full rounded-2xl">
                       Log in

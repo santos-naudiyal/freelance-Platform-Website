@@ -59,20 +59,20 @@ export function FeaturesSection() {
   };
 
   return (
-    <section className="py-20 lg:py-32 bg-white dark:bg-slate-950">
-      <div className="container px-6 mx-auto">
+    <section className="bg-white py-20 dark:bg-slate-950 lg:py-32">
+      <div className="section-shell">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center max-w-4xl mx-auto mb-20 space-y-6"
+          className="mx-auto mb-14 max-w-4xl space-y-5 text-center sm:mb-20 sm:space-y-6"
         >
           <h2 className="text-3xl sm:text-4xl md:text-7xl font-display font-black text-slate-950 dark:text-white leading-[1.2] md:leading-[1.1] tracking-tighter">
             The Operating System for <br className="hidden sm:block" />
             <span className="text-gradient">Elite Outcomes</span>
           </h2>
           <p className="text-base md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto px-4 sm:px-0">
-            Traditional marketplaces are just job boards. We've built an execution layer that turns your vision into a managed reality.
+            Traditional marketplaces are just job boards. We&apos;ve built an execution layer that turns your vision into a managed reality.
           </p>
         </motion.div>
 
@@ -81,18 +81,18 @@ export function FeaturesSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8"
         >
           {features.map((feature) => (
             <motion.div 
               key={feature.title} 
               variants={itemVariants}
-              className="group relative p-8 rounded-[2rem] bg-white border border-slate-100 dark:bg-slate-900 dark:border-slate-800/50 hover:border-primary-200 dark:hover:border-primary-800 transition-all duration-500 shadow-premium overflow-hidden"
+              className="group relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-6 shadow-premium transition-all duration-500 hover:border-primary-200 dark:border-slate-800/50 dark:bg-slate-900 dark:hover:border-primary-800 sm:p-8"
             >
               {/* Subtle background glow on hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <div className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white mb-8 shadow-lg shadow-primary-500/10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500`}>
+              <div className={`mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.color} text-white shadow-lg shadow-primary-500/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 sm:mb-8 sm:h-14 sm:w-14`}>
                 <feature.icon size={28} strokeWidth={2.5} />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-950 dark:text-white mb-4 tracking-tight">

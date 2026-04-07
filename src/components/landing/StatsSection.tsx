@@ -11,9 +11,9 @@ export function StatsSection() {
   ];
 
   return (
-    <section className="py-20 bg-slate-50 dark:bg-slate-950/50 border-y border-slate-200/60 dark:border-slate-800/60">
-      <div className="container px-6 mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16">
+    <section className="border-y border-slate-200/60 bg-slate-50 py-16 dark:border-slate-800/60 dark:bg-slate-950/50 sm:py-20">
+      <div className="section-shell">
+        <div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-4 md:gap-12 lg:gap-16">
           {stats.map((stat, index) => (
             <motion.div 
               key={stat.label}

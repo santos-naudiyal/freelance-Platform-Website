@@ -12,7 +12,8 @@ import {
   CreditCard,
   Settings,
   ChevronLeft,
-  Activity
+  Activity,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,21 +27,44 @@ const sidebarItems = [
   { icon: Activity, label: 'Activity', href: '/activity' },
 ];
 
-export function WorkspaceSidebar({ projectSlug }: { projectSlug: string }) {
+export function WorkspaceSidebar({
+  projectSlug,
+  isOpen = true,
+  onClose,
+}: {
+  projectSlug: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+}) {
   const pathname = usePathname();
   const baseUrl = `/workspace/${projectSlug}`;
 
   return (
-    <aside className="w-64 h-screen truncate sticky top-0 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800 flex flex-col">
+    <aside
+      className={cn(
+        "h-screen truncate bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800 flex flex-col",
+        "fixed inset-y-0 left-0 z-40 w-[84vw] max-w-64 transition-transform duration-300 lg:sticky lg:top-0 lg:w-64 lg:max-w-none",
+        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}
+    >
       <div className="p-6 flex flex-col h-full">
-        <Link href="/" className="flex items-center gap-2 group mb-10">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-primary-500/20 group-hover:scale-105 transition-transform">
-            <ChevronLeft size={18} />
-          </div>
-          <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-primary-600 transition-colors">
-            Exit Workspace
-          </span>
-        </Link>
+        <div className="mb-8 flex items-center justify-between gap-3">
+          <Link href="/" className="flex min-w-0 items-center gap-2 group" onClick={onClose}>
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-primary-500/20 group-hover:scale-105 transition-transform">
+              <ChevronLeft size={18} />
+            </div>
+            <span className="truncate text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-primary-600 transition-colors">
+              Exit Workspace
+            </span>
+          </Link>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-200/60 hover:text-slate-900 dark:hover:bg-slate-800/60 dark:hover:text-white lg:hidden"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
         <div className="space-y-1 flex-1">
           {sidebarItems.map((item) => {
@@ -49,6 +73,7 @@ export function WorkspaceSidebar({ projectSlug }: { projectSlug: string }) {
               <Link
                 key={item.label}
                 href={`${baseUrl}${item.href === '/overview' ? '' : item.href}`}
+                onClick={onClose}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                   isActive 

@@ -1,15 +1,13 @@
 "use client";
 
-import Link from 'next/link';
-import { ArrowRight, Star, ShieldCheck, Globe, Sparkles } from 'lucide-react';
-import { Button } from '../ui/Button';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export function HeroSection() {
   const { user } = useAuthStore();
   return (
-    <section className="relative pt-32 pb-24 overflow-hidden md:pt-52 md:pb-40 bg-slate-950">
+    <section className="relative overflow-hidden bg-slate-950 pb-20 pt-28 sm:pb-24 sm:pt-32 md:pb-32 md:pt-44 lg:pt-52">
       {/* Background Decorative Elements - Enhanced Premium Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <motion.div 
@@ -29,14 +27,14 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="container px-6 mx-auto">
-        <div className="flex flex-col items-center text-center max-w-5xl mx-auto space-y-10">
+      <div className="section-shell">
+        <div className="mx-auto flex max-w-5xl flex-col items-center text-center space-y-8 sm:space-y-10">
           {/* Premium Badge */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md text-primary-300 text-sm font-medium border border-white/10"
+            className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs sm:text-sm font-medium text-primary-300 backdrop-blur-md"
           >
             <Sparkles size={14} className="text-primary-400 animate-pulse" />
             <span className="tracking-tight">Trusted by 50,000+ industry leaders</span>
@@ -56,20 +54,20 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-2xl text-slate-400 max-w-3xl leading-relaxed px-4 sm:px-0"
+            className="max-w-3xl px-2 text-base leading-relaxed text-slate-400 sm:px-0 sm:text-lg md:text-2xl"
           >
-            The world's first <span className="font-bold text-white">Work Operating System</span>. 
-            Describe your outcome, and we'll build the workspace, recommend experts, and track progress for you.
+            The world&apos;s first <span className="font-bold text-white">Work Operating System</span>. 
+            Describe your outcome, and we&apos;ll build the workspace, recommend experts, and track progress for you.
           </motion.p>
 
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-3xl relative group mt-12"
+            className="relative mt-6 w-full max-w-3xl group sm:mt-10 md:mt-12"
           >
             <div className="absolute -inset-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-violet-500 rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-700"></div>
-            <div className="relative bg-white/5 backdrop-blur-2xl rounded-[2.5rem] p-2 sm:p-3 flex flex-col sm:flex-row items-stretch sm:items-center shadow-2xl gap-3 border border-white/10">
+            <div className="relative flex flex-col items-stretch gap-3 rounded-[2rem] border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-2xl sm:flex-row sm:items-center sm:rounded-[2.5rem] sm:p-3">
               <div className="flex-1 px-6 sm:px-8 py-3 sm:py-0 border-b sm:border-b-0 sm:border-r border-white/10 group-focus-within:border-primary-500/50 transition-colors">
                 <label htmlFor="project-creator" className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary-400 mb-1.5">
                   What do you want to build?
@@ -78,23 +76,23 @@ export function HeroSection() {
                   id="project-creator"
                   type="text" 
                   placeholder="e.g. Build a mobile app..."
-                  className="w-full bg-transparent border-none focus:ring-0 text-white placeholder:text-slate-500 font-bold text-lg sm:text-xl p-0"
+                  className="w-full bg-transparent border-none p-0 text-base font-bold text-white placeholder:text-slate-500 focus:ring-0 sm:text-xl"
                 />
               </div>
               <button 
                 onClick={() => window.location.href = user ? (user.role === 'client' ? '/create-project' : '/freelancer/dashboard') : '/auth/register'}
-                className="h-14 sm:h-[4.5rem] px-8 sm:px-12 rounded-[1.75rem] bg-primary-600 text-white font-black uppercase tracking-widest text-sm hover:bg-primary-700 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary-500/30 flex items-center justify-center gap-3 group shrink-0"
+                className="flex h-14 shrink-0 items-center justify-center gap-3 rounded-[1.5rem] bg-primary-600 px-6 text-xs font-black uppercase tracking-[0.18em] text-white shadow-xl shadow-primary-500/30 transition-all hover:scale-[1.02] hover:bg-primary-700 active:scale-95 sm:h-[4.5rem] sm:rounded-[1.75rem] sm:px-12 sm:text-sm"
               >
                 <span>{user ? (user.role === 'client' ? 'Continue' : 'Dashboard') : 'Get Started'}</span>
                 <ArrowRight size={20} className="group-hover:translate-x-1.5 transition-transform" />
               </button>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-3 mt-6">
+            <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:mt-6 sm:gap-3">
               {['Build Flutter app', 'Create landing page', 'Automate business process'].map((example) => (
                 <button 
                   key={example}
-                  className="text-xs font-bold px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 text-slate-500 hover:border-primary-300 hover:text-primary-600 dark:hover:border-primary-700 transition-all cursor-pointer"
+                  className="rounded-full border border-slate-200 px-3 py-2 text-[11px] font-bold text-slate-500 transition-all cursor-pointer hover:border-primary-300 hover:text-primary-600 dark:border-slate-800 dark:hover:border-primary-700 sm:px-4 sm:text-xs"
                 >
                   {example}
                 </button>
@@ -107,12 +105,12 @@ export function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="pt-20 w-full"
+            className="w-full pt-14 sm:pt-20"
           >
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-10">
               Powering innovation at
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-6 md:gap-x-20 opacity-40 grayscale contrast-125 dark:invert dark:opacity-30">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-5 opacity-40 grayscale contrast-125 dark:invert dark:opacity-30 sm:gap-x-8 md:gap-x-20">
               <div className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter">STRIPE</div>
               <div className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter">NETFLIX</div>
               <div className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter">UBER</div>

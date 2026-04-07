@@ -16,7 +16,6 @@ import {
   Filter,
   User,
   Briefcase,
-  ChevronRight,
   MessageCircle,
   Inbox,
   FileText,
@@ -26,10 +25,14 @@ import {
 import { Button } from '@/components/ui/Button';
 import { callBackend } from '@/lib/api';
 import { Project } from '@/types';
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ChatInterface } from '@/components/chat/ChatInterface';
 import { useSocket } from '@/components/providers/SocketProvider';
+import Link from 'next/link';
+
+type ProjectConversation = Project & {
+  lastMessageAt?: string | number | Date;
+};
 
 const clientSidebarItems = [
   { name: 'Dashboard', href: '/client/dashboard', icon: LayoutDashboard },
@@ -54,10 +57,11 @@ const freelancerSidebarItems = [
 export default function MessagesPage() {
   const { user } = useAuthStore();
   const { unreadCounts, clearUnread } = useSocket();
-  const [activeProjects, setActiveProjects] = useState<Project[]>([]);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [activeProjects, setActiveProjects] = useState<ProjectConversation[]>([]);
+  const [selectedProject, setSelectedProject] = useState<ProjectConversation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileListOpen, setIsMobileListOpen] = useState(true);
 
   useEffect(() => {
     const fetchActiveProjects = async () => {
@@ -68,9 +72,10 @@ export default function MessagesPage() {
           user?.role === 'freelancer' || ['open', 'in_progress', 'completed'].includes(p.status)
         );
         // Sort by last message time (WhatsApp style)
-        const sorted = (filtered || []).sort((a: any, b: any) => 
-          (b.lastMessageAt || b.createdAt) - (a.lastMessageAt || a.createdAt)
-        );
+        const sorted = (filtered || []).sort((a: ProjectConversation, b: ProjectConversation) => {
+          const getTime = (value?: string | number | Date) => new Date(value || 0).getTime();
+          return getTime(b.lastMessageAt || b.createdAt) - getTime(a.lastMessageAt || a.createdAt);
+        });
         setActiveProjects(sorted);
         
         // Auto-select first project if available
@@ -93,16 +98,20 @@ export default function MessagesPage() {
   );
 
   const activeSidebar = user?.role === 'freelancer' ? freelancerSidebarItems : clientSidebarItems;
+  const dashboardHref = user?.role === 'freelancer' ? '/freelancer/dashboard' : '/client/dashboard';
 
   return (
     <ProtectedRoute allowedRoles={['client', 'freelancer', 'admin']}>
       <DashboardLayout sidebarItems={activeSidebar} title="Messages">
-        <div className="h-[calc(100vh-160px)] max-w-7xl mx-auto">
+        <div className="h-[calc(100vh-132px)] sm:h-[calc(100vh-160px)]">
           
-          <div className="flex h-full gap-8">
+          <div className="flex h-full gap-4 lg:gap-8">
             
             {/* CONVERSATION LIST (LEFT PANE) */}
-            <div className="w-96 flex flex-col gap-6 h-full">
+            <div className={cn(
+              "h-full flex-col gap-4 sm:gap-6 lg:flex w-full lg:w-96",
+              isMobileListOpen ? "flex" : "hidden lg:flex"
+            )}>
               
               {/* Search & Filter */}
               <div className="flex items-center gap-3">
@@ -134,6 +143,7 @@ export default function MessagesPage() {
                       onClick={() => {
                         setSelectedProject(project);
                         clearUnread(project.id);
+                        setIsMobileListOpen(false);
                       }}
                       className={cn(
                         "w-full p-5 rounded-3xl border transition-all text-left group relative overflow-hidden",
@@ -194,12 +204,34 @@ export default function MessagesPage() {
             </div>
 
             {/* CHAT INTERFACE (RIGHT PANE) */}
-            <div className="flex-grow h-full bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border border-slate-100 dark:border-slate-800/50 p-2 overflow-hidden shadow-inner flex flex-col">
+            <div className={cn(
+              "h-full flex-grow flex-col overflow-hidden rounded-[2rem] sm:rounded-[3rem] border border-slate-100 bg-slate-50 p-2 shadow-inner dark:border-slate-800/50 dark:bg-slate-900/30",
+              isMobileListOpen ? "hidden lg:flex" : "flex"
+            )}>
               {selectedProject ? (
-                <ChatInterface 
-                  projectId={selectedProject.id} 
-                  recipientName={selectedProject.otherPersonName || (user?.role === 'client' ? 'Assigned Freelancer' : 'Project Client')}
-                />
+                <>
+                  <div className="flex items-center justify-between gap-3 border-b border-slate-200/70 px-3 py-3 dark:border-slate-800 lg:hidden">
+                    <button
+                      type="button"
+                      onClick={() => setIsMobileListOpen(true)}
+                      className="rounded-xl bg-white px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 shadow-sm transition-colors hover:text-primary-600 dark:bg-slate-950 dark:text-slate-300"
+                    >
+                      Back
+                    </button>
+                    <div className="min-w-0 text-right">
+                      <p className="truncate text-sm font-black text-slate-900 dark:text-white">
+                        {selectedProject.otherPersonName || (user?.role === 'client' ? 'Assigned Freelancer' : 'Project Client')}
+                      </p>
+                      <p className="truncate text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        {selectedProject.title}
+                      </p>
+                    </div>
+                  </div>
+                  <ChatInterface 
+                    projectId={selectedProject.id} 
+                    recipientName={selectedProject.otherPersonName || (user?.role === 'client' ? 'Assigned Freelancer' : 'Project Client')}
+                  />
+                </>
               ) : (
                 <div className="flex-grow flex flex-col items-center justify-center space-y-6 text-center">
                   <div className="p-8 rounded-[3rem] bg-white dark:bg-slate-900 shadow-2xl border border-slate-50 dark:border-slate-800 relative">
@@ -211,6 +243,9 @@ export default function MessagesPage() {
                     <p className="text-sm font-medium text-slate-500 max-w-xs mx-auto">
                       Start chatting with your partner to align on project objectives and milestones.
                     </p>
+                    <Link href={dashboardHref} className="inline-block pt-2 lg:hidden">
+                      <Button size="sm" className="rounded-xl">Go to dashboard</Button>
+                    </Link>
                   </div>
                 </div>
               )}
