@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -22,10 +22,8 @@ import {
   ClipboardList, 
   Search, 
   MessageSquare, 
-  CreditCard, 
   Settings,
   ArrowLeft,
-  DollarSign,
   Calendar,
   Briefcase
 } from 'lucide-react';
@@ -37,14 +35,28 @@ const sidebarItems = [
   { name: 'Proposals', href: '/client/proposals', icon: Users },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Payments', href: '/client/payments', icon: CreditCard },
   { name: 'Settings', href: '/client/settings', icon: Settings },
 ];
+
+type ProposalStatus = 'pending' | 'accepted' | 'rejected';
+
+interface ProposalDetail {
+  id: string;
+  projectTitle?: string;
+  freelancerId: string;
+  status: ProposalStatus;
+  createdAt: string | number | Date;
+  deliveryTime?: string;
+  estimatedDuration?: string;
+  coverLetter?: string;
+  bidAmount?: number;
+  rate?: number;
+}
 
 export default function ProposalDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [proposal, setProposal] = useState<any>(null);
+  const [proposal, setProposal] = useState<ProposalDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -62,18 +74,18 @@ export default function ProposalDetailPage() {
     if (id) fetchProposal();
   }, [id]);
 
-  const handleStatusUpdate = async (newStatus: string) => {
+  const handleStatusUpdate = async (newStatus: ProposalStatus) => {
     setActionLoading(true);
     try {
       await callBackend(`proposals/${id}/status`, 'PATCH', { status: newStatus });
-      setProposal((prev: any) => ({ ...prev, status: newStatus }));
+      setProposal((prev) => prev ? { ...prev, status: newStatus } : prev);
       alert(`Proposal ${newStatus} successfully!`);
       if (newStatus === 'accepted') {
         router.push('/client/manage-projects');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Action Failed:', err);
-      alert(err.message || 'Failed to update status');
+      alert(err instanceof Error ? err.message : 'Failed to update status');
     } finally {
       setActionLoading(false);
     }
@@ -102,7 +114,7 @@ export default function ProposalDetailPage() {
                <FileText size={40} />
             </div>
             <h2 className="text-3xl font-black text-slate-900 dark:text-white">Proposal Not Found</h2>
-            <p className="text-slate-500">The proposal you are looking for does not exist or you don't have access.</p>
+            <p className="text-slate-500">The proposal you are looking for does not exist or you don&apos;t have access.</p>
             <Link href="/client/proposals">
                <Button variant="outline">Back to Bids</Button>
             </Link>
@@ -111,6 +123,9 @@ export default function ProposalDetailPage() {
       </ProtectedRoute>
     );
   }
+
+  const bidAmount = proposal.bidAmount ?? proposal.rate ?? 0;
+  const projectTitle = proposal.projectTitle || 'your project';
 
   return (
     <ProtectedRoute allowedRoles={['client']}>
@@ -135,11 +150,11 @@ export default function ProposalDetailPage() {
                 <CardContent className="p-8 md:p-10 space-y-8">
                    <div className="flex flex-wrap items-center justify-between gap-4">
                       <div className="space-y-1">
-                        <Badge variant="outline" className="font-black tracking-widest uppercase text-[10px] bg-primary-50 text-primary-700 border-none px-3 py-1 mb-2">
+                        <Badge variant="info" className="font-black tracking-widest uppercase text-[10px] bg-primary-50 text-primary-700 border-none px-3 py-1 mb-2">
                            {proposal.status}
                         </Badge>
                         <h1 className="text-3xl md:text-4xl font-display font-black tracking-tight text-slate-950 dark:text-white leading-tight">
-                           Bid for {proposal.projectTitle}
+                           Bid for {projectTitle}
                         </h1>
                       </div>
                    </div>
@@ -207,7 +222,7 @@ export default function ProposalDetailPage() {
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Bid Amount</p>
                        <h2 className="text-5xl font-black flex items-start gap-1">
                           <span className="text-2xl mt-2 text-primary-500">$</span>
-                          {proposal.bidAmount.toLocaleString()}
+                          {bidAmount.toLocaleString()}
                        </h2>
                     </div>
 
@@ -264,7 +279,7 @@ export default function ProposalDetailPage() {
                     <CheckCircle2 size={14} className="text-emerald-500" />
                     Secure Collaboration
                  </p>
-                 <p>Funds are only released when you approve milestones. No upfront cost is transacted until we verify the freelancer's roadmap.</p>
+                 <p>Accept only when the proposal matches your scope, timeline, and delivery expectations.</p>
               </div>
 
             </div>
