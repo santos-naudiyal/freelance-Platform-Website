@@ -12,7 +12,6 @@ import {
   ClipboardList, 
   Users, 
   MessageSquare, 
-  CreditCard, 
   Settings,
   ArrowUpRight,
   Search
@@ -52,7 +51,6 @@ const sidebarItems = [
   { name: 'Proposals', href: '/client/proposals', icon: Users },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Payments', href: '/client/payments', icon: CreditCard },
   { name: 'Settings', href: '/client/settings', icon: Settings },
 ];
 
@@ -65,7 +63,7 @@ export default function ClientDashboard() {
     { name: 'Open Projects', value: '0', icon: ClipboardList, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
     { name: 'Proposals Received', value: '0', icon: Users, color: 'text-primary-600', bg: 'bg-primary-50 dark:bg-primary-900/20' },
     { name: 'Active Hires', value: '0', icon: ArrowUpRight, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-    { name: 'Total Spent', value: '$0', icon: CreditCard, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
+    { name: 'Shortlisted Experts', value: '0', icon: Search, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
   ]);
 
   useEffect(() => {
@@ -87,10 +85,10 @@ export default function ClientDashboard() {
           'Open Projects': ClipboardList,
           'Proposals Received': Users,
           'Active Hires': ArrowUpRight,
-          'Total Spent': CreditCard
+          'Shortlisted Experts': Search
         };
 
-        const updatedStats = (dashboardData.stats || []).map((s) => ({
+        const updatedStats = (dashboardData.stats || []).filter((s) => s.name !== 'Total Spent').map((s) => ({
           ...s,
           icon: iconMap[s.name] || ClipboardList,
           color: s.name === 'Open Projects' ? 'text-indigo-600' : 
@@ -265,17 +263,6 @@ export default function ClientDashboard() {
                            <span className="text-sm font-bold">Find Top Freelancers</span>
                          </div>
                          <ArrowUpRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition-all" />
-                       </button>
-                    </Link>
-                    <Link href="/client/payments">
-                       <button className="w-full flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-950/40 hover:bg-slate-50 dark:hover:bg-slate-900/60 text-slate-900 dark:text-white transition-all text-left group border border-slate-100 dark:border-slate-800/50 shadow-sm">
-                         <div className="flex items-center gap-3">
-                           <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transition-colors">
-                              <CreditCard size={20} />
-                           </div>
-                           <span className="text-sm font-bold">Transaction History</span>
-                         </div>
-                         <ArrowUpRight size={16} className="text-slate-300 group-hover:text-emerald-500 transition-all" />
                        </button>
                     </Link>
                   </div>

@@ -10,7 +10,6 @@ import {
   Briefcase, 
   FileText, 
   MessageSquare, 
-  DollarSign, 
   Settings,
   CheckCircle2,
   Clock,
@@ -35,7 +34,6 @@ const sidebarItems = [
   { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
   { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
   { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 
@@ -241,13 +239,13 @@ export default function FreelancerProjectsPage() {
                {[1, 2, 3].map((i) => (
                  <div key={i} className="p-6 rounded-3xl bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50">
                    <div className="h-10 w-10 rounded-2xl bg-slate-50 dark:bg-slate-800/50 mb-4 flex items-center justify-center text-slate-400">
-                     {i === 1 ? <DollarSign size={20} /> : i === 2 ? <CheckCircle2 size={20} /> : <Clock size={20} />}
+                     {i === 1 ? <Briefcase size={20} /> : i === 2 ? <CheckCircle2 size={20} /> : <Clock size={20} />}
                    </div>
                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
-                     {i === 1 ? 'Pending Earnings' : i === 2 ? 'Completed' : 'Upcoming Deadlines'}
+                     {i === 1 ? 'Active Contracts' : i === 2 ? 'Completed' : 'Upcoming Deadlines'}
                    </p>
                    <h4 className="text-2xl font-display font-black tracking-tight text-slate-900 dark:text-white">
-                      {i === 1 ? '₹0.00' : i === 2 ? '0' : 'None'}
+                      {i === 1 ? projects.length : i === 2 ? '0' : 'None'}
                    </h4>
                  </div>
                ))}

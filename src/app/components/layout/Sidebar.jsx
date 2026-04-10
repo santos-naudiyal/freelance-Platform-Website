@@ -14,11 +14,6 @@ export default function Sidebar() {
         <Link href="/freelancer/projects">
           Projects
         </Link>
-
-        <Link href="/freelancer/earnings">
-          Earnings
-        </Link>
-
         <Link href="/messages">
           Messages
         </Link>

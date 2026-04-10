@@ -12,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { useAuthStore } from '../../../store/useAuthStore';
 import { motion } from 'framer-motion';
 
+const HERO_PROJECT_REQUIREMENT_KEY = 'freelancehub.pendingProjectRequirement';
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -32,13 +34,17 @@ export default function LoginPage() {
       const token = await userCredential.user.getIdToken();
       
       try {
-        const resp = await fetch('http://localhost:5000/api/users/profile', {
+        const resp = await fetch('http://localhost:5001/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
         if (resp.ok) {
           const profile = await resp.json();
           if (profile.role === 'client') {
+            if (window.localStorage.getItem(HERO_PROJECT_REQUIREMENT_KEY)) {
+              router.push('/create-project');
+              return;
+            }
             router.push('/client/dashboard');
             return;
           } else if (profile.role === 'freelancer') {

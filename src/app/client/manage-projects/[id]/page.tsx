@@ -12,24 +12,18 @@ import {
   ClipboardList, 
   Search, 
   MessageSquare, 
-  CreditCard, 
   Settings,
   User,
   Users,
   CheckCircle2,
   XCircle,
   Clock,
-  ExternalLink,
-  ChevronRight,
-  TrendingUp,
-  DollarSign,
   AlertCircle
 } from 'lucide-react';
 import { Button } from '../../../../components/ui/Button';
 import { Badge } from '../../../../components/ui/Badge';
 import { Skeleton } from '../../../../components/ui/Skeleton';
 import { Project, Proposal } from '../../../../types';
-import { PaymentModal } from '../../../../components/workspace/PaymentModal';
 import { AIRecommendedExperts } from '../../../../components/workspace/AIRecommendedExperts';
 import { callBackend } from '../../../../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,7 +36,6 @@ const sidebarItems = [
   { name: 'Proposals', href: '/client/proposals', icon: Users },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Payments', href: '/client/payments', icon: CreditCard },
   { name: 'Settings', href: '/client/settings', icon: Settings },
 ];
 
@@ -55,7 +48,6 @@ export default function ProjectProposalsPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [selectedProposalForPayment, setSelectedProposalForPayment] = useState<Proposal | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -252,10 +244,10 @@ export default function ProjectProposalsPage() {
                             <>
                               <Button 
                                 className="flex-1 rounded-2xl h-12 font-black tracking-tight"
-                                onClick={() => setSelectedProposalForPayment(proposal)}
+                                onClick={() => handleProposalAction(proposal.id, 'accepted')}
                                 isLoading={actionLoading === proposal.id}
                               >
-                                Hire Now
+                                Accept Proposal
                               </Button>
                               <Button 
                                 variant="outline" 
@@ -302,18 +294,6 @@ export default function ProjectProposalsPage() {
           </div>
         </div>
 
-        {selectedProposalForPayment && project && (
-          <PaymentModal
-            isOpen={!!selectedProposalForPayment}
-            onClose={() => setSelectedProposalForPayment(null)}
-            amount={selectedProposalForPayment.bidAmount || selectedProposalForPayment.rate || 0}
-            projectId={project.id}
-            onSuccess={() => {
-              handleProposalAction(selectedProposalForPayment.id, 'accepted');
-              setSelectedProposalForPayment(null);
-            }}
-          />
-        )}
       </DashboardLayout>
     </ProtectedRoute>
   );

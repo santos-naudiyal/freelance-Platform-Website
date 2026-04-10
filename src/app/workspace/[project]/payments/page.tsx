@@ -1,17 +1,10 @@
-import React from 'react';
-import { WorkspaceLayout } from '@/components/workspace/WorkspaceLayout';
-import { Payments } from '@/components/workspace/Payments';
+import { redirect } from 'next/navigation';
 
-export default async function PaymentsPage({ 
-  params 
-}: { 
-  params: Promise<{ project: string }> 
+export default async function PaymentsPage({
+  params,
+}: {
+  params: Promise<{ project: string }>;
 }) {
   const { project } = await params;
-
-  return (
-    <WorkspaceLayout projectSlug={project}>
-      <Payments workspaceId={project} />
-    </WorkspaceLayout>
-  );
+  redirect(`/workspace/${project}`);
 }

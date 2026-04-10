@@ -25,7 +25,6 @@ import {
   ClipboardList,
   Search,
   MessageSquare,
-  CreditCard,
   Settings
 } from 'lucide-react';
 
@@ -36,7 +35,6 @@ const sidebarItems = [
   { name: 'Proposals', href: '/client/proposals', icon: Users },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Payments', href: '/client/payments', icon: CreditCard },
   { name: 'Settings', href: '/client/settings', icon: Settings },
 ];
 

@@ -10,8 +10,9 @@ import { signOut } from 'firebase/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Navbar() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, isInitialized, isLoading } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isAuthReady = isInitialized && !isLoading;
 
   const handleLogout = async () => {
     try {
@@ -26,11 +27,11 @@ export function Navbar() {
   const profileHref = user?.role === 'client' ? '/client/settings' : '/freelancer/settings';
 
   const navLinks = [
-    { name: 'Home', href: user ? dashboardHref : '/' },
+    { name: 'Home', href: isAuthReady && user ? dashboardHref : '/' },
     { name: 'Projects', href: '/projects/browse' },
     { name: 'Explore', href: '/freelancers/discover' },
     { name: 'Messages', href: '/messages' },
-    { name: 'Settings', href: user ? profileHref : '/auth/login' },
+    { name: 'Settings', href: isAuthReady && user ? profileHref : '/auth/login' },
   ];
 
   return (
@@ -47,7 +48,7 @@ export function Navbar() {
                 <Menu size={22} />
               </button>
 
-              <Link href={user ? dashboardHref : "/"} className="flex min-w-0 items-center gap-2 sm:gap-3 group">
+              <Link href={isAuthReady && user ? dashboardHref : "/"} className="flex min-w-0 items-center gap-2 sm:gap-3 group">
                 <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shrink-0">
                   <LayoutDashboard size={18} className="text-white sm:h-5 sm:w-5" />
                 </div>
@@ -70,7 +71,9 @@ export function Navbar() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-              {user ? (
+              {!isAuthReady ? (
+                <div className="hidden h-11 w-40 rounded-2xl bg-slate-100/70 dark:bg-slate-800/70 sm:block" />
+              ) : user ? (
                 <>
                   <Link href="/notifications" className="relative hidden sm:block">
                     <button className="h-11 w-11 rounded-2xl border-2 border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:border-primary-500/30 transition-all group">

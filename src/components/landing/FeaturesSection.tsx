@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { ShieldCheck, Zap, Globe, MessageSquare, CreditCard, Award } from 'lucide-react';
+import { ShieldCheck, Zap, Globe, MessageSquare, ClipboardCheck, Award } from 'lucide-react';
 
 export function FeaturesSection() {
   const features = [
@@ -30,9 +30,9 @@ export function FeaturesSection() {
       color: 'from-primary-500 to-violet-500',
     },
     {
-      title: 'Pay-on-Progress',
-      description: 'Payments are automatically tied to workspace milestones. Funds release only when deliverables meet your standards.',
-      icon: CreditCard,
+      title: 'Milestone Control',
+      description: 'Break work into clear deliverables, approvals, and status updates so everyone knows what is finished and what comes next.',
+      icon: ClipboardCheck,
       color: 'from-rose-500 to-pink-500',
     },
     {

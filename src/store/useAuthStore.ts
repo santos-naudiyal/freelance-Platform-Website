@@ -12,6 +12,7 @@ interface AuthState {
   setFreelancerDetails: (details: FreelancerProfile | null) => void;
   setLoading: (isLoading: boolean) => void;
   setInitialized: (init: boolean) => void;
+  clearUser: () => void;
   logout: () => void;
 }
 
@@ -25,8 +26,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   setFreelancerDetails: (details) => set({ freelancerDetails: details }),
   setLoading: (isLoading) => set({ isLoading }),
   setInitialized: (isInitialized) => set({ isInitialized }),
+  clearUser: () => {
+    clearTokenCache();
+    set({ user: null, freelancerDetails: null, isAuthenticated: false, isLoading: false, isInitialized: true });
+  },
   logout: () => {
     clearTokenCache();
-    set({ user: null, freelancerDetails: null, isAuthenticated: false, isInitialized: false });
+    set({ user: null, freelancerDetails: null, isAuthenticated: false, isLoading: false, isInitialized: true });
   },
 }));

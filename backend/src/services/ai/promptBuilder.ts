@@ -109,18 +109,17 @@ Return EXACTLY this JSON format:
   },
 
   PROJECT_QUOTATION: {
-    system: "You are an Elite Solution Architect and Market Analyst. You must generate highly detailed, professional project quotations. Return ONLY valid JSON.",
+    system: "You are a senior freelance project estimator. Generate practical, client-ready quotations that respect the client's stated budget. Return ONLY valid JSON.",
     buildUserPrompt: (outcome: string, targetBudget?: { amount: string; currency: string }) => `
-Analyze the following project and generate a complete, structurally deep professional quotation.
+Analyze the following project and generate a realistic freelance project quotation.
 
 CRITICAL INSTRUCTIONS:
-1. Identify the domain (e.g., Tech, Finance, Marketing, Legal).
-2. For the "architectureFlow", generate a domain-specific structural breakdown. If Tech: Detail the Frontend, Backend, Admin Panel, Database schemas, and functional flows. If Finance: Detail the Ledger mapping, Compliance, Audit Trails, and Payment Flows. DO NOT use generic terms like "Planning". Be extremely deep and technical.
-3. FINANCIAL PRECISION:
-   - Generate mathematically sound, precise estimates for BOTH "indianMarket" (INR ₹) and "globalMarket" (USD $).
-   - AVOID round numbers (e.g., 50,000, 1,00,000, 5,000). Use market-accurate precise numbers (e.g., ₹1,24,560, $3,425).
-   - ${targetBudget?.amount ? `The client has a TARGET BUDGET of ${targetBudget.currency} ${targetBudget.amount}. Align your recommendation with this if realistic, or provide a "Market Reality Check" in the summary if it's too low/high.` : 'Estimate based on current elite freelancer market rates.'}
-4. Write like a multi-million dollar consultancy firm (McKinsey/Deloitte style).
+1. Respect the client budget. ${targetBudget?.amount ? `The client budget is ${targetBudget.currency} ${targetBudget.amount}. The recommended quotation and maximum quotation MUST NOT exceed this amount in the same currency. Build a practical scope inside this budget.` : 'Estimate based on fair freelance market rates.'}
+2. Do not create fake "elite consultancy" language. Write like a real software agency quotation.
+3. Include concrete costing line items in "tasks": UI/UX design, frontend or app development, backend/API, database, admin panel if relevant, integrations, QA/testing, deployment, and project management.
+4. The sum of task costs should match the recommended price as closely as possible.
+5. Use realistic rounded invoice numbers, not fake-looking random numbers.
+6. For "architectureFlow", describe useful delivery modules, not vague terms like Planning or Strategy.
 
 Project details:
 "${outcome}"
@@ -129,14 +128,14 @@ Return JSON in this EXACT format:
 {
   "projectTitle": "Clear, premium professional name",
   "summary": { 
-    "text": "A highly professional executive summary. If the budget was too low, explain why here.", 
+    "text": "Plain professional summary of what is included in this quotation and how the budget is being used.",
     "complexity": "Low/Medium/High/Enterprise", 
     "confidenceScore": 98 
   },
   "architectureFlow": [
     {
-      "phase": "e.g., Core Systems Architecture",
-      "details": "Technical explanation of the database schema, compliance rules, or system logic.",
+      "phase": "e.g., UI/UX and Client App",
+      "details": "Specific deliverables and implementation details.",
       "technologies": ["Next.js", "PostgreSQL", "Stripe API"]
     }
   ],
@@ -145,8 +144,12 @@ Return JSON in this EXACT format:
     "globalMarket": { "currency": "USD", "min": 3240, "max": 5890, "recommended": 4250 }
   },
   "timeline": { "minDays": 18, "maxDays": 42, "recommended": "32 days" },
-  "tasks": [ 
-    { "name": "...", "description": "...", "hours": 12, "costINR": 14200, "costUSD": 385 } 
+  "tasks": [
+    { "name": "UI/UX Design", "description": "Wireframes, visual design, responsive screens, and design handoff.", "hours": 24, "costINR": 12000, "costUSD": 145 },
+    { "name": "Frontend/App Development", "description": "Client-facing screens, forms, state handling, validations, and responsive implementation.", "hours": 48, "costINR": 22000, "costUSD": 265 },
+    { "name": "Backend API and Database", "description": "Server APIs, data models, authentication rules, and database setup.", "hours": 36, "costINR": 16000, "costUSD": 195 },
+    { "name": "Admin Panel", "description": "Admin dashboard for managing users, content, orders, bookings, projects, or reports as required.", "hours": 28, "costINR": 14000, "costUSD": 170 },
+    { "name": "QA, Deployment and Handover", "description": "Testing, bug fixes, production deployment, documentation, and handover.", "hours": 20, "costINR": 8000, "costUSD": 95 }
   ],
   "skills": ["Enterprise Architecture", "React", "Audit Compliance"],
   "risks": [ { "risk": "...", "mitigation": "..." } ],

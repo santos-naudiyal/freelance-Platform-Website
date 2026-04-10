@@ -11,7 +11,6 @@ import {
   Briefcase, 
   FileText, 
   MessageSquare, 
-  DollarSign, 
   Settings,
   ArrowUpRight,
   Clock,
@@ -54,7 +53,6 @@ const sidebarItems = [
   { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
   { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
   { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 
@@ -66,7 +64,7 @@ export default function FreelancerDashboard() {
   const [stats, setStats] = useState([
     { name: 'Active Projects', value: '0', icon: Briefcase, color: 'text-primary-600', bg: 'bg-primary-50 dark:bg-primary-900/20' },
     { name: 'Proposals Sent', value: '0', icon: FileText, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
-    { name: 'Total Earnings', value: '₹0', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+    { name: 'Completed Jobs', value: '0', icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
     { name: 'Avg. Rating', value: '5.0', icon: CheckCircle2, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
   ]);
 
@@ -89,15 +87,15 @@ export default function FreelancerDashboard() {
         const iconMap: Record<string, LucideIcon> = {
           'Active Projects': Briefcase,
           'Proposals Sent': FileText,
-          'Total Earnings': DollarSign,
+          'Completed Jobs': CheckCircle2,
           'Avg. Rating': CheckCircle2
         };
 
-        const updatedStats = dashboardData.stats?.map((s) => ({
+        const updatedStats = dashboardData.stats?.filter((s) => s.name !== 'Total Earnings').map((s) => ({
           ...s,
           icon: iconMap[s.name] || Briefcase,
-          color: s.name === 'Total Earnings' ? 'text-emerald-600' : 'text-primary-600',
-          bg: s.name === 'Total Earnings' ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-primary-50 dark:bg-primary-900/20'
+          color: s.name === 'Completed Jobs' ? 'text-emerald-600' : 'text-primary-600',
+          bg: s.name === 'Completed Jobs' ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-primary-50 dark:bg-primary-900/20'
         })) || stats;
 
         setStats(updatedStats);

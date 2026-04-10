@@ -7,7 +7,7 @@ import { cn } from '../ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Menu, X, Bell, User as UserIcon,
-  Briefcase, FileText, MessageSquare, DollarSign, Settings as SettingsIcon,
+  Briefcase, FileText, MessageSquare, Settings as SettingsIcon,
   Search, CheckCircle2, Zap, LogOut
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -38,7 +38,6 @@ export function DashboardLayout({ children, title, sidebarItems }: DashboardLayo
     { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
     { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
     { name: 'Messages', href: '/messages', icon: MessageSquare },
-    { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
     { name: 'Settings', href: '/freelancer/settings', icon: SettingsIcon },
   ];
 

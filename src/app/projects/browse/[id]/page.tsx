@@ -10,7 +10,6 @@ import {
   Briefcase, 
   FileText, 
   MessageSquare, 
-  DollarSign, 
   Settings,
   CheckCircle2,
   Clock,
@@ -41,7 +40,6 @@ const sidebarItems = [
   { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
   { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
   { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 
@@ -164,7 +162,6 @@ export default function ProjectDetailsPage() {
                         {project?.status === 'open' ? 'Accepting Bids' : 'Bidding Closed'}
                       </Badge>
                       <Badge variant="info" className="uppercase tracking-widest text-[10px] font-black px-3 py-1">Featured</Badge>
-                      <Badge variant="success" className="uppercase tracking-widest text-[10px] font-black px-3 py-1">Payment Verified</Badge>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-display font-black tracking-tight text-slate-900 dark:text-white">
                       {project?.title}
@@ -252,7 +249,7 @@ export default function ProjectDetailsPage() {
                   {/* Extra Features / Trust Badges */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[
-                      { icon: ShieldCheck, title: 'Safe Payments', desc: 'Secure escrow matching' },
+                      { icon: ShieldCheck, title: 'Verified Clients', desc: 'Work with reviewed project owners' },
                       { icon: Trophy, title: 'Top Rated', desc: 'Work with elite clients' },
                       { icon: Zap, title: 'Quick Start', desc: 'Direct contract release' }
                     ].map((feature, i) => (

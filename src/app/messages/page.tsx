@@ -10,7 +10,6 @@ import {
   ClipboardList, 
   Search, 
   MessageSquare, 
-  CreditCard, 
   Settings,
   SearchIcon,
   Filter,
@@ -19,8 +18,7 @@ import {
   MessageCircle,
   Inbox,
   FileText,
-  CheckCircle2,
-  DollarSign
+  CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { callBackend } from '@/lib/api';
@@ -40,7 +38,6 @@ const clientSidebarItems = [
   { name: 'Manage Projects', href: '/client/manage-projects', icon: ClipboardList },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Payments', href: '/client/payments', icon: CreditCard },
   { name: 'Settings', href: '/client/settings', icon: Settings },
 ];
 
@@ -50,7 +47,6 @@ const freelancerSidebarItems = [
   { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
   { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
   { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 

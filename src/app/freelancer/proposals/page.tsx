@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ProtectedRoute } from '../../../components/layout/ProtectedRoute';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/Card';
-import { LayoutDashboard, Briefcase, FileText, MessageSquare, DollarSign, Settings, CheckCircle2, Clock } from 'lucide-react';
+import { LayoutDashboard, Briefcase, FileText, MessageSquare, Settings, CheckCircle2, Clock } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import Link from 'next/link';
 import { auth } from '../../../lib/firebase';
@@ -17,7 +17,6 @@ const sidebarItems = [
   { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
   { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
   { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 
@@ -32,7 +31,7 @@ export default function FreelancerProposalsPage() {
 
       try {
         const token = await auth.currentUser.getIdToken();
-        const resp = await fetch('http://localhost:5000/api/proposals/my', {
+        const resp = await fetch('http://localhost:5001/api/proposals/my', {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (resp.ok) {

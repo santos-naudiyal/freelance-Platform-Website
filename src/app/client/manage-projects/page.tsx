@@ -10,7 +10,6 @@ import {
   ClipboardList, 
   Search, 
   MessageSquare, 
-  CreditCard, 
   Settings,
   MoreVertical,
   Briefcase,
@@ -38,7 +37,6 @@ const sidebarItems = [
   { name: 'Proposals', href: '/client/proposals', icon: Search },
   { name: 'Find Freelancers', href: '/freelancers/discover', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Payments', href: '/client/payments', icon: CreditCard },
   { name: 'Settings', href: '/client/settings', icon: Settings },
 ];
 

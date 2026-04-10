@@ -10,7 +10,6 @@ import {
   Briefcase, 
   FileText, 
   MessageSquare, 
-  DollarSign, 
   Settings,
   CheckCircle2,
   Search,
@@ -40,7 +39,6 @@ const sidebarItems = [
   { name: 'My Proposals', href: '/freelancer/proposals', icon: FileText },
   { name: 'Active Projects', href: '/freelancer/projects', icon: CheckCircle2 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Earnings', href: '/freelancer/earnings', icon: DollarSign },
   { name: 'Settings', href: '/freelancer/settings', icon: Settings },
 ];
 

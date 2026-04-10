@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -17,11 +17,14 @@ import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { callBackend } from '@/lib/api';
 
+const HERO_PROJECT_REQUIREMENT_KEY = 'freelancehub.pendingProjectRequirement';
+const DEFAULT_PROJECT_REQUIREMENT = 'Build a high-performance Flutter mobile app for a fintech startup';
+
 export default function CreateProjectPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const [step, setStep] = useState(1);
-  const [outcome, setOutcome] = useState("Build a high-performance Flutter mobile app for a fintech startup");
+  const [outcome, setOutcome] = useState(DEFAULT_PROJECT_REQUIREMENT);
   const [aiData, setAiData] = useState<any>(null);
   const [targetBudget, setTargetBudget] = useState<{ amount: string; currency: 'INR' | 'USD' }>({ amount: '', currency: 'INR' });
   const [isPublishing, setIsPublishing] = useState(false);
@@ -34,9 +37,16 @@ export default function CreateProjectPage() {
     { name: 'Proposals', href: '/client/proposals', icon: require('lucide-react').Users },
     { name: 'Find Freelancers', href: '/freelancers/discover', icon: require('lucide-react').Search },
     { name: 'Messages', href: '/messages', icon: require('lucide-react').MessageSquare },
-    { name: 'Payments', href: '/client/payments', icon: require('lucide-react').CreditCard },
     { name: 'Settings', href: '/client/settings', icon: require('lucide-react').Settings },
   ];
+
+  useEffect(() => {
+    const pendingRequirement = window.localStorage.getItem(HERO_PROJECT_REQUIREMENT_KEY);
+    if (!pendingRequirement) return;
+
+    setOutcome(pendingRequirement);
+    window.localStorage.removeItem(HERO_PROJECT_REQUIREMENT_KEY);
+  }, []);
 
   const handlePublishProject = async () => {
     if (!aiData || !user) return;
@@ -52,7 +62,7 @@ export default function CreateProjectPage() {
         // Use client's target budget
         const amount = parseInt(targetBudget.amount);
         minBudget = Math.floor(amount * 0.8);
-        maxBudget = Math.ceil(amount * 1.2);
+        maxBudget = amount;
         currency = targetBudget.currency;
       } else if (aiData.analysis?.investment) {
         // Fallback to AI investment parsing
