@@ -205,7 +205,7 @@ export default function ClientDashboard() {
                           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                              <div className="flex items-center gap-2">
                                <div className="h-2 w-2 rounded-full bg-primary-500" />
-                               <span className="text-xs font-bold text-slate-600 dark:text-slate-400">${project.budget?.max || project.budget?.amount} Budget</span>
+                               <span className="text-xs font-bold text-slate-600 dark:text-slate-400">₹{project.budget?.max || project.budget?.amount} Budget</span>
                              </div>
                              <div className="flex items-center gap-2">
                                <Users size={14} className="text-slate-400" />
@@ -288,7 +288,7 @@ export default function ClientDashboard() {
                             {proposal.projectTitle}
                           </p>
                           <p className="text-[10px] font-bold text-slate-500">
-                             Bid: ${proposal.bidAmount}
+                             Bid: ₹{proposal.bidAmount}
                           </p>
                         </div>
                         <Link href="/client/proposals">

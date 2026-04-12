@@ -38,7 +38,7 @@ export default async function DisputeResolutionPage({
           </div>
           <div className="premium-card p-6 bg-slate-900 text-white border-none shadow-2xl">
              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Escrow at Stake</div>
-             <div className="text-3xl font-display font-black">$2,450.00</div>
+             <div className="text-3xl font-display font-black">₹2,450.00</div>
           </div>
         </div>
 

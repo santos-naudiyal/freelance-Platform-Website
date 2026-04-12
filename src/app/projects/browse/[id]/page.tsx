@@ -334,12 +334,12 @@ export default function ProjectDetailsPage() {
                                <div className="flex justify-between items-center text-sm font-bold text-slate-500">
                                   <span>Client Budget</span>
                                   <span className="text-slate-900 dark:text-white">
-                                    ${project?.budget.min} - ${project?.budget.max}
+                                    ₹{project?.budget.min} - ₹{project?.budget.max}
                                   </span>
                                </div>
                                <Input
                                  type="number"
-                                 label="Your Bid Amount ($)"
+                                 label="Your Bid Amount (₹)"
                                  value={bidAmount}
                                  onChange={(e) => setBidAmount(Number(e.target.value))}
                                  placeholder="Enter your bid..."

@@ -213,17 +213,11 @@ export default function CreateProjectPage() {
                           >
                             INR
                           </button>
-                          <button 
-                            onClick={() => setTargetBudget(prev => ({ ...prev, currency: 'USD' }))}
-                            className={cn("px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-md transition-all", targetBudget.currency === 'USD' ? "bg-white dark:bg-slate-700 shadow-sm text-primary-600" : "text-slate-500")}
-                          >
-                            USD
-                          </button>
                         </div>
                       </div>
                       <div className="relative group">
                         <div className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-400 group-focus-within:text-primary-500 transition-colors">
-                          {targetBudget.currency === 'INR' ? '₹' : '$'}
+                          ₹
                         </div>
                         <input
                           type="number"

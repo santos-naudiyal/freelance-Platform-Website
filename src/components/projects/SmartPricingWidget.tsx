@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Loader2, DollarSign, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Sparkles, Loader2, IndianRupee, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { apiClient } from '../../lib/api/client';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -85,7 +85,7 @@ export function SmartPricingWidget({ outcome }: SmartPricingWidgetProps) {
               <div className="md:col-span-1 space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Market Range</p>
                 <div className="flex items-center gap-2 text-2xl font-display font-black text-slate-900 dark:text-white">
-                  <DollarSign size={24} className="text-emerald-500 stroke-[3]" />
+                  <IndianRupee size={24} className="text-emerald-500 stroke-[3]" />
                   {pricingData.minRate.toLocaleString()} - {pricingData.maxRate.toLocaleString()}
                 </div>
               </div>

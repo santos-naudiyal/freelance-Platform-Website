@@ -11,7 +11,7 @@ import {
   Briefcase, 
   FileText, 
   MessageSquare, 
-  DollarSign, 
+  IndianRupee, 
   Settings,
   User,
   CheckCircle2,
@@ -111,10 +111,10 @@ export default function FreelancerProjectDetailsPage() {
                {/* Stats Row */}
                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 shadow-sm relative overflow-hidden group">
-                     <div className="absolute -right-4 -top-4 text-emerald-500/10 group-hover:rotate-12 transition-transform duration-500"><DollarSign size={80} /></div>
+                     <div className="absolute -right-4 -top-4 text-emerald-500/10 group-hover:rotate-12 transition-transform duration-500"><IndianRupee size={80} /></div>
                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 relative z-10">Budget</p>
                      <p className="text-2xl font-display font-black text-slate-900 dark:text-white relative z-10">
-                       ${project.budget.max.toLocaleString()}
+                       ₹{project.budget.max.toLocaleString()}
                      </p>
                   </div>
                   <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 shadow-sm relative overflow-hidden group">

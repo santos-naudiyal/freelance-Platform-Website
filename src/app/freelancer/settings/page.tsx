@@ -225,7 +225,7 @@ export default function FreelancerSettingsPage() {
                       </div>
                       <CardTitle className="text-sm font-black tracking-widest uppercase">Pricing</CardTitle>
                     </div>
-                    <span className="text-xl font-black text-slate-950 dark:text-white">${hourlyRate}<span className="text-xs text-slate-400 font-bold">/hr</span></span>
+                    <span className="text-xl font-black text-slate-950 dark:text-white">₹{hourlyRate}<span className="text-xs text-slate-400 font-bold">/hr</span></span>
                   </div>
                 </CardHeader>
                 <CardContent className="p-8 space-y-6">

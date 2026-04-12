@@ -170,7 +170,7 @@ export default async function ExpertProfilePage({
               <div className="flex flex-wrap gap-4 items-center">
                 <div className="mr-6 py-4 px-6 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-500/10">
                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Standard Rate</p>
-                   <p className="text-xl font-black italic">${expert.hourlyRate}/hr</p>
+                   <p className="text-xl font-black italic">₹{expert.hourlyRate}/hr</p>
                 </div>
                 <Button variant="outline" className="h-[3.8rem] px-8 rounded-2xl font-black text-xs uppercase tracking-widest gap-2 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                   <MessageSquare size={18} />
@@ -258,7 +258,7 @@ export default async function ExpertProfilePage({
                 </div>
                 <div className="flex items-center justify-between text-sm font-bold">
                   <span className="text-slate-500">Standard Rate</span>
-                  <span className="text-slate-900 dark:text-white">$95 - $120/hr</span>
+                  <span className="text-slate-900 dark:text-white">₹95 - ₹120/hr</span>
                 </div>
                 <div className="flex items-center justify-between text-sm font-bold">
                   <span className="text-slate-500">Match Speed</span>

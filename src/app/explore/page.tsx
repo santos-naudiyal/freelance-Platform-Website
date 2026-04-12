@@ -142,7 +142,7 @@ export default function ExplorePage() {
                   <div className="flex items-center justify-between pt-6 border-t border-slate-50 dark:border-slate-800">
                     <div className="flex flex-col">
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Est. Rate</span>
-                      <span className="text-sm font-black text-slate-900 dark:text-white">$85 - $120/hr</span>
+                      <span className="text-sm font-black text-slate-900 dark:text-white">₹85 - ₹120/hr</span>
                     </div>
                     <button className="h-12 w-12 rounded-2xl bg-slate-950 dark:bg-slate-800 text-white flex items-center justify-center group-hover:bg-primary-600 transition-all shadow-xl shadow-slate-900/10 group-hover:shadow-primary-600/20">
                       <ArrowRight size={20} />

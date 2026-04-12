@@ -169,7 +169,7 @@ export default function ClientProposalsPage() {
                              <div className="space-y-1">
                                <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">Total Bid</p>
                                <p className="text-2xl font-black text-slate-950 dark:text-white">
-                                 ${(proposal.bidAmount || 0).toLocaleString()}
+                                 ₹{(proposal.bidAmount || 0).toLocaleString()}
                                </p>
                              </div>
                              <div className="space-y-1 text-right">

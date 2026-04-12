@@ -158,7 +158,7 @@ export function AIProjectPlanner({ outcome, onPlanGenerated }: { outcome: string
                 <div className="flex flex-col p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Estimated Investment</span>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{analysis.investment}</span>
+                    <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{analysis.investment.replace(/USD/g, 'INR').replace(/\$/g, '₹')}</span>
                   </div>
                   <p className="mt-4 text-[10px] font-medium text-slate-500">Based on elite market rates and project complexity.</p>
                 </div>

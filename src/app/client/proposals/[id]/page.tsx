@@ -216,29 +216,29 @@ export default function ProposalDetailPage() {
             <div className="lg:col-span-4 space-y-6">
               
               {/* Financial Box */}
-              <Card className="bg-slate-950 dark:bg-slate-900 border-none shadow-2xl shadow-slate-300 dark:shadow-none rounded-[35px] overflow-hidden text-white">
+              <Card className="bg-white dark:bg-slate-900 border-none shadow-2xl shadow-slate-300 dark:shadow-none rounded-[35px] overflow-hidden">
                  <CardContent className="p-8 space-y-8">
                     <div className="space-y-1">
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Bid Amount</p>
-                       <h2 className="text-5xl font-black flex items-start gap-1">
-                          <span className="text-2xl mt-2 text-primary-500">$</span>
+                       <h2 className="text-5xl font-black flex items-start gap-1 text-slate-950 dark:text-white">
+                          <span className="text-2xl mt-2 text-primary-500">₹</span>
                           {bidAmount.toLocaleString()}
                        </h2>
                     </div>
 
                     <div className="space-y-4">
-                       <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
-                          <Clock className="text-primary-400 shrink-0" size={20} />
+                       <div className="flex items-center gap-4 bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/10">
+                          <Clock className="text-primary-500 shrink-0" size={20} />
                           <div>
-                             <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">Est. Delivery</p>
-                             <p className="text-sm font-bold text-white">{proposal.deliveryTime || '1 Week'}</p>
+                             <p className="text-[8px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest">Est. Delivery</p>
+                             <p className="text-sm font-bold text-slate-900 dark:text-white">{proposal.deliveryTime || '1 Week'}</p>
                           </div>
                        </div>
-                       <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
-                          <Briefcase className="text-indigo-400 shrink-0" size={20} />
+                       <div className="flex items-center gap-4 bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/10">
+                          <Briefcase className="text-indigo-500 shrink-0" size={20} />
                           <div>
-                             <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">Project Type</p>
-                             <p className="text-sm font-bold text-white">Fixed Milestone</p>
+                             <p className="text-[8px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest">Project Type</p>
+                             <p className="text-sm font-bold text-slate-900 dark:text-white">Fixed Milestone</p>
                           </div>
                        </div>
                     </div>
@@ -257,17 +257,17 @@ export default function ProposalDetailPage() {
                              onClick={() => handleStatusUpdate('rejected')}
                              disabled={actionLoading}
                              variant="outline" 
-                             className="w-full h-14 rounded-2xl font-bold border-white/10 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all text-white/70"
+                             className="w-full h-14 rounded-2xl font-bold border-slate-200 dark:border-white/10 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all text-slate-600 dark:text-white/70"
                           >
                              <XCircle size={20} />
                              Decline Proposal
                           </Button>
                        </div>
                     ) : (
-                       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center space-y-2">
+                       <div className="bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-2xl p-6 text-center space-y-2">
                           <CheckCircle2 size={32} className={cn("mx-auto", proposal.status === 'accepted' ? 'text-emerald-500' : 'text-red-500')} />
-                          <p className="text-sm font-bold">This proposal has been {proposal.status}.</p>
-                          <p className="text-xs text-white/40">Action taken at {new Date().toLocaleDateString()}</p>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">This proposal has been {proposal.status}.</p>
+                          <p className="text-xs text-slate-400 dark:text-white/40">Action taken at {new Date().toLocaleDateString()}</p>
                        </div>
                     )}
                  </CardContent>

@@ -150,7 +150,7 @@ function CheckoutForm({
             <Loader2 className="animate-spin" size={16} /> Processing...
           </span>
         ) : (
-          `Pay $${amount.toLocaleString()}`
+          `Pay ₹${amount.toLocaleString()}`
         )}
       </button>
     </form>

@@ -58,7 +58,7 @@ const initialNotifications: Notification[] = [
     id: '3',
     type: 'payment',
     title: 'Payment released',
-    body: 'Milestone 1: UI/UX Final Prototype — $1,200 released from escrow.',
+    body: 'Milestone 1: UI/UX Final Prototype — ₹1,200 released from escrow.',
     time: '3 hours ago',
     read: false,
   },

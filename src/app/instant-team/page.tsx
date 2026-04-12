@@ -31,28 +31,28 @@ const TEAM_TEMPLATES = [
     roles: ['Flutter Developer', 'Backend Engineer', 'UI/UX Designer'],
     icon: '📱',
     timeline: '4–6 weeks',
-    budget: '$2,400–$4,000'
+    budget: '₹2,400–₹4,000'
   },
   {
     name: 'Web Platform Pack',
     roles: ['Backend Engineer', 'UI/UX Designer', 'Project Manager'],
     icon: '🌐',
     timeline: '6–8 weeks',
-    budget: '$3,800–$6,500'
+    budget: '₹3,800–₹6,500'
   },
   {
     name: 'Full Product Squad',
     roles: ['Flutter Developer', 'Backend Engineer', 'UI/UX Designer', 'Project Manager'],
     icon: '🚀',
     timeline: '8–12 weeks',
-    budget: '$6,000–$12,000'
+    budget: '₹6,000–₹12,000'
   },
 ];
 
 const SUGGESTED_EXPERTS = [
-  { name: 'Sarah Chen', role: 'Flutter Developer', rating: 4.9, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah', rate: '$95/hr' },
-  { name: 'Marcus Volkov', role: 'Backend Engineer', rating: 4.8, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus', rate: '$110/hr' },
-  { name: 'Alex Rivera', role: 'UI/UX Designer', rating: 5.0, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex', rate: '$85/hr' },
+  { name: 'Sarah Chen', role: 'Flutter Developer', rating: 4.9, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah', rate: '₹95/hr' },
+  { name: 'Marcus Volkov', role: 'Backend Engineer', rating: 4.8, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus', rate: '₹110/hr' },
+  { name: 'Alex Rivera', role: 'UI/UX Designer', rating: 5.0, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex', rate: '₹85/hr' },
 ];
 
 export default function InstantTeamPage() {

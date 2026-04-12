@@ -210,7 +210,7 @@ export default function BrowseProjectsPage() {
                          <div className="flex w-full flex-col items-start justify-between gap-6 sm:flex-row sm:items-end lg:w-auto lg:min-w-[260px] lg:flex-col lg:items-end lg:gap-8">
                            <div className="space-y-1 text-left sm:text-right lg:text-right">
                              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-950 dark:text-white tracking-tighter">
-                               ${(project.budget?.min || 0).toLocaleString()} - ${(project.budget?.max || 0).toLocaleString()}
+                               ₹{(project.budget?.min || 0).toLocaleString()} - ₹{(project.budget?.max || 0).toLocaleString()}
                              </p>
                              <div className="flex items-center gap-2 justify-center sm:justify-end lg:justify-end">
                                 <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />

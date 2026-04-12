@@ -93,7 +93,7 @@ export default function FreelancerProposalsPage() {
                               {proposal.projectTitle || 'Untitled Project'}
                             </h4>
                             <p className="text-sm text-slate-500 font-medium">
-                              Bid: ${proposal.bidAmount} • Sent on {new Date(proposal.createdAt).toLocaleDateString()}
+                              Bid: ₹{proposal.bidAmount} • Sent on {new Date(proposal.createdAt).toLocaleDateString()}
                             </p>
                           </div>
                         </div>

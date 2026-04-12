@@ -35,7 +35,7 @@ export function Payments({ workspaceId }: PaymentsProps) {
         </div>
         <div className="text-right">
           <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Total Contract Value</div>
-          <div className="text-4xl font-display font-black tracking-tight text-slate-900 dark:text-white">${totalAmount.toLocaleString()}</div>
+          <div className="text-4xl font-display font-black tracking-tight text-slate-900 dark:text-white">₹{totalAmount.toLocaleString()}</div>
         </div>
       </div>
 
@@ -125,7 +125,7 @@ export function Payments({ workspaceId }: PaymentsProps) {
                     milestone.status === 'in_progress' ? "text-primary-600 dark:text-primary-400" :
                     "text-slate-400"
                   )}>
-                    ${amount.toLocaleString()}
+                    ₹{amount.toLocaleString()}
                   </div>
                   {milestone.status === 'released' ? (
                      <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-end gap-1"><Unlock size={14}/> Funds Released</div>

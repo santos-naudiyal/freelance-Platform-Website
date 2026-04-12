@@ -206,8 +206,7 @@ export function ProjectQuotation({ outcome, targetBudget }: { outcome: string; t
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
               <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[2rem] shadow-inner w-full sm:w-auto">
-                <MarketToggle active={market === 'indianMarket'} onClick={() => setMarket('indianMarket')} icon={<IndianRupee size={14} />} label="Indian" />
-                <MarketToggle active={market === 'globalMarket'} onClick={() => setMarket('globalMarket')} icon={<Globe size={14} />} label="Global" />
+                <MarketToggle active={true} onClick={() => {}} icon={<IndianRupee size={14} />} label="Indian Market" />
               </div>
               <Button 
                 onClick={downloadPDF}

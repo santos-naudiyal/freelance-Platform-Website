@@ -143,7 +143,7 @@ export default function ProjectProposalsPage() {
                  <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 shadow-premium">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Budget Range</p>
                     <p className="text-2xl font-display font-black text-slate-900 dark:text-white">
-                      ${project.budget.min.toLocaleString()} - ${project.budget.max.toLocaleString()}
+                      ₹{project.budget.min.toLocaleString()} - ₹{project.budget.max.toLocaleString()}
                     </p>
                  </div>
                  <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 shadow-premium">
@@ -218,7 +218,7 @@ export default function ProjectProposalsPage() {
                           </div>
                           <div className="text-right">
                              <p className="text-2xl font-display font-black text-slate-900 dark:text-white">
-                               ${proposal.bidAmount?.toLocaleString() || proposal.rate.toLocaleString()}
+                               ₹{proposal.bidAmount?.toLocaleString() || proposal.rate.toLocaleString()}
                              </p>
                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fixed Bid</p>
                           </div>

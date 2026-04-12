@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/Button';
 export default function AdminDashboard() {
   const stats = [
     { label: 'Active Workspaces', value: '1,240', trend: '+12%', color: 'text-primary-600' },
-    { label: 'Escrow Volume', value: '$2.4M', trend: '+18%', color: 'text-emerald-600' },
+    { label: 'Escrow Volume', value: '₹2.4M', trend: '+18%', color: 'text-emerald-600' },
     { label: 'Verification Queue', value: '42', trend: 'Priority', color: 'text-amber-600' },
     { label: 'Platform Health', value: '99.9%', trend: 'Stable', color: 'text-blue-600' },
   ];
