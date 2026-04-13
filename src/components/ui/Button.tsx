@@ -1,11 +1,10 @@
 import React, { ButtonHTMLAttributes } from 'react';
 import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 import { Loader2 } from 'lucide-react';
 
-// Using clsx directly since tailwind-merge isn't installed.
-// We'll keep our base classes simple to avoid conflicts.
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
