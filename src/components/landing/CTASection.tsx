@@ -28,24 +28,34 @@ export function CTASection() {
           </div>
 
           <h2 className="text-3xl sm:text-5xl md:text-7xl font-display font-black leading-[1.1] tracking-tighter">
-            Ready to build <br className="hidden md:block" />
-            <span className="text-gradient from-primary-400 to-indigo-400">Your Vision?</span>
+            {user?.role === 'freelancer' ? (
+              <>
+                Ready to find <br className="hidden md:block" />
+                <span className="text-gradient from-primary-400 to-indigo-400">Your Next Project?</span>
+              </>
+            ) : (
+              <>
+                Ready to build <br className="hidden md:block" />
+                <span className="text-gradient from-primary-400 to-indigo-400">Your Vision?</span>
+              </>
+            )}
           </h2>
           
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg md:text-xl">
-            Describe your outcome and watch our AI-powered OS assemble your dream team and project workspace in minutes. 
-            Join the elite circle of builders on FreelanceHub.
+            {user?.role === 'freelancer'
+              ? "Showcase your skills and let our AI match you with premium clients and high-paying projects. Join the elite circle of professionals on FreelanceHub."
+              : "Describe your outcome and watch our AI-powered OS assemble your dream team and project workspace in minutes. Join the elite circle of builders on FreelanceHub."}
           </p>
 
           <div className="flex flex-col justify-center gap-4 pt-4 sm:flex-row sm:gap-5 sm:pt-8">
-            <Link href={user ? '/create-project' : '/auth/register'} className="w-full sm:w-auto">
+            <Link href={user?.role === 'freelancer' ? '/freelancer/dashboard' : (user ? '/create-project' : '/auth/register')} className="w-full sm:w-auto">
               <Button size="lg" className="h-14 w-full rounded-full bg-gradient-to-r from-primary-600 to-indigo-600 px-8 text-base font-black text-white shadow-xl shadow-primary-500/20 transition-all duration-300 hover:scale-105 active:scale-95 group sm:w-auto sm:px-10 sm:text-lg">
-                {user ? 'Create a Project' : 'Join as Client'} <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                {user?.role === 'freelancer' ? 'Dashboard' : (user ? 'Create a Project' : 'Join as Client')} <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="/freelancers/discover" className="w-full sm:w-auto">
+            <Link href={user?.role === 'freelancer' ? '/projects' : '/freelancers/discover'} className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="h-14 w-full rounded-full border-white/20 px-8 text-base font-bold text-white hover:bg-white/10 sm:w-auto sm:px-10 sm:text-lg">
-                Explore Experts
+                {user?.role === 'freelancer' ? 'Explore Projects' : 'Explore Experts'}
               </Button>
             </Link>
           </div>

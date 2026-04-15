@@ -76,8 +76,17 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight text-white leading-[1.05] md:leading-[0.95]"
           >
-            Build anything with<br className="hidden sm:block" />
-            <span className="text-gradient filter drop-shadow-sm"> freelancers worldwide</span>
+            {user?.role === 'freelancer' ? (
+              <>
+                Find premium projects to <br className="hidden sm:block" />
+                <span className="text-gradient filter drop-shadow-sm"> accelerate your career</span>
+              </>
+            ) : (
+              <>
+                Build anything with<br className="hidden sm:block" />
+                <span className="text-gradient filter drop-shadow-sm"> freelancers worldwide</span>
+              </>
+            )}
           </motion.h1>
 
           <motion.p 
@@ -86,8 +95,10 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="max-w-3xl px-2 text-base leading-relaxed text-slate-400 sm:px-0 sm:text-lg md:text-2xl"
           >
-            Describe your project and get an AI-powered quotation instantly.
-            Connect with verified freelancers worldwide, launch faster, and manage every milestone in one workspace.
+            {user?.role === 'freelancer' 
+              ? "Connect with industry-leading clients, showcase your talent, and secure high-paying gigs globally."
+              : "Describe your project and get an AI-powered quotation instantly. Connect with verified freelancers worldwide, launch faster, and manage every milestone in one workspace."
+            }
           </motion.p>
 
           <motion.div 
@@ -100,7 +111,7 @@ export function HeroSection() {
             <div className="relative flex flex-col items-stretch gap-3 rounded-[2rem] border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-2xl sm:flex-row sm:items-center sm:rounded-[2.5rem] sm:p-3">
               <div className="flex-1 px-6 sm:px-8 py-3 sm:py-0 border-b sm:border-b-0 sm:border-r border-white/10 group-focus-within:border-primary-500/50 transition-colors">
                 <label htmlFor="project-creator" className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary-400 mb-1.5">
-                  What do you want to build?
+                  {user?.role === 'freelancer' ? 'What skills are you offering?' : 'What do you want to build?'}
                 </label>
                 <input 
                   id="project-creator"
@@ -110,7 +121,7 @@ export function HeroSection() {
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') handleGetStarted();
                   }}
-                  placeholder="e.g. Build a mobile app..."
+                  placeholder={user?.role === 'freelancer' ? "e.g. React Developer, UI Designer..." : "e.g. Build a mobile app..."}
                   className="w-full bg-transparent border-none p-0 text-base font-bold text-white placeholder:text-slate-500 focus:ring-0 sm:text-xl"
                 />
               </div>
@@ -124,7 +135,10 @@ export function HeroSection() {
             </div>
             
             <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:mt-6 sm:gap-3">
-              {['Build Flutter app', 'Create landing page', 'Automate business process'].map((example) => (
+              {(user?.role === 'freelancer' 
+                ? ['React Developer', 'UI/UX Design', 'Smart Contract'] 
+                : ['Build Flutter app', 'Create landing page', 'Automate business process']
+              ).map((example) => (
                 <button 
                   key={example}
                   onClick={() => handleExampleClick(example)}

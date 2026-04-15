@@ -1,10 +1,12 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { ShieldCheck, Zap, Globe, MessageSquare, ClipboardCheck, Award } from 'lucide-react';
+import { Zap, Globe, Award, MessageSquare, ClipboardCheck, ShieldCheck } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function FeaturesSection() {
-  const features = [
+  const { user } = useAuthStore();
+  const clientFeatures = [
     {
       title: 'AI Outcome Designer',
       description: 'Describe your goal in natural language. Our AI breaks it down into a structured project with tasks and milestones.',
@@ -43,6 +45,47 @@ export function FeaturesSection() {
     },
   ];
 
+  const freelancerFeatures = [
+    {
+      title: 'AI Project Matching',
+      description: 'Get matched with high-paying projects that perfectly fit your skills and expertise automatically.',
+      icon: Zap,
+      color: 'from-amber-500 to-orange-500',
+    },
+    {
+      title: 'Dedicated Workspaces',
+      description: 'Run your projects in a unified workspace. Task management, files, and chat all in one place.',
+      icon: Globe,
+      color: 'from-blue-500 to-cyan-500',
+    },
+    {
+      title: 'Premium Clients',
+      description: 'Connect with established businesses and promising startups looking for top-tier talent like you.',
+      icon: Award,
+      color: 'from-indigo-500 to-purple-500',
+    },
+    {
+      title: 'Streamlined Collaboration',
+      description: 'Keep clients in the loop with real-time updates of your tasks, commits, and deliverables.',
+      icon: MessageSquare,
+      color: 'from-primary-500 to-violet-500',
+    },
+    {
+      title: 'Guaranteed Payments',
+      description: 'Work with peace of mind. Clear milestones and approvals mean you get paid faster for completed tasks.',
+      icon: ClipboardCheck,
+      color: 'from-rose-500 to-pink-500',
+    },
+    {
+      title: 'Build Your Reputation',
+      description: 'Earn badges, perfect ratings, and scale your freelance business on a platform built for elite professionals.',
+      icon: ShieldCheck,
+      color: 'from-emerald-500 to-teal-500',
+    },
+  ];
+
+  const features = user?.role === 'freelancer' ? freelancerFeatures : clientFeatures;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -68,11 +111,22 @@ export function FeaturesSection() {
           className="mx-auto mb-14 max-w-4xl space-y-5 text-center sm:mb-20 sm:space-y-6"
         >
           <h2 className="text-3xl sm:text-4xl md:text-7xl font-display font-black text-slate-950 dark:text-white leading-[1.2] md:leading-[1.1] tracking-tighter">
-            The Operating System for <br className="hidden sm:block" />
-            <span className="text-gradient">Elite Outcomes</span>
+            {user?.role === 'freelancer' ? (
+              <>
+                The Operating System for <br className="hidden sm:block" />
+                <span className="text-gradient">Elite Freelancers</span>
+              </>
+            ) : (
+              <>
+                The Operating System for <br className="hidden sm:block" />
+                <span className="text-gradient">Elite Outcomes</span>
+              </>
+            )}
           </h2>
           <p className="text-base md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto px-4 sm:px-0">
-            Traditional marketplaces are just job boards. We&apos;ve built an execution layer that turns your vision into a managed reality.
+            {user?.role === 'freelancer'
+              ? "Traditional platforms just give you a profile. We've built an execution layer that helps you attract premium clients and manage work seamlessly."
+              : "Traditional marketplaces are just job boards. We've built an execution layer that turns your vision into a managed reality."}
           </p>
         </motion.div>
 
