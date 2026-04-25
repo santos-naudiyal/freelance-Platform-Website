@@ -142,11 +142,22 @@ export const updateUserProfile = async (req: AuthRequest, res: Response): Promis
     await db.collection('Users').doc(uid as string).update(updateData);
 
     // Sync with Firebase Auth
-    if (name || avatar) {
-      await auth.updateUser(uid, {
-        displayName: name || undefined,
-        photoURL: avatar || undefined
-      });
+    if (name || avatar !== undefined) {
+      const authUpdate: any = {};
+      if (name) authUpdate.displayName = name;
+      
+      // Only update photoURL if it's a valid URL or explicitly null
+      if (avatar !== undefined) {
+        if (avatar === null || (typeof avatar === 'string' && avatar.startsWith('http'))) {
+          authUpdate.photoURL = avatar;
+        } else {
+          console.warn(`Skipping auth photoURL update: "${avatar}" is not a valid URL`);
+        }
+      }
+
+      if (Object.keys(authUpdate).length > 0) {
+        await auth.updateUser(uid, authUpdate);
+      }
     }
 
     res.status(200).json({ message: 'Profile updated successfully', data: updateData });
