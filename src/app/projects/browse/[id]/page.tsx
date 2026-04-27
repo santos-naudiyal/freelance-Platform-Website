@@ -158,7 +158,7 @@ export default function ProjectDetailsPage() {
                   {/* Header Content */}
                   <div className="space-y-4">
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant={project?.status === 'open' ? 'success' : 'secondary'} className="uppercase tracking-widest text-[10px] font-black px-3 py-1">
+                      <Badge variant={project?.status === 'open' ? 'success' : 'default'} className="uppercase tracking-widest text-[10px] font-black px-3 py-1">
                         {project?.status === 'open' ? 'Accepting Bids' : 'Bidding Closed'}
                       </Badge>
                       <Badge variant="info" className="uppercase tracking-widest text-[10px] font-black px-3 py-1">Featured</Badge>
